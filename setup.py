@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.1.15',
+  version = '0.0.0',
   description = 'SacreMoses',
   author = '',
   license = '',
