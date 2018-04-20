@@ -1,5 +1,10 @@
 # mosestokenizer
-Cos we have to... Thanks to LGPL
+
+
+License
+====
+
+GNU Lesser General Public License version 2.1 or, at your option, any later version.
 
 Install
 ====
