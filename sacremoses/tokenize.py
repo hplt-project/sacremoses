@@ -72,7 +72,6 @@ class MosesTokenizer:
     RESTORE_ELLIPSIS = r'_ELLIPSIS_', r'\.\.\.'
 
     # Pad , with tailing space except if within numbers, e.g. 5,300
-    # These are used in nltk.tokenize.moses.penn_tokenize()
     COMMA_1 = u'([^{numbers}])[,]([^{numbers}])'.format(numbers=IsN), r'\1 , \2'
     COMMA_2 = u'([{numbers}])[,]([^{numbers}])'.format(numbers=IsN), r'\1 , \2'
     COMMA_3 = u'([^{numbers}])[,]([{numbers}])'.format(numbers=IsN), r'\1 , \2'
