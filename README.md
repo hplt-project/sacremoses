@@ -11,7 +11,8 @@ pip install -U sacremoses
 Usage
 ====
 
-```
+```python
+>>> from sacremoses import MosesTokenizer, MosesDetokenizer
 >>> mt = MosesTokenizer()
 >>> text = u'This, is a sentence with weird\xbb symbols\u2026 appearing everywhere\xbf'
 >>> expected_tokenized = u'This , is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf'
