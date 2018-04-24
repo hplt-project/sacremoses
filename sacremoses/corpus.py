@@ -91,6 +91,8 @@ class NonbreakingPrefixes:
         elif lang == None:
             filenames = ['nonbreaking_prefix.'+v for v in
                          set(self.available_langs.values())]
+        else:
+            filenames = ['nonbreaking_prefix.en']
 
         for filename in filenames:
             with open(self.datadir+filename) as fin:
