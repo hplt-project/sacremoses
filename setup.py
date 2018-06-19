@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.2',
+  version = '0.0.3',
   description = 'SacreMoses',
   long_description = 'LGPL MosesTokenizer in Python',
   author = '',
