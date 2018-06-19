@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import io
 import os
 
 class Perluniprops:
@@ -34,7 +35,7 @@ class Perluniprops:
 
         :return: a generator of characters given the specific unicode character category
         """
-        with open(self.datadir+category+'.txt') as fin:
+        with io.open(self.datadir+category+'.txt', encoding='utf8') as fin:
             for ch in fin.read().strip():
                 yield ch
 
@@ -95,7 +96,7 @@ class NonbreakingPrefixes:
             filenames = ['nonbreaking_prefix.en']
 
         for filename in filenames:
-            with open(self.datadir+filename) as fin:
+            with io.open(self.datadir+filename, encoding='utf8') as fin:
                 for line in fin:
                     line = line.strip()
                     if line and not line.startswith(ignore_lines_startswith):
