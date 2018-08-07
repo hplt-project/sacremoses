@@ -13,7 +13,7 @@ perluniprops = Perluniprops()
 nonbreaking_prefixes = NonbreakingPrefixes()
 
 
-class MosesTokenizer:
+class MosesTokenizer(object):
     """
     This is a Python port of the Moses Tokenizer from
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/tokenizer/tokenizer.perl
@@ -343,7 +343,7 @@ class MosesTokenizer:
         return text if return_str else text.split()
 
 
-class MosesDetokenizer:
+class MosesDetokenizer(object):
     """
     This is a Python port of the Moses Detokenizer from
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/tokenizer/detokenizer.perl
