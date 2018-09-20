@@ -32,6 +32,13 @@ class TestTokenzier(unittest.TestCase):
         assert moses.tokenize(text, escape=True) == expected_tokens_with_xmlescape
         assert moses.tokenize(text, escape=False) == expected_tokens_wo_xmlescape
 
+    def test_aggressive_split(self):
+        moses = MosesTokenizer()
+        expected_tokens_wo_aggressive_dash_split = ['foo-bar']
+        expected_tokens_with_aggressive_dash_split = ['foo', '@-@', 'bar']
+
+        assert moses.tokenize('foo-bar') == expected_tokens_wo_aggressive_dash_split
+        assert moses.tokenize('foo-bar', aggressive_dash_splits=True) == expected_tokens_with_aggressive_dash_split
 
 class TestDetokenizer(unittest.TestCase):
     def test_moses_detokenize(self):
@@ -40,7 +47,8 @@ class TestDetokenizer(unittest.TestCase):
 
         text = u'This, is a sentence with weird\xbb symbols\u2026 appearing everywhere\xbf'
         expected_tokens = mt.tokenize(text)
-        expected_detokens = = u'This , is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf'
+        expected_detokens = u'This, is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf'
+
         assert md.detokenize(expected_tokens) == expected_detokens
 
         text = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [ ] & You're gonna shake it off? Don't?"
@@ -48,3 +56,10 @@ class TestDetokenizer(unittest.TestCase):
         expected_detokens = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [] & You're gonna shake it off? Don't?"
         assert mt.tokenize(text) == expected_tokens
         assert md.detokenize(expected_tokens) == expected_detokens
+
+    def test_detokenize_with_aggressive_split(self):
+        mt = MosesTokenizer()
+        md = MosesDetokenizer()
+
+        text = 'foo-bar'
+        assert md.detokenize(mt.tokenize(text, aggressive_dash_splits=True)) == text
