@@ -40,7 +40,7 @@ class MosesTokenizer(object):
     PAD_NOT_ISALNUM = u'([^{}\s\.\'\`\,\-])'.format(IsAlnum), r' \1 '
 
     # Splits all hypens (regardless of circumstances), e.g.
-    # 'foo -- bar' -> 'foo @-@ @-@ bar' , 'foo-bar' -> 'foo @-@ bar'
+    # 'foo-bar' -> 'foo @-@ bar'
     AGGRESSIVE_HYPHEN_SPLIT = u'([{alphanum}])\-(?=[{alphanum}])'.format(alphanum=IsAlnum), r'\1 @-@ '
 
     # Make multi-dots stay together.
