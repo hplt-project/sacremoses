@@ -41,7 +41,7 @@ class MosesTokenizer(object):
 
     # Splits all hypens (regardless of circumstances), e.g.
     # 'foo -- bar' -> 'foo @-@ @-@ bar' , 'foo-bar' -> 'foo @-@ bar'
-    AGGRESSIVE_HYPHEN_SPLIT = u'([{alphanum}])\-(?=[{alphanum}])'.format(alphanum=IsAlnum), r'\1 \@-\@ '
+    AGGRESSIVE_HYPHEN_SPLIT = u'([{alphanum}])\-(?=[{alphanum}])'.format(alphanum=IsAlnum), r'\1 @-@ '
 
     # Make multi-dots stay together.
     REPLACE_DOT_WITH_LITERALSTRING_1 = r'\.([\.]+)', ' DOTMULTI\1'
