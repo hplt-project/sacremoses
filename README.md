@@ -1,5 +1,6 @@
 # mosestokenizer
 
+[![Build Status](https://travis-ci.org/alvations/sacremoses.svg?branch=master)](https://travis-ci.org/alvations/sacremoses)
 
 License
 ====
