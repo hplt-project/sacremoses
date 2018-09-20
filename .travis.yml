@@ -1,0 +1,18 @@
+sudo: false
+
+language: python
+
+dist: xenial
+
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+
+cache: pip
+
+install: # Only 1 dependency for text_type()
+  - pip install six
+
+script:
+  - python -m unittest discover sacremoses/test/
