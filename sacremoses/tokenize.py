@@ -39,7 +39,7 @@ class MosesTokenizer(object):
     # Pad all "other" special characters not in IsAlnum.
     PAD_NOT_ISALNUM = u'([^{}\s\.\'\`\,\-])'.format(IsAlnum), r' \1 '
 
-    # Splits all hypens (regardless of circumstances), e.g.
+    # Splits all hyphens (regardless of circumstances), e.g.
     # 'foo-bar' -> 'foo @-@ bar'
     AGGRESSIVE_HYPHEN_SPLIT = u'([{alphanum}])\-(?=[{alphanum}])'.format(alphanum=IsAlnum), r'\1 @-@ '
 
