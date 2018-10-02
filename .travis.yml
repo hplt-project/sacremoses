@@ -4,6 +4,11 @@ language: python
 
 dist: xenial
 
+addons:
+  apt:
+    packages:
+      - expect-dev
+
 python:
   - "2.7"
   - "3.5"
@@ -15,4 +20,4 @@ install: # Only 1 dependency for text_type()
   - pip install six
 
 script:
-  - python -m unittest discover sacremoses/test/ -v
+  - unbuffer python -m unittest discover sacremoses/test/ -v
