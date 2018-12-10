@@ -27,8 +27,8 @@ class MosesTruecaser(object):
         # Initialize the object.
         super(MosesTruecaser, self).__init__()
         # Initialize the language specific nonbreaking prefixes.
-        self.SKIP_LETTERS_REGEX = r"[{}{}{}]".format(Lowercase_Letter,
-                                    Uppercase_Letter, Titlecase_Letter)
+        self.SKIP_LETTERS_REGEX = r"[{}{}{}]".format(self.Lowercase_Letter,
+                                    self.Uppercase_Letter, self.Titlecase_Letter)
 
         self.SENT_END = [".", ":", "?", "!"]
         self.DELAYED_SENT_START = ["(", "[", "\"", "'", "&apos;", "&quot;", "&#91;", "&#93;"]
@@ -53,7 +53,7 @@ class MosesTruecaser(object):
                         continue
 
                     # Skips words with nothing to case.
-                    if not re.search(r"[{}]".format(ll_lu_lt), token):
+                    if not re.search(self.SKIP_LETTERS_REGEX, token):
                         is_first_word = False
                         continue
 
