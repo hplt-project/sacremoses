@@ -40,6 +40,17 @@ class TestTokenzier(unittest.TestCase):
         assert moses.tokenize('foo-bar') == expected_tokens_wo_aggressive_dash_split
         assert moses.tokenize('foo-bar', aggressive_dash_splits=True) == expected_tokens_with_aggressive_dash_split
 
+    def test_opening_brackets(self):
+        moses = MosesTokenizer()
+
+        text = "By the mid 1990s a version of the game became a Latvian television series (with a parliamentary setting, and played by Latvian celebrities)."
+
+        # echo By the mid 1990s a version of the game became a Latvian television series (with a parliamentary setting, and played by Latvian celebrities). | perl mosesdecoder\scripts\tokenizer\tokenizer.perl en
+        expected_tokens = "By the mid 1990s a version of the game became a Latvian television series ( with a parliamentary setting , and played by Latvian celebrities ) .".split()
+
+        assert moses.tokenize(text) == expected_tokens
+
+
 class TestDetokenizer(unittest.TestCase):
     def test_moses_detokenize(self):
         mt = MosesTokenizer()
@@ -63,3 +74,11 @@ class TestDetokenizer(unittest.TestCase):
 
         text = 'foo-bar'
         assert md.detokenize(mt.tokenize(text, aggressive_dash_splits=True)) == text
+
+    def test_opening_brackets(self):
+        tokenizer = MosesTokenizer()
+        detokenizer = MosesDetokenizer()
+
+        text = "By the mid 1990s a version of the game became a Latvian television series (with a parliamentary setting, and played by Latvian celebrities)."
+
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text

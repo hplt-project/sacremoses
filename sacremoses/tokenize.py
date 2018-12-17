@@ -450,7 +450,7 @@ class MosesDetokenizer(object):
                 prepend_space = " "
 
             # If it's a currency symbol.
-            elif token in self.IsSc:
+            elif re.search(u"^[" + self.IsSc + u"\(\[\{\¿\¡]+$", token):
                 # Perform right shift on currency and other random punctuation items
                 detokenized_text += prepend_space + token
                 prepend_space = ""
