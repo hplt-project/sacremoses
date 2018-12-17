@@ -130,10 +130,11 @@ class MosesTruecaser(object):
                 # Keep track of first words in the sentence(s) of the line.
                 is_first_word = True
                 truecased_tokens = []
-                for i, token in enumerate(split_xml(line)):
-                    # Skip XML tags.
+                for i, token in enumerate(self.split_xml(line)):
+                    # Append XML tags and continue
                     if re.search(r"(<\S[^>]*>)", token):
                         truecased_tokens.append(token)
+                        continue
 
                     # Reads the word token and factors separatedly
                     word, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
@@ -142,7 +143,7 @@ class MosesTruecaser(object):
                     if self.is_asr:
                         word = word.lower()
 
-                    # The actual case replacement is applied here.
+                    # The actual case replacement happens here.
                     # "Most frequent" case of the word.
                     best_case = self.model['best'].get(word.lower(), None)
                     # Other known cases of the word.
@@ -156,7 +157,13 @@ class MosesTruecaser(object):
                         word = best_case
                     # Else, it's an unknown word, don't change the word.
                     # Concat the truecased `word` with the `other_factors`
-                    word = ''.join(word, other_factos)
+                    word = word + other_factors
+
+                    # Adds the truecased word.
+                    truecased_tokens.append(word)
+
+                # Yield the truecased line.
+                yield " ".join(truecased_tokens)
 
     @staticmethod
     def split_xml(line):
