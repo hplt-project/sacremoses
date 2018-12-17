@@ -14,14 +14,14 @@ from sacremoses.truecase import MosesTruecaser
 # From https://stackoverflow.com/a/47897956/610569
 try: # Try importing Python3 urllib
     import urllib.request
-except AttributeError: # Now importing Python2 urllib
+except ImportError: # Now importing Python2 urllib
     import urllib
 
 def get_content(url):
     try: # Using Python3 urllib.
         with urllib.request.urlopen(url) as response:
             return response.read() # Returns http.client.HTTPResponse.
-    except ImportError: # Using Python3 urllib.
+    except AttributeError: # Using Python3 urllib.
         return urllib.urlopen(url).read() # Returns an instance.
 
 
