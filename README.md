@@ -43,21 +43,21 @@ True
 **Truecaser**
 
 ```python
-from sacremoses import MosesTruecaser
+>>> from sacremoses import MosesTruecaser
 
 # Train a new truecaser from a 'big.txt' file.
-mtr = MosesTruecaser()
-mtr.train_from_file('big.txt)
+>>> mtr = MosesTruecaser()
+>>> mtr.train_from_file('big.txt)
 
 # Save the truecase model to 'big.truecasemodel' using `save_to`
-mtr = MosesTruecaser()
-mtr.train_from_file('big.txt', save_to='big.truecasemodel')
+>>> mtr = MosesTruecaser()
+>>> mtr.train_from_file('big.txt', save_to='big.truecasemodel')
 
 # Save the truecase model to 'big.truecasemodel' after training
 # (just in case you forgot to use `save_to`)
-mtr = MosesTruecaser()
-mtr.train('big.txt')
-mtr._save_model('big.truecasemodel')
+>>> mtr = MosesTruecaser()
+>>> mtr.train('big.txt')
+>>> mtr._save_model('big.truecasemodel')
 
 # Truecase a string using trained model.
 >>> mtr = MosesTruecaser()
@@ -73,10 +73,10 @@ mtr._save_model('big.truecasemodel')
 >>> list(mtr.truecase_file('big.txt')) # Returns one sentence per line.
 
 # Write to a truecase_file output to a file.
-mtr = MosesTruecaser()
-mtr.train('big.txt')
-with open('big.truecased', 'w') as fout:
-    fout.write('\n'.join(mtr.truecase_file('big.txt')))
+>>> mtr = MosesTruecaser()
+>>> mtr.train('big.txt')
+>>> with open('big.truecased', 'w') as fout:
+...     fout.write('\n'.join(mtr.truecase_file('big.txt')))
 
 # Load the truecase model from 'big.truecasemodel'
 >>> mtr = MosesTruecaser('big.truecasemodel')
