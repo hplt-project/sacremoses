@@ -7,7 +7,7 @@ import re
 from collections import defaultdict, Counter
 try: # Python3
     from itertools import zip_longest
-except: # Python2
+except ImportError: # Python2
     from itertools import izip_longest as zip_longest
 
 from six import text_type
