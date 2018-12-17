@@ -50,6 +50,8 @@ class TestTokenzier(unittest.TestCase):
                 self.big_txt = fin.read()
         else: # Otherwise, download the big.txt.
             self.big_txt = get_content("https://norvig.com/big.txt").decode('utf8')
+            with open('big.txt', 'w') as fout:
+                fout.write(self.big_txt)
 
         # Test case where inputs are all caps.
         caps_input = "THE ADVENTURES OF SHERLOCK HOLMES"
