@@ -19,7 +19,7 @@ except AttributeError: # Now importing Python2 urllib
 
 def get_content(url):
     try: # Using Python3 urllib.
-        with urllib.request.urlopen(index_url) as response:
+        with urllib.request.urlopen(url) as response:
             return response.read() # Returns http.client.HTTPResponse.
     except AttributeError: # Using Python3 urllib.
         return urllib.urlopen(url).read() # Returns an instance.
