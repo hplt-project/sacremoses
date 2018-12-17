@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import re
+from __future__ import print_function
 
+import re
 from collections import defaultdict, Counter
 from itertools import zip_longest
 
