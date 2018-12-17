@@ -60,8 +60,83 @@ class MosesTruecaser(object):
         if load_from:
             self.model = self._load_model(load_from)
 
-    def train(self, filename, save_to=None, possibly_use_first_token=False):
+    def learn_truecase_weights(self, tokens, possibly_use_first_token=False):
         """
+        This function checks through each tokens in a sentence and returns the
+        appropriate weight of each surface token form.
+        """
+        # Keep track of first words in the sentence(s) of the line.
+        is_first_word = True
+        for i, token in enumerate(tokens):
+            # Skip XML tags.
+            if re.search(r"(<\S[^>]*>)", token):
+                continue
+            # Skip if sentence start symbols.
+            elif token in self.DELAYED_SENT_START:
+                continue
+
+            # Resets the `is_first_word` after seeing sent end symbols.
+            if not is_first_word and token in self.SENT_END:
+                is_first_word = True
+                continue
+            # Skips words with nothing to case.
+            if not self.SKIP_LETTERS_REGEX.search(token):
+                is_first_word = False
+                continue
+
+            # If it's not the first word,
+            # then set the current word weight to 1.
+            current_word_weight = 0
+            if not is_first_word:
+                current_word_weight = 1
+            # Otherwise check whether user wants to optionally
+            # use the first word.
+            elif possibly_use_first_token:
+                # Gated special handling of first word of sentence.
+                # Check if first characer of token is lowercase.
+                if token[0].is_lower():
+                    current_word_weight = 1
+                elif i == 1:
+                    current_word_weight = 0.1
+
+            if current_word_weight > 0:
+                yield token.lower(), token, current_word_weight
+
+            is_first_word = False
+
+
+    def train(self, documents, save_to=None, possibly_use_first_token=False):
+        """
+        :param documents: The input document, each outer list is a sentence,
+                          the inner list is the list of tokens for each sentence.
+        :type documents: list(list(str))
+
+        :param possibly_use_first_token: When True, on the basis that the first
+            word of a sentence is always capitalized; if this option is provided then:
+            a) if a sentence-initial token is *not* capitalized, then it is counted, and
+            b) if a capitalized sentence-initial token is the only token of the segment,
+               then it is counted, but with only 10% of the weight of a normal token.
+        :type possibly_use_first_token: bool
+
+        :returns: A dictionary of the best, known objects as values from `_casing_to_model()`
+        :rtype: {'best': dict, 'known': Counter}
+        """
+        casing = defaultdict(Counter)
+        for sent in documents:
+            token_weights = self.learn_truecase_weights(sent, possibly_use_first_token)
+            for lowercase_token, surface_token, weight in token_weights:
+                casing[lowercase_token][surface_token] += weight
+
+        # Save to file if specified.
+        if save_to:
+            self._save_model(casing, save_to)
+        self.model = self._casing_to_model(casing)
+        return self.model
+
+
+    def train_from_file(self, filename, save_to=None, possibly_use_first_token=False):
+        """
+
         :param possibly_use_first_token: When True, on the basis that the first
             word of a sentence is always capitalized; if this option is provided then:
             a) if a sentence-initial token is *not* capitalized, then it is counted, and
@@ -75,44 +150,9 @@ class MosesTruecaser(object):
         casing = defaultdict(Counter)
         with open(filename) as fin:
             for line in fin:
-                # Keep track of first words in the sentence(s) of the line.
-                is_first_word = True
-                for i, token in enumerate(line.split()):
-                    # Skip XML tags.
-                    if re.search(r"(<\S[^>]*>)", token):
-                        continue
-                    # Skip if sentence start symbols.
-                    elif token in self.DELAYED_SENT_START:
-                        continue
-
-                    # Resets the `is_first_word` after seeing sent end symbols.
-                    if not is_first_word and token in self.SENT_END:
-                        is_first_word = True
-                        continue
-                    # Skips words with nothing to case.
-                    if not self.SKIP_LETTERS_REGEX.search(token):
-                        is_first_word = False
-                        continue
-
-                    # If it's not the first word,
-                    # then set the current word weight to 1.
-                    current_word_weight = 0
-                    if not is_first_word:
-                        current_word_weight = 1
-                    # Otherwise check whether user wants to optionally
-                    # use the first word.
-                    elif possibly_use_first_token:
-                        # Gated special handling of first word of sentence.
-                        # Check if first characer of token is lowercase.
-                        if token[0].is_lower():
-                            current_word_weight = 1
-                        elif i == 1:
-                            current_word_weight = 0.1
-
-                    if current_word_weight > 0:
-                        casing[token.lower()][token] += current_word_weight
-
-                    is_first_word = False
+                token_weights = self.learn_truecase_weights(line.split(), possibly_use_first_token)
+                for lowercase_token, surface_token, weight in token_weights:
+                    casing[lowercase_token][surface_token] += weight
 
         # Save to file if specified.
         if save_to:
@@ -120,50 +160,61 @@ class MosesTruecaser(object):
         self.model = self._casing_to_model(casing)
         return self.model
 
-    def truecase(self, filename):
+    def truecase(self, text, return_str=False):
+        """
+        Truecase a single sentence / line of text.
+
+        :param text: A single string, i.e. sentence text.
+        :type text: str
+        :param aggressive_dash_splits: Option to trigger dash split rules .
+        :type aggressive_dash_splits: bool
+        """
         check_model_message = str("\nUse Truecaser.train() to train a model.\n"
                                   "Or use Truecaser('modefile') to load a model.")
         assert hasattr(self, 'model'), check_model_message
+        # Keep track of first words in the sentence(s) of the line.
+        is_first_word = True
+        truecased_tokens = []
+        for i, token in enumerate(self.split_xml(text)):
+            # Append XML tags and continue
+            if re.search(r"(<\S[^>]*>)", token):
+                truecased_tokens.append(token)
+                continue
 
+            # Reads the word token and factors separatedly
+            word, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
+
+            # Lowercase the ASR tokens.
+            if self.is_asr:
+                word = word.lower()
+
+            # The actual case replacement happens here.
+            # "Most frequent" case of the word.
+            best_case = self.model['best'].get(word.lower(), None)
+            # Other known cases of the word.
+            known_case = self.model['known'].get(word, None)
+            # If it's the start of sentence.
+            if is_first_word and best_case: # Truecase sentence start.
+                word = best_case
+            elif known_case: # Don't change known words.
+                word = known_case
+            elif best_case: # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
+                word = best_case
+            # Else, it's an unknown word, don't change the word.
+            # Concat the truecased `word` with the `other_factors`
+            word = word + other_factors
+
+            # Adds the truecased word.
+            truecased_tokens.append(word)
+        return ' '.join(truecased_tokens) if return_str else truecased_tokens
+
+    def truecase_file(self, filename, return_str=True):
         with open(filename) as fin:
             for line in fin:
-                # Keep track of first words in the sentence(s) of the line.
-                is_first_word = True
-                truecased_tokens = []
-                for i, token in enumerate(self.split_xml(line)):
-                    # Append XML tags and continue
-                    if re.search(r"(<\S[^>]*>)", token):
-                        truecased_tokens.append(token)
-                        continue
-
-                    # Reads the word token and factors separatedly
-                    word, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
-
-                    # Lowercase the ASR tokens.
-                    if self.is_asr:
-                        word = word.lower()
-
-                    # The actual case replacement happens here.
-                    # "Most frequent" case of the word.
-                    best_case = self.model['best'].get(word.lower(), None)
-                    # Other known cases of the word.
-                    known_case = self.model['known'].get(word, None)
-                    # If it's the start of sentence.
-                    if is_first_word and best_case: # Truecase sentence start.
-                        word = best_case
-                    elif known_case: # Don't change known words.
-                        word = known_case
-                    elif best_case: # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
-                        word = best_case
-                    # Else, it's an unknown word, don't change the word.
-                    # Concat the truecased `word` with the `other_factors`
-                    word = word + other_factors
-
-                    # Adds the truecased word.
-                    truecased_tokens.append(word)
-
+                truecased_tokens = self.truecase(line.strip())
                 # Yield the truecased line.
-                yield " ".join(truecased_tokens)
+                yield " ".join(truecased_tokens) if return_str else truecased_tokens
+
 
     @staticmethod
     def split_xml(line):
