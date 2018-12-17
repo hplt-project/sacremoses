@@ -25,7 +25,7 @@ def get_content(url):
         return urllib.urlopen(url).read() # Returns an instance.
 
 
-class TestTokenzier(unittest.TestCase):
+class TestTruecaser(unittest.TestCase):
     def test_moses_truecase_documents(self):
         moses = MosesTruecaser()
         # Train the model from documents.
@@ -68,3 +68,6 @@ class TestTokenzier(unittest.TestCase):
         # Keep a key-value pairs of in/outputs.
         self.input_output = {caps_input: expected_caps_output,
                              normal_input: expecte_normal_output}
+
+if __name__ == '__main__':
+    unittest.main()
