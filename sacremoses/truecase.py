@@ -99,11 +99,10 @@ class MosesTruecaser(object):
                 elif i == 1:
                     current_word_weight = 0.1
 
-            if current_word_weight > 0:
-                yield token.lower(), token, current_word_weight
-
             is_first_word = False
 
+            if current_word_weight > 0:
+                yield token.lower(), token, current_word_weight
 
     def train(self, documents, save_to=None, possibly_use_first_token=False):
         """
@@ -133,7 +132,6 @@ class MosesTruecaser(object):
         self.model = self._casing_to_model(casing)
         return self.model
 
-
     def train_from_file(self, filename, save_to=None, possibly_use_first_token=False):
         """
 
@@ -160,7 +158,8 @@ class MosesTruecaser(object):
         self.model = self._casing_to_model(casing)
         return self.model
 
-    def truecase(self, text, return_str=False):
+    def truecase(self, text, return_str=False,
+                 truecase_tokens_start_with_pipes=False):
         """
         Truecase a single sentence / line of text.
 
@@ -175,9 +174,17 @@ class MosesTruecaser(object):
         # Keep track of first words in the sentence(s) of the line.
         is_first_word = True
         truecased_tokens = []
-        for i, token in enumerate(self.split_xml(text)):
+        tokens = self.split_xml(text)
+        for i, token in enumerate(tokens):
             # Append XML tags and continue
             if re.search(r"(<\S[^>]*>)", token):
+                truecased_tokens.append(token)
+                continue
+
+            # Note this shouldn't happen other if | are escaped as &#124;
+            # To make the truecaser resilient,
+            # we'll just any token starting with pipes as they are.
+            if token == "|" or token.startswith("|"):
                 truecased_tokens.append(token)
                 continue
 
@@ -214,7 +221,6 @@ class MosesTruecaser(object):
                 truecased_tokens = self.truecase(line.strip())
                 # Yield the truecased line.
                 yield " ".join(truecased_tokens) if return_str else truecased_tokens
-
 
     @staticmethod
     def split_xml(line):
