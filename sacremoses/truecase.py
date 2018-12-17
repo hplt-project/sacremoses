@@ -48,7 +48,7 @@ class MosesTruecaser(object):
         # Initialize the object.
         super(MosesTruecaser, self).__init__()
         # Initialize the language specific nonbreaking prefixes.
-        self.SKIP_LETTERS_REGEX = re.compile(r"[{}{}{}]".format(
+        self.SKIP_LETTERS_REGEX = re.compile(u"[{}{}{}]".format(
                                                 self.Lowercase_Letter,
                                                 self.Uppercase_Letter,
                                                 self.Titlecase_Letter)

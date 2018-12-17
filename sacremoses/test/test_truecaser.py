@@ -68,6 +68,3 @@ class TestTruecaser(unittest.TestCase):
         # Keep a key-value pairs of in/outputs.
         self.input_output = {caps_input: expected_caps_output,
                              normal_input: expecte_normal_output}
-
-if __name__ == '__main__':
-    unittest.main()
