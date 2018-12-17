@@ -129,11 +129,11 @@ class MosesTruecaser(object):
             for line in fin:
                 # Keep track of first words in the sentence(s) of the line.
                 is_first_word = True
-                tokens_in_line = []
-                for i, token in enumerate(line.split()):
+                truecased_tokens = []
+                for i, token in enumerate(split_xml(line)):
                     # Skip XML tags.
                     if re.search(r"(<\S[^>]*>)", token):
-                        tokens_in_line.append(token)
+                        truecased_tokens.append(token)
 
                     # Reads the word token and factors separatedly
                     word, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
@@ -142,20 +142,24 @@ class MosesTruecaser(object):
                     if self.is_asr:
                         word = word.lower()
 
+                    # The actual case replacement is applied here.
                     # "Most frequent" case of the word.
                     best_case = self.model['best'].get(word.lower(), None)
                     # Other known cases of the word.
                     known_case = self.model['known'].get(word, None)
                     # If it's the start of sentence.
                     if is_first_word and best_case: # Truecase sentence start.
-                        tokens_in_line.append(best_case)
+                        word = best_case
                     elif known_case: # Don't change known words.
-                        tokens_in_line.append(known_case)
-                    elif best_case: # Truecase otherwise unknown words.
-                        pass
+                        word = known_case
+                    elif best_case: # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
+                        word = best_case
+                    # Else, it's an unknown word, don't change the word.
+                    # Concat the truecased `word` with the `other_factors`
+                    word = ''.join(word, other_factos)
 
     @staticmethod
-    def split_xml(line, return_orginal_moses=False):
+    def split_xml(line):
         """
         Python port of split_xml function in Moses' truecaser:
         https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecaser.perl
@@ -164,10 +168,8 @@ class MosesTruecaser(object):
         :type line: str
         """
         line = line.strip()
-        words, markup = [], []  #TODO: At some point drop support for this.
         tokens = []
         while line:
-            print(line)
             # Assumes that xml tag is always separated by space.
             has_xml = re.search(r"^\s*(<\S[^>]*>)(.*)$", line)
             # non-XML test.
@@ -185,28 +187,19 @@ class MosesTruecaser(object):
                         words[-1] += is_factor.group(1)
                         line_next = is_factor.group(2)
                 else:
-                    markup.append(potential_xml+" ") #TODO: At some point drop support for this.
                     tokens.append(potential_xml+" ") # Token hack, unique to sacremoses.
                 line = line_next
 
             elif is_non_xml:
-                words.append(is_non_xml.group(1)) #TODO: At some point drop support for this.
-                markup.append("") #TODO: At some point drop support for this.
                 tokens.append(is_non_xml.group(1)) # Token hack, unique to sacremoses.
                 line = is_non_xml.group(2)
             elif xml_cognates:
-                words.append(xml_cognates.group(1)) #TODO: At some point drop support for this.
-                markup.append("") #TODO: At some point drop support for this.
                 tokens.append(xml_cognates.group(1)) # Token hack, unique to sacremoses.
                 line = xml_cognates.group(2)
             else:
                 raise Exception("ERROR: huh? {}".format(line))
-            markup[-1] = markup[-1].strip() #TODO: At some point drop support for this.
             tokens[-1] = tokens[-1].strip() # Token hack, unique to sacremoses.
-        if return_orginal_moses: #TODO: At some point drop support for this.
-            return words, markup #TODO: At some point drop support for this.
-        else:
-            return tokens
+        return tokens
 
     def _casing_to_model(self, casing):
         """
