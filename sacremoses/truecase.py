@@ -5,7 +5,10 @@ from __future__ import print_function
 
 import re
 from collections import defaultdict, Counter
-from itertools import zip_longest
+try: # Python3
+    from itertools import zip_longest as zip_longest
+except: # Python2
+    from itertools import izip_longest as zip_longest
 
 from six import text_type
 
