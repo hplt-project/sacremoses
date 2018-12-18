@@ -4,10 +4,11 @@
 Tests for MosesTokenizer
 """
 
+import io
 import os
 import unittest
 
-from sacremoses.truecase import MosesTruecaser
+from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
 
 
 # Crazy hack to support Python2 and 3 and requests to download files.
@@ -68,3 +69,40 @@ class TestTruecaser(unittest.TestCase):
         # Keep a key-value pairs of in/outputs.
         self.input_output = {caps_input: expected_caps_output,
                              normal_input: expecte_normal_output}
+
+
+class TestDetruecaser(unittest.TestCase):
+    def test_moses_truecase_str(self):
+        moses = MosesDetruecaser()
+        text = 'the adventures of Sherlock Holmes'
+        expected = ['The', 'adventures', 'of', 'Sherlock', 'Holmes']
+        expected_str = 'The adventures of Sherlock Holmes'
+        assert moses.detruecase(text) == expected
+        assert moses.detruecase(text, return_str=True) == expected_str
+
+    def test_moses_truecase_headline(self):
+        moses = MosesDetruecaser()
+        text = 'the adventures of Sherlock Holmes'
+        expected = ['The', 'Adventures', 'of', 'Sherlock', 'Holmes']
+        expected_str = 'The Adventures of Sherlock Holmes'
+        assert moses.detruecase(text, is_headline=True) == expected
+        assert moses.detruecase(text, is_headline=True, return_str=True) == expected_str
+
+    def test_moses_truecase_file(self):
+        moses = MosesDetruecaser()
+        text = str('the adventures of Sherlock Holmes\n'
+                    '<hl> something ABC has gone wrong Xyz , \n'
+                    'second line of HEADERS that are very Importante .\n'
+                    '</hl>\n'
+                    'then the next sentence with Caps here and There .\n'
+                  )
+
+        with io.StringIO(text) as fin, open('detruecase-test.txt', 'w') as fout:
+            fout.write(fin.read())
+
+        expected = ['The adventures of Sherlock Holmes',
+                    '<hl> Something Abc Has Gone Wrong Xyz ,',
+                    'Second Line of Headers That Are Very Importante .', '</hl>',
+                    'Then the next sentence with Caps here and There .']
+
+        assert list(moses.detruecase_file('detruecase-test.txt')) == expected

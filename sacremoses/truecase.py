@@ -328,11 +328,10 @@ class MosesTruecaser(object):
         return self._casing_to_model(casing)
 
 
-class MosesDetrucaser(object):
+class MosesDetruecaser(object):
     def __init__(self):
         # Initialize the object.
-        super(MosesTruecaser, self).__init__()
-
+        super(MosesDetruecaser, self).__init__()
         self.SENT_END = {".", ":", "?", "!"}
         self.DELAYED_SENT_START = {"(", "[", "\"", "'", "&apos;", "&quot;", "&#91;", "&#93;"}
 
@@ -343,7 +342,7 @@ class MosesDetrucaser(object):
                              "off","on","than","the","their","this","to","was",
                              "were","which","will","with"}
 
-    def detruecase(self, text, headline=False, return_str=False):
+    def detruecase(self, text, is_headline=False, return_str=False):
         """
         Detruecase the translated files from a model that learnt from truecased
         tokens.
@@ -360,16 +359,16 @@ class MosesDetrucaser(object):
             cased_tokens.append(token)
             if token in self.SENT_END:
                 sentence_start = True
-            elif token in self.DELAYED_SENT_START:
+            elif not token in self.DELAYED_SENT_START:
                 sentence_start = False
         # Check if it's a headline, if so then use title case.
-        if headline:
-            cased_tokens = [token if token in self.self.ALWAYS_LOWER
+        if is_headline:
+            cased_tokens = [token if token in self.ALWAYS_LOWER
                             else token.capitalize() for token in cased_tokens]
 
-        return " ".join(cased_tokens) if return_str else return_str
+        return " ".join(cased_tokens) if return_str else cased_tokens
 
-    def detruecase_file(self, filename, handle_headlines=False return_str=True):
+    def detruecase_file(self, filename, handle_headlines=True, return_str=True):
         with open(filename) as fin:
             is_headline = False
             for line in fin:
@@ -378,41 +377,9 @@ class MosesDetrucaser(object):
                         is_headline = True
                     elif re.search(r"<.hl>", line):
                         is_headline = False
-                truecased_tokens = self.detruecase(line.strip(), headline=is_headline)
+                truecased_tokens = self.detruecase(line.strip(), is_headline=is_headline)
                 # Yield the detruecased line.
                 yield ' '.join(truecased_tokens) if return_str else truecased_tokens
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
+__all__ = ['MosesTruecaser', 'MosesDetruecaser']
