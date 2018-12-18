@@ -97,8 +97,9 @@ class TestDetruecaser(unittest.TestCase):
                     'then the next sentence with Caps here and There .\n'
                   )
 
-        with io.StringIO(text) as fin, open('detruecase-test.txt', 'w') as fout:
-            fout.write(fin.read())
+        with io.open('detruecase-test.txt', 'w', encoding='utf8') as fout:
+            with io.StringIO(text) as fin
+                fout.write(fin.read())
 
         expected = ['The adventures of Sherlock Holmes',
                     '<hl> Something Abc Has Gone Wrong Xyz ,',
