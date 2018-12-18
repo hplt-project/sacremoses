@@ -8,6 +8,8 @@ import io
 import os
 import unittest
 
+from six import text_type
+
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
 
 
@@ -90,15 +92,15 @@ class TestDetruecaser(unittest.TestCase):
 
     def test_moses_truecase_file(self):
         moses = MosesDetruecaser()
-        text = str('the adventures of Sherlock Holmes\n'
-                    '<hl> something ABC has gone wrong Xyz , \n'
-                    'second line of HEADERS that are very Importante .\n'
-                    '</hl>\n'
-                    'then the next sentence with Caps here and There .\n'
-                  )
+        text = text_type('the adventures of Sherlock Holmes\n'
+                        '<hl> something ABC has gone wrong Xyz , \n'
+                        'second line of HEADERS that are very Importante .\n'
+                        '</hl>\n'
+                        'then the next sentence with Caps here and There .\n'
+                      )
 
         with io.open('detruecase-test.txt', 'w', encoding='utf8') as fout:
-            with io.StringIO(text) as fin
+            with io.StringIO(text) as fin:
                 fout.write(fin.read())
 
         expected = ['The adventures of Sherlock Holmes',
