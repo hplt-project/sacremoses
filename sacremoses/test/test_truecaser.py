@@ -74,7 +74,7 @@ class TestTruecaser(unittest.TestCase):
 
 
 class TestDetruecaser(unittest.TestCase):
-    def test_moses_truecase_str(self):
+    def test_moses_detruecase_str(self):
         moses = MosesDetruecaser()
         text = 'the adventures of Sherlock Holmes'
         expected = ['The', 'adventures', 'of', 'Sherlock', 'Holmes']
@@ -82,7 +82,7 @@ class TestDetruecaser(unittest.TestCase):
         assert moses.detruecase(text) == expected
         assert moses.detruecase(text, return_str=True) == expected_str
 
-    def test_moses_truecase_headline(self):
+    def test_moses_detruecase_headline(self):
         moses = MosesDetruecaser()
         text = 'the adventures of Sherlock Holmes'
         expected = ['The', 'Adventures', 'of', 'Sherlock', 'Holmes']
@@ -90,7 +90,7 @@ class TestDetruecaser(unittest.TestCase):
         assert moses.detruecase(text, is_headline=True) == expected
         assert moses.detruecase(text, is_headline=True, return_str=True) == expected_str
 
-    def test_moses_truecase_file(self):
+    def test_moses_detruecase_file(self):
         moses = MosesDetruecaser()
         text = text_type('the adventures of Sherlock Holmes\n'
                         '<hl> something ABC has gone wrong Xyz , \n'
