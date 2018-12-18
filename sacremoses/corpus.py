@@ -104,3 +104,5 @@ class NonbreakingPrefixes:
                     line = line.strip()
                     if line and not line.startswith(ignore_lines_startswith):
                         yield line
+
+__all__ = ['Perluniprops', 'NonbreakingPrefixes']
