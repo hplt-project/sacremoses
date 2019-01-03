@@ -45,12 +45,27 @@ class CJKChars(object):
     # Range U+FF65–FFDC encodes halfwidth forms, of Katakana and Hangul characters
     Katakana_Hangul_Halfwidth = (65381, 65500)  # (ord(u"\uFF65"), ord(u"\uFFDC"))
 
-    # Supplementary Ideographic Plane 20000–2FFFF
+    # Ideographic Symbols and Punctuation (16FE0–16FFF)
+    Ideographic_Symbols_And_Punctuation = (94176, 94207)  # (ord(u"\U00016FE0"), ord(u"\U00016FFF"))
+    
+    # Tangut (17000-187FF)
+    # Tangut Components (18800-18AFF)
+    Tangut = (94208, 101119)  # (ord(u"\U00017000"), ord(u"\U00018AFF"))
+
+    # Kana Supplement (1B000-1B0FF)
+    # Kana Extended-A (1B100-1B12F)
+    Kana_Supplement = (110592, 110895)  # (ord(u"\U0001B000"), ord(u"\U0001B12F"))
+
+    # Nushu (1B170-1B2FF)
+    Nushu = (110960, 111359)  # (ord(u"\U0001B170"), ord(u"\U0001B2FF"))
+
+    # Supplementary Ideographic Plane (20000–2FFFF)
     Supplementary_Ideographic_Plane = (131072, 196607)  # (ord(u"\U00020000"), ord(u"\U0002FFFF"))
 
     ranges = [Hangul_Jamo, CJK_Radicals, Phags_Pa, Hangul_Syllables,
               CJK_Compatibility_Ideographs, CJK_Compatibility_Forms,
-              Katakana_Hangul_Halfwidth, Supplementary_Ideographic_Plane]
+              Katakana_Hangul_Halfwidth, Tangut, Kana_Supplement,
+              Nushu, Supplementary_Ideographic_Plane]
 
 
 def is_cjk(character):
@@ -58,7 +73,7 @@ def is_cjk(character):
     This checks for CJK character.
 
         >>> CJKChars().ranges
-        [(4352, 4607), (11904, 42191), (43072, 43135), (44032, 55215), (63744, 64255), (65072, 65103), (65381, 65500), (131072, 196607)]
+        [(4352, 4607), (11904, 42191), (43072, 43135), (44032, 55215), (63744, 64255), (65072, 65103), (65381, 65500), (94208, 101119), (110592, 110895), (110960, 111359), (131072, 196607)]
         >>> is_cjk(u'\u33fe')
         True
         >>> is_cjk(u'\uFE5F')
@@ -71,6 +86,7 @@ def is_cjk(character):
     return any([start <= ord(character) <= end for start, end in
                 [(4352, 4607), (11904, 42191), (43072, 43135), (44032, 55215),
                  (63744, 64255), (65072, 65103), (65381, 65500),
+                 (94208, 101119), (110592, 110895), (110960, 111359),
                  (131072, 196607)]
                 ])
 
