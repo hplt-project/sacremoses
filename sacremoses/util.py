@@ -120,3 +120,13 @@ def xml_unescape(text):
     return unescape(text, entities={r"&apos;": r"'", r"&quot;": r'"',
                                     r"&#124;": r"|",
                                     r"&#91;": r"[", r"&#93;": r"]", })
+
+
+def pairwise(iterable):
+    """
+    From https://docs.python.org/3/library/itertools.html#recipes
+    s -> (s0,s1), (s1,s2), (s2, s3), ...
+    """
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)
