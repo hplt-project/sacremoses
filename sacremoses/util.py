@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from joblib import Parallel, delayed
+from tqdm import tqdm
+
+
 class CJKChars(object):
     """
     An object that enumerates the code points of the CJK characters as listed on
@@ -130,3 +134,16 @@ def pairwise(iterable):
     a, b = tee(iterable)
     next(b, None)
     return zip(a, b)
+
+
+def grouper(iterable, n, fillvalue=None):
+    """Collect data into fixed-length chunks or blocks
+    from https://stackoverflow.com/a/16789869/610569
+    """
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
+
+
+def parallelize_preprocess(func, iterator, processes):
+    return Parallel(n_jobs=processes)(delayed(func)(line) for line in tqdm(iterator))
