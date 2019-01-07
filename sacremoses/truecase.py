@@ -6,10 +6,6 @@ import re
 from collections import defaultdict, Counter
 from functools import partial
 from itertools import chain
-try: # Python3
-    from itertools import zip_longest
-except ImportError: # Python2
-    from itertools import izip_longest as zip_longest
 
 from six import text_type
 
@@ -58,8 +54,6 @@ class MosesTruecaser(object):
         self.is_asr = is_asr
         if load_from:
             self.model = self._load_model(load_from)
-
-        self.method = memory.cache(self.truecase)
 
     def learn_truecase_weights(self, tokens, possibly_use_first_token=False):
         """
@@ -142,6 +136,7 @@ class MosesTruecaser(object):
         """
         Default duck-type of _train(), accepts list(list(str)) as input documents.
         """
+        self.model = None # Clear the model first.
         self.model = self._train(documents, save_to, possibly_use_first_token, processes)
         return self.model
 
@@ -153,6 +148,7 @@ class MosesTruecaser(object):
         """
         with open(filename) as fin:
             document_iterator = map(str.split, fin.readlines())
+        self.model = None # Clear the model first.
         self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes)
         return self.model
 
@@ -163,6 +159,7 @@ class MosesTruecaser(object):
         object.
         """
         document_iterator = map(str.split, file_object.readlines())
+        self.model = None # Clear the model first.
         self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes)
         return self.model
 

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+try: # Python3
+    from itertools import zip_longest
+except ImportError: # Python2
+    from itertools import izip_longest as zip_longest
+
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
