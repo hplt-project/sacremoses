@@ -288,7 +288,7 @@ class MosesTokenizer(object):
             text = re.sub(regexp, substitution, text)
         return text if return_str else text.split()
 
-    def tokenize(self, text, aggressive_dash_splits=False, return_str=False, escape=True):
+    def tokenize(self, text, aggressive_dash_splits=False, return_str=False, xml_escape=True):
         """
         Python port of the Moses tokenizer.
 
@@ -336,7 +336,7 @@ class MosesTokenizer(object):
         text = re.sub(regexp, substitution, text).strip()
         # Restore multidots.
         text = self.restore_multidots(text)
-        if escape:
+        if xml_escape:
             # Escape XML symbols.
             text = self.escape_xml(text)
 
@@ -410,7 +410,7 @@ class MosesDetokenizer(object):
             text = re.sub(regexp, substitution, text)
         return text
 
-    def tokenize(self, tokens, return_str=True, unescape=True):
+    def tokenize(self, tokens, return_str=True, xml_unescape=True):
         """
         Python port of the Moses detokenizer.
         :param tokens: A list of strings, i.e. tokenized text.
@@ -424,7 +424,7 @@ class MosesDetokenizer(object):
         # Detokenize the agressive hyphen split.
         regexp, substitution = self.AGGRESSIVE_HYPHEN_SPLIT
         text = re.sub(regexp, substitution, text)
-        if unescape:
+        if xml_unescape:
             # Unescape the XML symbols.
             text = self.unescape_xml(text)
         # Keep track of no. of quotation marks.
@@ -544,8 +544,8 @@ class MosesDetokenizer(object):
 
         return detokenized_text if return_str else detokenized_text.split()
 
-    def detokenize(self, tokens, return_str=True, unescape=True):
+    def detokenize(self, tokens, return_str=True, xml_unescape=True):
         """ Duck-typing the abstract *tokenize()*."""
-        return self.tokenize(tokens, return_str, unescape)
+        return self.tokenize(tokens, return_str, xml_unescape)
 
 __all__ = ['MosesTokenizer', 'MosesDetokenizer']
