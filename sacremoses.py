@@ -47,7 +47,7 @@ def tokenize_file(processes, xml_escape, aggressive_dash_splits):
             for line in tqdm(fin.readlines()):
                 print(moses_tokenize(line), end='\n', file=fout)
         else:
-            for outline in parallelize_preprocess(moses_tokenize, fin.readlines(), processes):
+            for outline in parallelize_preprocess(moses_tokenize, fin.readlines(), processes, progress_bar=True):
                 print(outline, end='\n', file=fout)
 
 
@@ -68,7 +68,7 @@ def detokenize_file(processes, xml_unescape):
                 print(moses_detokenize(line), end='\n', file=fout)
         else:
             document_iterator = map(str.split, fin.readlines())
-            for outline in parallelize_preprocess(moses_detokenize, document_iterator, processes):
+            for outline in parallelize_preprocess(moses_detokenize, document_iterator, processes, progress_bar=True):
                 print(outline, end='\n', file=fout)
 
 
@@ -116,7 +116,7 @@ def detruecase_file(processes, is_headline):
             for line in tqdm(fin.readlines()):
                 print(moses_detruecase(line), end='\n', file=fout)
         else:
-            for outline in parallelize_preprocess(moses_detruecase, fin.readlines(), processes):
+            for outline in parallelize_preprocess(moses_detruecase, fin.readlines(), processes, progress_bar=True):
                 print(outline, end='\n', file=fout)
 
 
@@ -125,4 +125,3 @@ if __name__ == "__main__":
     detokenize_file()
     train_truecaser()
     truecase_file()
-    detruecase_file()

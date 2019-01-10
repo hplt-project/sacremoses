@@ -102,7 +102,8 @@ class MosesTruecaser(object):
         return truecase_weights
 
     def _train(self, document_iterator, save_to=None,
-               possibly_use_first_token=False, processes=1):
+               possibly_use_first_token=False, processes=1,
+               progress_bar=False):
         """
         :param document_iterator: The input document, each outer list is a sentence,
                           the inner list is the list of tokens for each sentence.
@@ -121,7 +122,7 @@ class MosesTruecaser(object):
         casing = defaultdict(Counter)
         train_truecaser = partial(self.learn_truecase_weights,
                             possibly_use_first_token=possibly_use_first_token)
-        token_weights = chain(*parallelize_preprocess(train_truecaser, document_iterator, processes))
+        token_weights = chain(*parallelize_preprocess(train_truecaser, document_iterator, processes, progress_bar=progress_bar))
         # Collect the token_weights from every sentence.
         for lowercase_token, surface_token, weight in token_weights:
             casing[lowercase_token][surface_token] += weight
@@ -132,16 +133,18 @@ class MosesTruecaser(object):
         return self._casing_to_model(casing)
 
     def train(self, documents, save_to=None,
-              possibly_use_first_token=False, processes=1):
+              possibly_use_first_token=False, processes=1,
+              progress_bar=False):
         """
         Default duck-type of _train(), accepts list(list(str)) as input documents.
         """
         self.model = None # Clear the model first.
-        self.model = self._train(documents, save_to, possibly_use_first_token, processes)
+        self.model = self._train(documents, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
         return self.model
 
     def train_from_file(self, filename, save_to=None,
-                        possibly_use_first_token=False, processes=1):
+                        possibly_use_first_token=False, processes=1,
+                        progress_bar=False):
         """
         Duck-type of _train(), accepts a filename to read as a `iter(list(str))`
         object.
@@ -149,18 +152,19 @@ class MosesTruecaser(object):
         with open(filename) as fin:
             document_iterator = map(str.split, fin.readlines())
         self.model = None # Clear the model first.
-        self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes)
+        self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
         return self.model
 
     def train_from_file_object(self, file_object, save_to=None,
-                        possibly_use_first_token=False, processes=1):
+                        possibly_use_first_token=False, processes=1,
+                        progress_bar=False):
         """
         Duck-type of _train(), accepts a file object to read as a `iter(list(str))`
         object.
         """
         document_iterator = map(str.split, file_object.readlines())
         self.model = None # Clear the model first.
-        self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes)
+        self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
         return self.model
 
     def truecase(self, text, return_str=False):

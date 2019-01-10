@@ -150,5 +150,6 @@ def grouper(iterable, n, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 
-def parallelize_preprocess(func, iterator, processes):
-    return Parallel(n_jobs=processes)(delayed(func)(line) for line in tqdm(iterator))
+def parallelize_preprocess(func, iterator, processes, progress_bar=False):
+    iterator = tqdm(iterator) if progress_bar else iterator
+    return Parallel(n_jobs=processes)(delayed(func)(line) for line in iterator)
