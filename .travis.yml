@@ -16,8 +16,10 @@ python:
 
 cache: pip
 
-install: # Only 1 dependency for text_type()
-  - pip install six
+install:
+  - pip install six     # Using six dependency for text_type()
+  - pip install joblib  # For parallelization.
+  - pip install click   # For CLI.
 
 script:
   - unbuffer python -m unittest discover sacremoses/test/ -v
