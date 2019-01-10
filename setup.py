@@ -18,6 +18,6 @@ setup(
   url = 'https://github.com/alvations/sacremoses',
   keywords = [],
   classifiers = [],
-  install_requires = ['six', 'click', 'joblib'],#, 'joblib', 'click'],
+  install_requires = ['six', 'click', 'joblib', 'tqdm'],
   entry_points=console_scripts,
 )
