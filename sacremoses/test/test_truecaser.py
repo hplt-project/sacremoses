@@ -89,23 +89,3 @@ class TestDetruecaser(unittest.TestCase):
         expected_str = 'The Adventures of Sherlock Holmes'
         assert moses.detruecase(text, is_headline=True) == expected
         assert moses.detruecase(text, is_headline=True, return_str=True) == expected_str
-
-    def test_moses_detruecase_file(self):
-        moses = MosesDetruecaser()
-        text = text_type('the adventures of Sherlock Holmes\n'
-                        '<hl> something ABC has gone wrong Xyz , \n'
-                        'second line of HEADERS that are very Importante .\n'
-                        '</hl>\n'
-                        'then the next sentence with Caps here and There .\n'
-                      )
-
-        with io.open('detruecase-test.txt', 'w', encoding='utf8') as fout:
-            with io.StringIO(text) as fin:
-                fout.write(fin.read())
-
-        expected = ['The adventures of Sherlock Holmes',
-                    '<hl> Something Abc Has Gone Wrong Xyz ,',
-                    'Second Line of Headers That Are Very Importante .', '</hl>',
-                    'Then the next sentence with Caps here and There .']
-
-        assert list(moses.detruecase_file('detruecase-test.txt')) == expected
