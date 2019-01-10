@@ -14,7 +14,7 @@ from sacremoses.util import parallelize_preprocess
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
-@click.group()
+@click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def cli():
     pass
@@ -119,5 +119,10 @@ def detruecase_file(processes, is_headline):
             for outline in parallelize_preprocess(moses_detruecase, fin.readlines(), processes):
                 print(outline, end='\n', file=fout)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+    tokenize_file()
+    detokenize_file()
+    train_truecaser()
+    truecase_file()
     detruecase_file()
