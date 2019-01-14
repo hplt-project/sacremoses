@@ -19,15 +19,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 def cli():
     pass
 
-@cli.group(context_settings=CONTEXT_SETTINGS)
-def tokenizer():
-    pass
-
-@cli.group(context_settings=CONTEXT_SETTINGS)
-def truecaser():
-    pass
-
-@tokenizer.command('tokenize')
+@cli.command('tokenize')
 @click.option('--processes', '-j', default=1, help='No. of processes.')
 @click.option('--aggressive-dash-splits', '-a', default=False, is_flag=True,
                 help='Triggers dash split rules.')
@@ -51,7 +43,7 @@ def tokenize_file(processes, xml_escape, aggressive_dash_splits):
                 print(outline, end='\n', file=fout)
 
 
-@tokenizer.command('detokenize')
+@cli.command('detokenize')
 @click.option('--processes', '-j', default=1, help='No. of processes.')
 @click.option('--xml-unescape', '-x', default=True, is_flag=True,
                 help='Unescape special characters for XML.')
@@ -72,7 +64,7 @@ def detokenize_file(processes, xml_unescape):
                 print(outline, end='\n', file=fout)
 
 
-@truecaser.command('train-truecase')
+@cli.command('train-truecase')
 @click.option('--modelfile', '-m', required=True, help='Filename to save the modelfile.')
 @click.option('--processes', '-j', default=1, help='No. of processes.')
 @click.option('--is-asr', '-a',  default=False, is_flag=True,
@@ -88,7 +80,7 @@ def train_truecaser(modelfile, processes, is_asr, possibly_use_first_token):
         moses.save_model(modelfile)
 
 
-@truecaser.command('truecase')
+@cli.command('truecase')
 @click.option('--modelfile', '-m', required=True, help='The trucaser modelfile to use.')
 @click.option('--processes', '-j', default=1, help='No. of processes.')
 @click.option('--is-asr', '-a',  default=False, is_flag=True,
@@ -100,7 +92,7 @@ def truecase_file(modelfile, processes, is_asr):
             print(moses.truecase(line, return_str=True), end='\n', file=fout)
 
 
-@truecaser.command('detruecase')
+@cli.command('detruecase')
 @click.option('--processes', '-j', default=1, help='No. of processes.')
 @click.option('--is-headline', '-a',  default=False, is_flag=True,
                 help='Whether the file are headlines.')
@@ -118,10 +110,3 @@ def detruecase_file(processes, is_headline):
         else:
             for outline in parallelize_preprocess(moses_detruecase, fin.readlines(), processes, progress_bar=True):
                 print(outline, end='\n', file=fout)
-
-
-if __name__ == "__main__":
-    tokenize_file()
-    detokenize_file()
-    train_truecaser()
-    truecase_file()

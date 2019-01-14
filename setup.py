@@ -3,7 +3,7 @@ import setuptools
 
 console_scripts = """
 [console_scripts]
-sacremoses=sacremoses:cli
+sacremoses=sacremoses.cli:cli
 """
 
 setup(
