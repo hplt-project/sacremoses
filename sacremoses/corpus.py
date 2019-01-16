@@ -18,7 +18,10 @@ class Perluniprops:
                                      'IsAlnum', 'IsAlpha', 'IsLower', 'IsN', 'IsSc',
                                      'IsSo', 'IsUpper', 'Line_Separator', 'Number',
                                      'Open_Punctuation', 'Punctuation', 'Separator',
-                                     'Symbol']
+                                     'Symbol',
+                                     'Lowercase_Letter.txt',
+                                     'Titlecase_Letter.txt',
+                                     'Uppercase_Letter.txt']
 
     def chars(self, category=None, fileids=None):
         """
@@ -101,3 +104,5 @@ class NonbreakingPrefixes:
                     line = line.strip()
                     if line and not line.startswith(ignore_lines_startswith):
                         yield line
+
+__all__ = ['Perluniprops', 'NonbreakingPrefixes']
