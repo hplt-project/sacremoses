@@ -20,6 +20,7 @@ try: # Try importing Python3 urllib
 except ImportError: # Now importing Python2 urllib
     import urllib
 
+
 def get_content(url):
     try: # Using Python3 urllib.
         with urllib.request.urlopen(url) as response:
@@ -36,7 +37,8 @@ class TestTruecaser(unittest.TestCase):
         moses.train(docs)
         # Test all self.input_output test cases.
         for _input, _output in self.input_output.items():
-            assert moses.truecase(_input) == _output
+            truecased = moses.truecase(_input)
+            assert truecased == _output
 
     def test_moses_truecase_file(self):
         moses = MosesTruecaser()
@@ -58,19 +60,31 @@ class TestTruecaser(unittest.TestCase):
 
         # Test case where inputs are all caps.
         caps_input = "THE ADVENTURES OF SHERLOCK HOLMES"
-        expected_caps_output = ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
+
+        # actual output of truecase.perl, when trained on big.txt:
+        # perl train - truecaser.perl --model big.model --corpus big.txt
+        # echo "THE ADVENTURES OF SHERLOCK HOLMES" | perl truecase.perl --model big.model
+        # the ADVENTURES OF SHERLOCK HOLMES
+        expected_caps_output = ['the', 'ADVENTURES', 'OF', 'SHERLOCK', 'HOLMES']
 
         # Test normal input to truecase.
         normal_input = str('You can also find out about how to make a donation '
                            'to Project Gutenberg, and how to get involved.')
-        expecte_normal_output = ['you', 'can', 'also', 'find', 'out', 'about',
+        expected_normal_output = ['you', 'can', 'also', 'find', 'out', 'about',
                                 'how', 'to', 'make', 'a', 'donation', 'to',
                                 'Project', 'Gutenberg,', 'and', 'how', 'to',
                                 'get', 'involved.']
 
+        second_cased_token_input = 'Rustic elegance can be found at Alaska Heavenly Lodge.'
+
+        # lodge should not be lowercased, because it was seen both upper and lowercase in the training material.
+        # heavenly was just seen lowercase in the training material, therefore it should be lowercase.
+        expected_second_cased_token_output = 'rustic elegance can be found at Alaska heavenly Lodge.'.split()
+
         # Keep a key-value pairs of in/outputs.
         self.input_output = {caps_input: expected_caps_output,
-                             normal_input: expecte_normal_output}
+                             normal_input: expected_normal_output,
+                             second_cased_token_input: expected_second_cased_token_output}
 
 
 class TestDetruecaser(unittest.TestCase):

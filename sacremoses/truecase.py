@@ -206,8 +206,8 @@ class MosesTruecaser(object):
             # If it's the start of sentence.
             if is_first_word and best_case: # Truecase sentence start.
                 word = best_case
-            elif known_case: # Don't change known words.
-                word = known_case
+            elif known_case:  # Don't change known words.
+                pass
             elif best_case: # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
                 word = best_case
             # Else, it's an unknown word, don't change the word.
@@ -215,7 +215,13 @@ class MosesTruecaser(object):
             word = word + other_factors
 
             # Adds the truecased word.
+
             truecased_tokens.append(word)
+            if word in self.SENT_END:
+                is_first_word = True
+            elif word not in self.DELAYED_SENT_START:
+                is_first_word = False
+
         return ' '.join(truecased_tokens) if return_str else truecased_tokens
 
     def truecase_file(self, filename, return_str=True):
