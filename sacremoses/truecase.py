@@ -149,7 +149,7 @@ class MosesTruecaser(object):
         :rtype: {'best': dict, 'known': Counter}
         """
         casing = defaultdict(Counter)
-        with open(filename) as fin:
+        with open(filename, encoding='utf-8') as fin:
             for line in fin:
                 token_weights = self.learn_truecase_weights(line.split(), possibly_use_first_token)
                 for lowercase_token, surface_token, weight in token_weights:
@@ -213,7 +213,6 @@ class MosesTruecaser(object):
             # Else, it's an unknown word, don't change the word.
             # Concat the truecased `word` with the `other_factors`
             word = word + other_factors
-
             # Adds the truecased word.
 
             truecased_tokens.append(word)
@@ -324,12 +323,12 @@ class MosesTruecaser(object):
         :rtype: {'best': dict, 'known': Counter}
         """
         casing = defaultdict(Counter)
-        with open(filename) as fin:
+        with open(filename, encoding='utf-8') as fin:
             for line in fin:
                 line = line.strip().split()
                 for token, count in grouper(line, 2):
                     count = count.split('/')[0].strip('()')
-                    casing[token.lower()][token] = count
+                    casing[token.lower()][token] = int(count)
         # Returns the best and known object from `_casing_to_model()`
         return self._casing_to_model(casing)
 
