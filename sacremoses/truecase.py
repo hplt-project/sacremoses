@@ -151,7 +151,7 @@ class MosesTruecaser(object):
         :rtype: {'best': dict, 'known': Counter}
         """
         casing = defaultdict(Counter)
-        with open(filename, encoding='utf-8') as fin:
+        with codecs.open(filename, encoding='utf-8') as fin:
             for line in fin:
                 token_weights = self.learn_truecase_weights(line.split(), possibly_use_first_token)
                 for lowercase_token, surface_token, weight in token_weights:
@@ -226,7 +226,7 @@ class MosesTruecaser(object):
         return ' '.join(truecased_tokens) if return_str else truecased_tokens
 
     def truecase_file(self, filename, return_str=True):
-        with open(filename) as fin:
+        with codecs.open(filename, encoding='utf-8') as fin:
             for line in fin:
                 truecased_tokens = self.truecase(line.strip())
                 # Yield the truecased line.
@@ -305,7 +305,7 @@ class MosesTruecaser(object):
         :param casing: The dictionary of tokens counter from `train()`.
         :type casing: default(Counter)
         """
-        with open(filename, 'w') as fout:
+        with codecs.open(filename, 'w', encoding='utf-8') as fout:
             for token in casing:
                 total_token_count = sum(casing[token].values())
                 tokens_counts = []
