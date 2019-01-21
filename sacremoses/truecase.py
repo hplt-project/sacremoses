@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import codecs
 import re
 from collections import defaultdict, Counter
 try: # Python3
@@ -12,9 +13,9 @@ except ImportError: # Python2
 from six import text_type
 
 from sacremoses.corpus import Perluniprops
-from sacremoses.corpus import NonbreakingPrefixes
 
 perluniprops = Perluniprops()
+
 
 def grouper(iterable, n, fillvalue=None):
     """Collect data into fixed-length chunks or blocks
@@ -23,6 +24,7 @@ def grouper(iterable, n, fillvalue=None):
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
+
 
 class MosesTruecaser(object):
     """
@@ -323,7 +325,7 @@ class MosesTruecaser(object):
         :rtype: {'best': dict, 'known': Counter}
         """
         casing = defaultdict(Counter)
-        with open(filename, encoding='utf-8') as fin:
+        with codecs.open(filename, encoding='utf-8') as fin:
             for line in fin:
                 line = line.strip().split()
                 for token, count in grouper(line, 2):
@@ -374,7 +376,7 @@ class MosesDetruecaser(object):
         return " ".join(cased_tokens) if return_str else cased_tokens
 
     def detruecase_file(self, filename, handle_headlines=True, return_str=True):
-        with open(filename) as fin:
+        with codecs.open(filename, encoding="utf-8") as fin:
             is_headline = False
             for line in fin:
                 if handle_headlines:
