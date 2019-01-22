@@ -330,7 +330,7 @@ class MosesTruecaser(object):
                 line = line.strip().split()
                 for token, count in grouper(line, 2):
                     count = count.split('/')[0].strip('()')
-                    casing[token.lower()][token] = int(count)
+                    casing[token.lower()][token] = float(count)
         # Returns the best and known object from `_casing_to_model()`
         return self._casing_to_model(casing)
 
