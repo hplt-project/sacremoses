@@ -168,7 +168,7 @@ class MosesTokenizer(object):
     FR_IT_SPECIFIC_APOSTROPHE = [FR_IT_SPECIFIC_1, FR_IT_SPECIFIC_2,
                                  FR_IT_SPECIFIC_3, FR_IT_SPECIFIC_4]
 
-    NON_SPECIFIC_APOSTROPHE = r"\'", r" \' "
+    NON_SPECIFIC_APOSTROPHE = r"\'", " ' "  # the substitution doesn't need to escape apostrophes
 
     MOSES_PENN_REGEXES_1 = [DEDUPLICATE_SPACE, ASCII_JUNK, DIRECTIONAL_QUOTE_1,
                             DIRECTIONAL_QUOTE_2, DIRECTIONAL_QUOTE_3,
