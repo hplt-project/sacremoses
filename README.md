@@ -84,3 +84,17 @@ True
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
 
 ```
+
+**Punctuaion Normalizer**
+
+```python
+>>> from sacremoses import MosesPunctuationNormalizer
+
+# Instantiate a normalizer for German
+>>> normalizer = MosesPunctuationNormalizer('de')
+
+# Normalize a German sentence
+>>> original = 'Die Landwirtschaft stellt nur 5,5 % der Arbeitsplätze der Union…'
+>>> normalizer.normalize(original)
+'Die Landwirtschaft stellt nur 5,5% der Arbeitsplätze der Union...'
+```
