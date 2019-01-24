@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
 This is a Python port of the Moses Punctuation Normalizer from
@@ -7,20 +7,20 @@ https://github.com/moses-smt/mosesdecoder/blob/master/scripts/tokenizer/normaliz
 
 import re
 
-from typing import Callable
-from typing.re import Pattern
 
-
-def _substitute(string: str, pattern: str, substitution: str) -> str:
+def _substitute(string, pattern, substitution):
     return string.replace(pattern, substitution)
 
-def substitute(pattern: str, substitution: str) -> Callable[[str], str]:
+
+def substitute(pattern, substitution):
     return lambda x: _substitute(x, pattern, substitution)
 
-def _substitute_regex(string: str, compiled_regex: Pattern, substitution: str):
+
+def _substitute_regex(string, compiled_regex, substitution):
     return compiled_regex.sub(substitution, string)
 
-def substitute_regex(regex: str, substitution: str, ignore_case: bool = False) -> Callable[[str], str]:
+
+def substitute_regex(regex, substitution, ignore_case=False):
     flags = re.IGNORECASE if ignore_case else 0
     compiled_regex = re.compile(regex, flags=flags)
     return lambda x: _substitute_regex(x, compiled_regex, substitution)
@@ -107,7 +107,7 @@ class MosesPunctuationNormalizer:
         substitute_regex(r'(\d) (\d)', r'\g<1>.\g<2>'),
     ]
 
-    def __init__(self, language: str = 'en', penn: bool = False):
+    def __init__(self, language='en', penn= False):
         """
         Python port of the Moses Perl script for normalization of punctuation.
 
@@ -132,7 +132,7 @@ class MosesPunctuationNormalizer:
         else:
             self.substitutions += self.SUBSTITUTIONS_OTHER
 
-    def normalize(self, string: str):
+    def normalize(self, string):
         """
         Returns a string with normalized punctuation.
         """
