@@ -48,17 +48,22 @@ class TestTruecaser(unittest.TestCase):
         for _input, _output in self.input_output.items():
             assert moses.truecase(_input) == _output
 
-    def test_german_corpus(self):
-        moses = MosesTruecaser('de.truecasemodel')
+    # def test_train_from_file(self):
+    #     moses = MosesTruecaser()
+    #     # Train the model from file.
+    #     moses.train_from_file('corpus.de')
 
-        with io.open('corpus.de', encoding='utf-8') as corpus, io.open('corpus.truecased.de', encoding='utf-8') as truecased_corpus:
-            for original, truecased_reference in zip(corpus, truecased_corpus):
-                truecased_reference = truecased_reference.rstrip()
-                original = original.rstrip()
-
-                truecased_ported = moses.truecase(original, return_str=True)
-
-                assert truecased_ported == truecased_reference
+    # def test_german_corpus(self):
+    #     moses = MosesTruecaser('de.truecasemodel')
+    #
+    #     with io.open('corpus.de', encoding='utf-8') as corpus, io.open('corpus.truecased.de', encoding='utf-8') as truecased_corpus:
+    #         for original, truecased_reference in zip(corpus, truecased_corpus):
+    #             truecased_reference = truecased_reference.rstrip()
+    #             original = original.rstrip()
+    #
+    #             truecased_ported = moses.truecase(original, return_str=True)
+    #
+    #             assert truecased_ported == truecased_reference
 
     def setUp(self):
         # Check if the Norvig's big.txt file exists.
