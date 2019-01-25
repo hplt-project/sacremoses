@@ -5,35 +5,21 @@ Tests for MosesTokenizer
 """
 
 import io
-import os
 import unittest
 
 from six import text_type
 
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
-
-
-# Crazy hack to support Python2 and 3 and requests to download files.
-# From https://stackoverflow.com/a/47897956/610569
-try: # Try importing Python3 urllib
-    import urllib.request
-except ImportError: # Now importing Python2 urllib
-    import urllib
-
-
-def get_content(url):
-    try: # Using Python3 urllib.
-        with urllib.request.urlopen(url) as response:
-            return response.read() # Returns http.client.HTTPResponse.
-    except AttributeError: # Using Python3 urllib.
-        return urllib.urlopen(url).read() # Returns an instance.
+from sacremoses.test.utils import get_test_file
+import sacremoses.test.constants as C
 
 
 class TestTruecaser(unittest.TestCase):
+
     def test_moses_truecase_documents(self):
         moses = MosesTruecaser()
         # Train the model from documents.
-        docs = [line.split() for line in self.big_txt.split('\n')]
+        docs = [line.split() for line in self.file_test_original.split('\n')]
         moses.train(docs)
         # Test all self.input_output test cases.
         for _input, _output in self.input_output.items():
@@ -43,37 +29,16 @@ class TestTruecaser(unittest.TestCase):
     def test_moses_truecase_file(self):
         moses = MosesTruecaser()
         # Train the model from file.
-        moses.train_from_file('big.txt')
+        moses.train_from_file(self.test_file)
         # Test all self.input_output test cases.
         for _input, _output in self.input_output.items():
             assert moses.truecase(_input) == _output
 
-    # def test_train_from_file(self):
-    #     moses = MosesTruecaser()
-    #     # Train the model from file.
-    #     moses.train_from_file('corpus.de')
-
-    # def test_german_corpus(self):
-    #     moses = MosesTruecaser('de.truecasemodel')
-    #
-    #     with io.open('corpus.de', encoding='utf-8') as corpus, io.open('corpus.truecased.de', encoding='utf-8') as truecased_corpus:
-    #         for original, truecased_reference in zip(corpus, truecased_corpus):
-    #             truecased_reference = truecased_reference.rstrip()
-    #             original = original.rstrip()
-    #
-    #             truecased_ported = moses.truecase(original, return_str=True)
-    #
-    #             assert truecased_ported == truecased_reference
-
     def setUp(self):
-        # Check if the Norvig's big.txt file exists.
-        if os.path.isfile('big.txt'):
-            with open('big.txt') as fin:
-                self.big_txt = fin.read()
-        else: # Otherwise, download the big.txt.
-            self.big_txt = get_content("https://norvig.com/big.txt").decode('utf8')
-            with open('big.txt', 'w') as fout:
-                fout.write(self.big_txt)
+        # Download test file if needed
+        self.test_file = get_test_file('en')
+        with open(self.test_file) as f:
+            self.file_test_original = f.read()
 
         # Test case where inputs are all caps.
         caps_input = "THE ADVENTURES OF SHERLOCK HOLMES"
@@ -140,3 +105,7 @@ class TestDetruecaser(unittest.TestCase):
                     'Then the next sentence with Caps here and There .']
 
         assert list(moses.detruecase_file('detruecase-test.txt')) == expected
+
+
+if __name__ == '__main__':
+    unittest.main()
