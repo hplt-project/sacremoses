@@ -43,44 +43,32 @@ True
 **Truecaser**
 
 ```python
->>> from sacremoses import MosesTruecaser
+>>> from sacremoses import MosesTruecaser, MosesTokenizer
 
 # Train a new truecaser from a 'big.txt' file.
 >>> mtr = MosesTruecaser()
->>> mtr.train_from_file('big.txt)
+>>> mtok = MosesTokenizer()
 
 # Save the truecase model to 'big.truecasemodel' using `save_to`
->>> mtr = MosesTruecaser()
->>> mtr.train_from_file('big.txt', save_to='big.truecasemodel')
+>> tokenized_docs = [mtok.tokenize(line) for line in open('big.txt')]
+>>> mtr.train(tokenized_docs, save_to='big.truecasemodel')
 
 # Save the truecase model to 'big.truecasemodel' after training
 # (just in case you forgot to use `save_to`)
 >>> mtr = MosesTruecaser()
 >>> mtr.train('big.txt')
->>> mtr._save_model('big.truecasemodel')
+>>> mtr.save_model('big.truecasemodel')
 
-# Truecase a string using trained model.
+# Truecase a string after training a model.
 >>> mtr = MosesTruecaser()
 >>> mtr.train('big.txt')
+>>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
+['the', 'adventures', 'of', 'Sherlock', 'Holmes']
+
+# Loads a model and truecase a string using trained model.
+>>> mtr = MosesTruecaser('big.truecasemodel')
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
 >>> print(mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True)
 'the adventures of Sherlock Holmes'
-
-# Truecase a file using trained model.
->>> mtr = MosesTruecaser()
->>> mtr.train('big.txt')
->>> list(mtr.truecase_file('big.txt')) # Returns one sentence per line.
-
-# Write to a truecase_file output to a file.
->>> mtr = MosesTruecaser()
->>> mtr.train('big.txt')
->>> with open('big.truecased', 'w') as fout:
-...     fout.write('\n'.join(mtr.truecase_file('big.txt')))
-
-# Load the truecase model from 'big.truecasemodel'
->>> mtr = MosesTruecaser('big.truecasemodel')
->>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
-['the', 'adventures', 'of', 'Sherlock', 'Holmes']
-
 ```

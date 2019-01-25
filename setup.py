@@ -1,9 +1,15 @@
 from distutils.core import setup
+import setuptools
+
+console_scripts = """
+[console_scripts]
+sacremoses=sacremoses.cli:cli
+"""
 
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.6',
+  version = '0.0.7',
   description = 'SacreMoses',
   long_description = 'LGPL MosesTokenizer in Python',
   author = '',
@@ -12,5 +18,6 @@ setup(
   url = 'https://github.com/alvations/sacremoses',
   keywords = [],
   classifiers = [],
-  install_requires = ['six']
+  install_requires = ['six', 'click', 'joblib', 'tqdm'],
+  entry_points=console_scripts,
 )

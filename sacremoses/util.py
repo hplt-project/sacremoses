@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+try: # Python3
+    from itertools import zip_longest
+except ImportError: # Python2
+    from itertools import izip_longest as zip_longest
+
+from joblib import Parallel, delayed
+from tqdm import tqdm
+
+
 class CJKChars(object):
     """
     An object that enumerates the code points of the CJK characters as listed on
@@ -136,3 +145,27 @@ def xml_unescape(text):
     return unescape(text, entities={r"&apos;": r"'", r"&quot;": r'"',
                                     r"&#124;": r"|",
                                     r"&#91;": r"[", r"&#93;": r"]", })
+
+
+def pairwise(iterable):
+    """
+    From https://docs.python.org/3/library/itertools.html#recipes
+    s -> (s0,s1), (s1,s2), (s2, s3), ...
+    """
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)
+
+
+def grouper(iterable, n, fillvalue=None):
+    """Collect data into fixed-length chunks or blocks
+    from https://stackoverflow.com/a/16789869/610569
+    """
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
+
+
+def parallelize_preprocess(func, iterator, processes, progress_bar=False):
+    iterator = tqdm(iterator) if progress_bar else iterator
+    return Parallel(n_jobs=processes)(delayed(func)(line) for line in iterator)
