@@ -14,7 +14,7 @@ Install
 pip install -U sacremoses
 ```
 
-Usage
+Usage (Python)
 ====
 
 **Tokenizer and Detokenizer**
@@ -72,3 +72,62 @@ True
 >>> print(mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True)
 'the adventures of Sherlock Holmes'
 ```
+
+
+Usage (CLI)
+====
+
+
+
+```
+$ pip install -U sacremoses>=0.07
+
+$ sacremoses --help
+Usage: sacremoses [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --version   Show the version and exit.
+  -h, --help  Show this message and exit.
+
+Commands:
+  detokenize
+  detruecase
+  tokenize
+  train-truecase
+  truecase
+```
+
+
+**Tokenizer** 
+
+```
+$ sacremoses tokenize --help
+Usage: sacremoses tokenize [OPTIONS]
+
+Options:
+  -j, --processes INTEGER       No. of processes.
+  -a, --aggressive-dash-splits  Triggers dash split rules.
+  -x, --xml-escape              Escape special characters for XML.
+  -h, --help                    Show this message and exit.
+ 
+ 
+ $ sacremoses tokenize -j 4 < big.txt > big.txt.tok
+100%|██████████████████████████████████| 128457/128457 [00:15<00:00, 8059.72it/s]
+ ```
+ 
+ **Detokenizer**
+ 
+ ```
+ $ sacremoses detokenize --help
+Usage: sacremoses detokenize [OPTIONS]
+
+Options:
+  -j, --processes INTEGER  No. of processes.
+  -x, --xml-unescape       Unescape special characters for XML.
+  -h, --help               Show this message and exit.
+  
+ 
+ $ sacremoses detokenize -j 4 < big.txt.tok > big.txt.tok.detok 
+128457it [00:23, 5355.88it/s]
+ ```
+ 
