@@ -79,7 +79,7 @@ Usage (CLI)
 
 
 
-```
+```shell
 $ pip install -U sacremoses>=0.07
 
 $ sacremoses --help
@@ -100,7 +100,7 @@ Commands:
 
 **Tokenizer** 
 
-```
+```shell
 $ sacremoses tokenize --help
 Usage: sacremoses tokenize [OPTIONS]
 
@@ -117,8 +117,8 @@ Options:
  
  **Detokenizer**
  
- ```
- $ sacremoses detokenize --help
+```shell
+$ sacremoses detokenize --help
 Usage: sacremoses detokenize [OPTIONS]
 
 Options:
@@ -129,5 +129,51 @@ Options:
  
  $ sacremoses detokenize -j 4 < big.txt.tok > big.txt.tok.detok 
 128457it [00:23, 5355.88it/s]
- ```
+```
  
+ **Train Truecaser**
+ 
+```shell
+ $ sacremoses train-truecase --help
+Usage: sacremoses train-truecase [OPTIONS]
+
+Options:
+  -m, --modelfile TEXT            Filename to save the modelfile.  [required]
+  -j, --processes INTEGER         No. of processes.
+  -a, --is-asr                    A flag to indicate that model is for ASR.
+  -p, --possibly-use-first-token  Use the first token as part of truecasing.
+  -h, --help                      Show this message and exit.
+  
+$ sacremoses train-truecase -m big.model -j 4 < big.txt.tok
+```
+
+**Truecase**
+  
+```shell
+$ sacremoses truecase --help
+Usage: sacremoses truecase [OPTIONS]
+
+Options:
+  -m, --modelfile TEXT     The trucaser modelfile to use.  [required]
+  -j, --processes INTEGER  No. of processes.
+  -a, --is-asr             A flag to indicate that model is for ASR.
+  -h, --help               Show this message and exit.
+  
+$ sacremoses truecase -m big.model -j 4 < big.txt.tok > big.txt.tok.true
+128457it [00:11, 11411.07it/s]
+```
+
+**Detruecase**
+
+```shell
+$ sacremoses detruecase --help
+Usage: sacremoses detruecase [OPTIONS]
+
+Options:
+  -j, --processes INTEGER  No. of processes.
+  -a, --is-headline        Whether the file are headlines.
+  -h, --help               Show this message and exit.
+  
+$ sacremoses detruecase -j 4 < big.txt.tok.true > big.txt.tok.true.detrue 
+100%|█████████████████████████████████| 128457/128457 [00:04<00:00, 26945.16it/s]
+```
