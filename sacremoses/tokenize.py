@@ -131,7 +131,7 @@ class MosesTokenizer(object):
     CONTRACTION_13 = r" ([Gg])onna ", r" \1on na "
     CONTRACTION_14 = r" ([Gg])otta ", r" \1ot ta "
     CONTRACTION_15 = r" ([Ll])emme ", r" \1em me "
-    CONTRACTION_16 = r" ([Mm])ore$text =~ s='n ", r" \1ore 'n "
+    CONTRACTION_16 = r" ([Mm])ore'n ", r" \1ore 'n "
     CONTRACTION_17 = r" '([Tt])is ", r" '\1 is "
     CONTRACTION_18 = r" '([Tt])was ", r" '\1 was "
     CONTRACTION_19 = r" ([Ww])anna ", r" \1an na "
