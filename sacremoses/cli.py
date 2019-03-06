@@ -31,14 +31,15 @@ def cli():
     pass
 
 @cli.command('tokenize')
+@click.option('--language', '-l', default='en', help='Use language specific rules when tokenizing')
 @click.option('--processes', '-j', default=1, help='No. of processes.')
 @click.option('--aggressive-dash-splits', '-a', default=False, is_flag=True,
                 help='Triggers dash split rules.')
 @click.option('--xml-escape', '-x', default=True, is_flag=True,
                 help='Escape special characters for XML.')
 @click.option('--encoding', '-e', default='utf8', help='Specify encoding of file.')
-def tokenize_file(processes, xml_escape, aggressive_dash_splits, encoding):
-    moses = MosesTokenizer()
+def tokenize_file(language, processes, xml_escape, aggressive_dash_splits, encoding):
+    moses = MosesTokenizer(lang=language)
     moses_tokenize = partial(moses.tokenize,
                         return_str=True,
                         aggressive_dash_splits=aggressive_dash_splits,
@@ -57,12 +58,13 @@ def tokenize_file(processes, xml_escape, aggressive_dash_splits, encoding):
 
 
 @cli.command('detokenize')
+@click.option('--language', '-l', default='en', help='Use language specific rules when tokenizing')
 @click.option('--processes', '-j', default=1, help='No. of processes.')
 @click.option('--xml-unescape', '-x', default=True, is_flag=True,
                 help='Unescape special characters for XML.')
 @click.option('--encoding', '-e', default='utf8', help='Specify encoding of file.')
-def detokenize_file(processes, xml_unescape, encoding):
-    moses = MosesDetokenizer()
+def detokenize_file(language, processes, xml_unescape, encoding):
+    moses = MosesDetokenizer(lang=language)
     moses_detokenize = partial(moses.detokenize,
                         return_str=True,
                         unescape=xml_unescape)
