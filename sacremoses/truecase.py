@@ -161,7 +161,7 @@ class MosesTruecaser(object):
         """
         with open(filename, encoding=self.encoding) as fin:
             #document_iterator = map(str.split, fin.readlines())
-            document_iterator = (line.split() for line in fin) # Lets try a generator comprehension for Python2...
+            document_iterator = (line.split() for line in fin.readlines()) # Lets try a generator comprehension for Python2...
         self.model = None # Clear the model first.
         self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
         return self.model
@@ -174,7 +174,7 @@ class MosesTruecaser(object):
         object.
         """
         #document_iterator = map(str.split, file_object.readlines())
-        document_iterator = (line.split() for line in fin) # Lets try a generator comprehension for Python2...
+        document_iterator = (line.split() for line in file_object.readlines()) # Lets try a generator comprehension for Python2...
         self.model = None # Clear the model first.
         self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
         return self.model
