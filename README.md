@@ -1,7 +1,7 @@
 # Sacremoses
 
 [![Build Status](https://travis-ci.org/alvations/sacremoses.svg?branch=master)](https://travis-ci.org/alvations/sacremoses)
-
+[![Build status](https://ci.appveyor.com/api/projects/status/bwgmj4axw9pdk1oq?svg=true)](https://ci.appveyor.com/project/alvations/sacremoses)
 
 License
 ====
