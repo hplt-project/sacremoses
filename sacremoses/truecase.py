@@ -27,7 +27,7 @@ class MosesTruecaser(object):
     Uppercase_Letter = text_type(''.join(perluniprops.chars('Uppercase_Letter')))
     Titlecase_Letter = text_type(''.join(perluniprops.chars('Uppercase_Letter')))
 
-    def __init__(self, load_from=None, is_asr=None):
+    def __init__(self, load_from=None, is_asr=None, encoding='utf8'):
         """
         :param load_from:
         :type load_from:
@@ -50,6 +50,8 @@ class MosesTruecaser(object):
 
         self.SENT_END = {".", ":", "?", "!"}
         self.DELAYED_SENT_START = {"(", "[", "\"", "'", "&apos;", "&quot;", "&#91;", "&#93;"}
+
+        self.encoding = encoding
 
         self.is_asr = is_asr
         if load_from:
@@ -149,7 +151,7 @@ class MosesTruecaser(object):
         Duck-type of _train(), accepts a filename to read as a `iter(list(str))`
         object.
         """
-        with open(filename) as fin:
+        with open(filename, encoding=self.encoding) as fin:
             document_iterator = map(str.split, fin.readlines())
         self.model = None # Clear the model first.
         self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
@@ -229,7 +231,7 @@ class MosesTruecaser(object):
         return ' '.join(truecased_tokens) if return_str else truecased_tokens
 
     def truecase_file(self, filename, return_str=True):
-        with open(filename) as fin:
+        with open(filename, encoding=self.encoding) as fin:
             for line in fin:
                 truecased_tokens = self.truecase(line.strip())
                 # Yield the truecased line.
@@ -311,7 +313,7 @@ class MosesTruecaser(object):
         :param casing: The dictionary of tokens counter from `train()`.
         :type casing: default(Counter)
         """
-        with open(filename, 'w') as fout:
+        with open(filename, 'w', encoding=self.encoding) as fout:
             for token in casing:
                 total_token_count = sum(casing[token].values())
                 tokens_counts = []
@@ -331,7 +333,7 @@ class MosesTruecaser(object):
         :rtype: {'best': dict, 'known': Counter}
         """
         casing = defaultdict(Counter)
-        with open(filename) as fin:
+        with open(filename, encoding=self.encoding) as fin:
             for line in fin:
                 line = line.strip().split()
                 for token, count in grouper(line, 2):
