@@ -92,7 +92,7 @@ def train_truecaser(modelfile, processes, is_asr, possibly_use_first_token, enco
     with click.get_text_stream('stdin', encoding=encoding) as fin:
         model = moses.train_from_file_object(fin,
                     possibly_use_first_token=possibly_use_first_token,
-                    processes=processes)
+                    processes=processes, progress_bar=True)
         moses.save_model(modelfile)
 
 
@@ -104,10 +104,15 @@ def train_truecaser(modelfile, processes, is_asr, possibly_use_first_token, enco
 @click.option('--encoding', '-e', default='utf8', help='Specify encoding of file.')
 def truecase_file(modelfile, processes, is_asr, encoding):
     moses = MosesTruecaser(load_from=modelfile, is_asr=is_asr, encoding=encoding)
+    moses_truecase = partial(moses.truecase, return_str=True)
     with click.get_text_stream('stdin', encoding=encoding) as fin:
         with click.get_text_stream('stdout', encoding=encoding) as fout:
             for line in tqdm(fin):
                 print(moses.truecase(line, return_str=True), end='\n', file=fout)
+            #FIXME: parallelize job don't work properly for MosesTruecaser.truecase
+            ##else:
+            ##    for outline in parallelize_preprocess(moses_truecase, fin.readlines(), processes, progress_bar=True):
+            ##        print(outline, end='\n', file=fout)
 
 
 @cli.command('detruecase')
