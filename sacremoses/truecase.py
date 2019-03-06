@@ -13,8 +13,15 @@ from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
 from sacremoses.util import parallelize_preprocess, grouper
 
-perluniprops = Perluniprops()
+# Hack to enable Python2.7 to use encoding.
+import sys
+import warnings
+if sys.version_info[0] < 3:
+    open = io.open
+    warnings.warn(str('You should really be using Python3!!!'
+                      'Tick tock, tick tock, https://pythonclock.org/'))
 
+perluniprops = Perluniprops()
 
 class MosesTruecaser(object):
     """

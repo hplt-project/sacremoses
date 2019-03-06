@@ -11,6 +11,15 @@ from sacremoses.tokenize import MosesTokenizer, MosesDetokenizer
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
 from sacremoses.util import parallelize_preprocess
 
+# Hack to enable Python2.7 to use encoding.
+import sys
+import warnings
+if sys.version_info[0] < 3:
+    open = io.open
+    warnings.warn(str('You should really be using Python3!!!'
+                      'Tick tock, tick tock, https://pythonclock.org/'))
+
+
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
