@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/alvations/sacremoses.svg?branch=master)](https://travis-ci.org/alvations/sacremoses)
 
+
 License
 ====
 
@@ -14,7 +15,7 @@ Install
 pip install -U sacremoses
 ```
 
-Usage
+Usage (Python)
 ====
 
 **Tokenizer and Detokenizer**
@@ -71,4 +72,117 @@ True
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
 >>> print(mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True)
 'the adventures of Sherlock Holmes'
+```
+
+
+Usage (CLI)
+====
+
+
+
+```shell
+$ pip install -U sacremoses>=0.07
+
+$ sacremoses --help
+Usage: sacremoses [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --version   Show the version and exit.
+  -h, --help  Show this message and exit.
+
+Commands:
+  detokenize
+  detruecase
+  tokenize
+  train-truecase
+  truecase
+```
+
+
+**Tokenizer**
+
+```shell
+$ sacremoses tokenize --help
+Usage: sacremoses tokenize [OPTIONS]
+
+Options:
+  -l, --language TEXT           Use language specific rules when tokenizing
+  -j, --processes INTEGER       No. of processes.
+  -a, --aggressive-dash-splits  Triggers dash split rules.
+  -x, --xml-escape              Escape special characters for XML.
+  -e, --encoding TEXT           Specify encoding of file.
+  -h, --help                    Show this message and exit.
+
+
+ $ sacremoses tokenize -j 4 < big.txt > big.txt.tok
+100%|██████████████████████████████████| 128457/128457 [00:15<00:00, 8059.72it/s]
+ ```
+
+ **Detokenizer**
+
+```shell
+$ sacremoses detokenize --help
+Usage: sacremoses detokenize [OPTIONS]
+
+Options:
+  -l, --language TEXT      Use language specific rules when tokenizing
+  -j, --processes INTEGER  No. of processes.
+  -x, --xml-unescape       Unescape special characters for XML.
+  -e, --encoding TEXT      Specify encoding of file.
+  -h, --help               Show this message and exit.
+
+
+ $ sacremoses detokenize -j 4 < big.txt.tok > big.txt.tok.detok
+128457it [00:23, 5355.88it/s]
+```
+
+ **Train Truecaser**
+
+```shell
+ $ sacremoses train-truecase --help
+Usage: sacremoses train-truecase [OPTIONS]
+
+Options:
+  -m, --modelfile TEXT            Filename to save the modelfile.  [required]
+  -j, --processes INTEGER         No. of processes.
+  -a, --is-asr                    A flag to indicate that model is for ASR.
+  -p, --possibly-use-first-token  Use the first token as part of truecasing.
+  -e, --encoding TEXT      Specify encoding of file.
+  -h, --help                      Show this message and exit.
+
+$ sacremoses train-truecase -m big.model -j 4 < big.txt.tok
+128457it [00:12, 10049.23it/s]
+```
+
+**Truecase**
+
+```shell
+$ sacremoses truecase --help
+Usage: sacremoses truecase [OPTIONS]
+
+Options:
+  -m, --modelfile TEXT     The trucaser modelfile to use.  [required]
+  -j, --processes INTEGER  No. of processes.
+  -a, --is-asr             A flag to indicate that model is for ASR.
+  -e, --encoding TEXT      Specify encoding of file.
+  -h, --help               Show this message and exit.
+
+$ sacremoses truecase -m big.model -j 4 < big.txt.tok > big.txt.tok.true
+128457it [00:11, 11411.07it/s]
+```
+
+**Detruecase**
+
+```shell
+$ sacremoses detruecase --help
+Usage: sacremoses detruecase [OPTIONS]
+
+Options:
+  -j, --processes INTEGER  No. of processes.
+  -a, --is-headline        Whether the file are headlines.
+  -e, --encoding TEXT      Specify encoding of file.
+  -h, --help               Show this message and exit.
+
+$ sacremoses detruecase -j 4 < big.txt.tok.true > big.txt.tok.true.detrue
+100%|█████████████████████████████████| 128457/128457 [00:04<00:00, 26945.16it/s]
 ```
