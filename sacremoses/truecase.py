@@ -100,7 +100,7 @@ class MosesTruecaser(object):
             elif possibly_use_first_token:
                 # Gated special handling of first word of sentence.
                 # Check if first characer of token is lowercase.
-                if token[0].is_lower():
+                if token[0].islower():
                     current_word_weight = 1
                 elif i == 1:
                     current_word_weight = 0.1
