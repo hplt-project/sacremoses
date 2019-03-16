@@ -74,7 +74,7 @@ def detokenize_file(language, processes, xml_unescape, encoding):
             # so just process line by line normally.
             if processes == 1:
                 for line in tqdm(fin.readlines()):
-                    print(moses_detokenize(line), end='\n', file=fout)
+                    print(moses_detokenize(str.split(line)), end='\n', file=fout)
             else:
                 document_iterator = map(str.split, fin.readlines())
                 for outline in parallelize_preprocess(moses_detokenize, document_iterator, processes, progress_bar=True):
