@@ -32,6 +32,11 @@ class TestTokenzier(unittest.TestCase):
         assert moses.tokenize(text, escape=True) == expected_tokens_with_xmlescape
         assert moses.tokenize(text, escape=False) == expected_tokens_wo_xmlescape
 
+        # Test to check https://github.com/alvations/sacremoses/issues/19
+        text = "this 'is' the thing"
+        expected_tokens = ['this', '&apos;', 'is', '&apos;', 'the', 'thing']
+        assert moses.tokenize(text, escape=True) == expected_tokens
+
     def test_aggressive_split(self):
         moses = MosesTokenizer()
         expected_tokens_wo_aggressive_dash_split = ['foo-bar']
