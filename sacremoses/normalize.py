@@ -75,12 +75,12 @@ class MosesPunctNormalizer:
     ]
 
     OTHER = [
-        (r'(\d) (\d)', r'\g<1>.\g<2>'),
+        (u'(\d){}(\d)'.format(u"\u00A0"), r'\g<1>.\g<2>'),
     ]
 
     def __init__(self, lang='en', penn=False,
                  norm_quote_commas=True,
-                 norm_numbers=False):
+                 norm_numbers=True):
         """
         :param language: The two-letter language code.
         :type lang: str
@@ -114,5 +114,5 @@ class MosesPunctNormalizer:
         Returns a string with normalized punctuation.
         """
         for regexp, substitution in self.substitutions:
-            text = re.sub(regexp, substitution, text)
+            text = re.sub(regexp, substitution, text_type(text))
         return text
