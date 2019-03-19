@@ -10,11 +10,11 @@ import unittest
 
 from six import text_type
 
-from sacremoses.normalize import  MosesPunctNormalizer
+from sacremoses.normalize import MosesPunctNormalizer
 
 class TestNormalizer(unittest.TestCase):
     def test_moses_normalize_documents(self):
-        moses = MosesTruecaser()
+        moses = MosesPunctNormalizer()
         # Examples from normalizing big.txt
         inputs = ["The United States in 1805 (color map)                 _Facing_     193",
                   "=Formation of the Constitution.=--(1) The plans before the convention,",
@@ -45,6 +45,7 @@ class TestNormalizer(unittest.TestCase):
 
         text = u'12{}123'.format(u'\u00A0')
         expected = u'12.123'
-
         assert moses_norm_num.normalize(text) == expected
-        assert moses_no_norm_num.normalize(text) == text
+
+        text = expected = u'12 123'
+        assert moses_no_norm_num.normalize(text) == expected
