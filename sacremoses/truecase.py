@@ -179,13 +179,15 @@ class MosesTruecaser(object):
         self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
         return self.model
 
-    def truecase(self, text, return_str=False):
+    def truecase(self, text, return_str=False, use_known=False):
         """
         Truecase a single sentence / line of text.
 
         :param text: A single string, i.e. sentence text.
         :type text: str
 
+        :param use_known: Use the known case if a word is a known word but not the first word.
+        :type use_known: bool
         """
         check_model_message = str("\nUse Truecaser.train() to train a model.\n"
                                   "Or use Truecaser('modefile') to load a model.")
@@ -227,7 +229,7 @@ class MosesTruecaser(object):
             if is_first_word and best_case: # Truecase sentence start.
                 word = best_case
             elif known_case: # Don't change known words.
-                word = known_case
+                word = known_case if use_known else word
             elif best_case: # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
                 word = best_case
             # Else, it's an unknown word, don't change the word.
@@ -235,6 +237,12 @@ class MosesTruecaser(object):
             word = word + other_factors
             # Adds the truecased word.
             truecased_tokens.append(word)
+
+            # Resets sentence start if this token is an ending punctuation.
+            is_first_word = word in self.SENT_END
+
+            if word in self.DELAYED_SENT_START:
+                is_first_word = False
 
 
         #return ' '.join(tokens)

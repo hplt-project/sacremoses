@@ -58,15 +58,15 @@ class TestTruecaser(unittest.TestCase):
 
         # Test case where inputs are all caps.
         caps_input = "THE ADVENTURES OF SHERLOCK HOLMES"
-        expected_caps_output = ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
+        expected_caps_output = ['the', 'ADVENTURES', 'OF', 'SHERLOCK', 'HOLMES']
 
         # Test normal input to truecase.
         normal_input = str('You can also find out about how to make a donation '
                            'to Project Gutenberg, and how to get involved.')
         expecte_normal_output = ['you', 'can', 'also', 'find', 'out', 'about',
-                                'how', 'to', 'make', 'a', 'donation', 'to',
-                                'Project', 'Gutenberg,', 'and', 'how', 'to',
-                                'get', 'involved.']
+                                 'how', 'to', 'make', 'a', 'donation', 'to',
+                                 'Project', 'Gutenberg,', 'and', 'how', 'to',
+                                 'get', 'involved.']
 
         # Keep a key-value pairs of in/outputs.
         self.input_output = {caps_input: expected_caps_output,
