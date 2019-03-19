@@ -70,7 +70,9 @@ True
 >>> mtr = MosesTruecaser('big.truecasemodel')
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
->>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True
+>>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True)
+'the ADVENTURES OF SHERLOCK HOLMES'
+>>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True, use_known=True)
 'the adventures of Sherlock Holmes'
 ```
 
@@ -210,5 +212,6 @@ Options:
   -e, --encoding TEXT           Specify encoding of file.
   -h, --help                    Show this message and exit.
 
-$ sacremoses normalize -j 4 < big.txt > big.txt.norm.cli  100%|███████████████████████████████████████████████████████████████████████| 128457/128457 [00:09<00:00, 13096.23it/s]
+$ sacremoses normalize -j 4 < big.txt > big.txt.norm.cli
+100%|███████████████████████████████████████████████████████████████████████| 128457/128457 [00:09<00:00, 13096.23it/s]
 ```
