@@ -9,6 +9,7 @@ import click
 
 from sacremoses.tokenize import MosesTokenizer, MosesDetokenizer
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
+from sacremoses.normalize import MosesPunctNormalizer
 from sacremoses.util import parallelize_preprocess
 
 # Hack to enable Python2.7 to use encoding.
@@ -137,3 +138,34 @@ def detruecase_file(processes, is_headline, encoding):
             else:
                 for outline in parallelize_preprocess(moses_detruecase, fin.readlines(), processes, progress_bar=True):
                     print(outline, end='\n', file=fout)
+
+
+@cli.command('normalize')
+@click.option('--language', '-l', default='en', help='Use language specific rules when normalizing.')
+@click.option('--processes', '-j', default=1, help='No. of processes.')
+@click.option('--normalize-quote-commas', '-q',  default=True, is_flag=True,
+                help='Normalize quotations and commas.')
+@click.option('--normalize-numbers', '-d',  default=True, is_flag=True,
+                help='Normalize number.')
+@click.option('--encoding', '-e', default='utf8', help='Specify encoding of file.')
+def normalize_file(language, processes, normalize_quote_commas, normalize_numbers, encoding):
+    moses = MosesPunctNormalizer(language,
+                                 norm_quote_commas=normalize_quote_commas,
+                                 norm_numbers=normalize_numbers)
+    moses_normalize = partial(moses.normalize)
+
+    with click.get_text_stream('stdin', encoding=encoding) as fin:
+        with click.get_text_stream('stdout', encoding=encoding) as fout:
+            # If it's single process, joblib parallization is slower,
+            # so just process line by line normally.
+            if processes == 1:
+                # TODO: Actually moses_normalize(fin.read()) gives the same output
+                #       and it's a lot better but it's inconsistent with the other
+                #       preprocessing interfaces, so we're doing it line by line here.
+                for line in tqdm(fin.readlines()):
+                    # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
+                    print(moses_normalize(fin.read()), end='', file=fout)
+            else:
+                for outline in parallelize_preprocess(moses_normalize, fin.readlines(), processes, progress_bar=True):
+                    # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
+                    print(outline, end='', file=fout)

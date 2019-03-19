@@ -70,8 +70,17 @@ True
 >>> mtr = MosesTruecaser('big.truecasemodel')
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
->>> print(mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True)
+>>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True
 'the adventures of Sherlock Holmes'
+```
+
+**Normalizer**
+
+```
+>>> from sacremoses import MosesPunctNormalizer
+>>> mpn = MosesPunctNormalizer()
+>>> mpn.normalize('THIS EBOOK IS OTHERWISE PROVIDED TO YOU "AS-IS."')
+'THIS EBOOK IS OTHERWISE PROVIDED TO YOU "AS-IS."'
 ```
 
 
@@ -185,4 +194,21 @@ Options:
 
 $ sacremoses detruecase -j 4 < big.txt.tok.true > big.txt.tok.true.detrue
 100%|█████████████████████████████████| 128457/128457 [00:04<00:00, 26945.16it/s]
+```
+
+**Normalize**
+
+```shell
+$ sacremoses normalize --help
+Usage: sacremoses normalize [OPTIONS]
+
+Options:
+  -l, --language TEXT           Use language specific rules when normalizing.
+  -j, --processes INTEGER       No. of processes.
+  -q, --normalize-quote-commas  Normalize quotations and commas.
+  -d, --normalize-numbers       Normalize number.
+  -e, --encoding TEXT           Specify encoding of file.
+  -h, --help                    Show this message and exit.
+
+$ sacremoses normalize -j 4 < big.txt > big.txt.norm.cli  100%|███████████████████████████████████████████████████████████████████████| 128457/128457 [00:09<00:00, 13096.23it/s]
 ```
