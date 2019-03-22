@@ -230,7 +230,7 @@ class MosesTokenizer(object):
         return not set(text).difference(set(self.IsLower))
 
     def isanyalpha(self, text):
-        return len(set(text).intersection(set(self.IsAlpha))) > 0
+        return any(set(text).intersection(set(self.IsAlpha)))
 
     def has_numeric_only(self, text):
         return bool(re.search(r'(.*)[\s]+(\#NUMERIC_ONLY\#)', text))
