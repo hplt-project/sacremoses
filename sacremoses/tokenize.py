@@ -229,8 +229,8 @@ class MosesTokenizer(object):
     def islower(self, text):
         return not set(text).difference(set(self.IsLower))
 
-    def isalpha(self, text):
-        return not set(text).difference(set(self.IsAlpha))
+    def isanyalpha(self, text):
+        return len(set(text).intersection(set(self.IsAlpha))) > 0
 
     def has_numeric_only(self, text):
         return bool(re.search(r'(.*)[\s]+(\#NUMERIC_ONLY\#)', text))
@@ -251,7 +251,7 @@ class MosesTokenizer(object):
                 #      does not contain #NUMERIC_ONLY#
                 # iii. the token is not the last token and that the
                 #      next token contains all lowercase.
-                if (('.' in prefix and self.isalpha(prefix)) or
+                if (('.' in prefix and self.isanyalpha(prefix)) or
                         (prefix in self.NONBREAKING_PREFIXES and
                          prefix not in self.NUMERIC_ONLY_PREFIXES) or
                         (i != num_tokens - 1 and self.islower(tokens[i + 1]))):
