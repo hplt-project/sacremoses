@@ -334,6 +334,8 @@ class MosesTokenizer(object):
         # Cleans up extraneous spaces.
         regexp, substitution = self.DEDUPLICATE_SPACE
         text = re.sub(regexp, substitution, text).strip()
+        # Split trailing ".'".
+        text = re.sub("\.\' ?$", " . ' ", text)
         # Restore multidots.
         text = self.restore_multidots(text)
         if escape:
