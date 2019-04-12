@@ -61,7 +61,7 @@ class TestTokenzier(unittest.TestCase):
         expected_tokens = ['this', 'is', 'a', 'webpage',
                            'https://stackoverflow.com/questions/6181381/how-to-print-variables-in-perl',
                            'that', 'kicks', 'ass']
-        assert moses.tokenize(text) == expected_tokens
+        assert moses.tokenize(text, moses.BASIC_PROTECTED_PATTERNS) == expected_tokens
 
     def test_dot_splitting(self):
         moses = MosesTokenizer()
