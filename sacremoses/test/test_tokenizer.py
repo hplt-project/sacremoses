@@ -55,6 +55,14 @@ class TestTokenzier(unittest.TestCase):
 
         assert moses.tokenize(text) == expected_tokens
 
+    def test_protect_patterns(self):
+        moses = MosesTokenizer()
+        text = "this is a webpage https://stackoverflow.com/questions/6181381/how-to-print-variables-in-perl that kicks ass"
+        expected_tokens = ['this', 'is', 'a', 'webpage',
+                           'https://stackoverflow.com/questions/6181381/how-to-print-variables-in-perl',
+                           'that', 'kicks', 'ass']
+        assert moses.tokenize(text) == expected_tokens
+
 
 class TestDetokenizer(unittest.TestCase):
     def test_moses_detokenize(self):

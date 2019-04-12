@@ -170,6 +170,12 @@ class MosesTokenizer(object):
 
     NON_SPECIFIC_APOSTROPHE = r"\'", " ' "
 
+    BASIC_PROTECTED_PATTERN_1 = r"<\/?\S+\/?>"
+    BASIC_PROTECTED_PATTERN_2 = "<\S+( [a-zA-Z0-9]+\=\"?[^\"]\")+ ?\/?>"
+    BASIC_PROTECTED_PATTERN_3 = "<\S+( [a-zA-Z0-9]+\=\'?[^\']\')+ ?\/?>"
+    BASIC_PROTECTED_PATTERN_4 = "[\w\-\_\.]+\@([\w\-\_]+\.)+[a-zA-Z]{2,}"
+    BASIC_PROTECTED_PATTERN_5 = "(http[s]?|ftp):\/\/[^:\/\s]+(\/\w+)*\/[\w\-\.]+"
+
     MOSES_PENN_REGEXES_1 = [DEDUPLICATE_SPACE, ASCII_JUNK, DIRECTIONAL_QUOTE_1,
                             DIRECTIONAL_QUOTE_2, DIRECTIONAL_QUOTE_3,
                             DIRECTIONAL_QUOTE_4, DIRECTIONAL_QUOTE_5,
@@ -203,6 +209,12 @@ class MosesTokenizer(object):
                                 ESCAPE_SINGLE_QUOTE, ESCAPE_DOUBLE_QUOTE,
                                 ESCAPE_LEFT_SQUARE_BRACKET,
                                 ESCAPE_RIGHT_SQUARE_BRACKET]
+
+    BASIC_PROTECTED_PATTERNS = [BASIC_PROTECTED_PATTERN_1,
+                                BASIC_PROTECTED_PATTERN_2,
+                                BASIC_PROTECTED_PATTERN_3,
+                                BASIC_PROTECTED_PATTERN_4,
+                                BASIC_PROTECTED_PATTERN_5]
 
     def __init__(self, lang='en'):
         # Initialize the object.
@@ -288,7 +300,11 @@ class MosesTokenizer(object):
             text = re.sub(regexp, substitution, text)
         return text if return_str else text.split()
 
-    def tokenize(self, text, aggressive_dash_splits=False, return_str=False, escape=True):
+    def tokenize(self, text,
+                 aggressive_dash_splits=False,
+                 return_str=False,
+                 escape=True,
+                 protected_patterns=None):
         """
         Python port of the Moses tokenizer.
 
@@ -302,6 +318,16 @@ class MosesTokenizer(object):
         # De-duplicate spaces and clean ASCII junk
         for regexp, substitution in [self.DEDUPLICATE_SPACE, self.ASCII_JUNK]:
             text = re.sub(regexp, substitution, text)
+
+        # Find the tokens that needs to be protected.
+        protected_tokens = [match.group()
+                            for protected_pattern in protected_patterns
+                            for match in re.finditer(protected_pattern, text)]
+        # Apply the protected_patterns.
+        for i, token in enumerate(protected_tokens):
+            substituition = 'THISISPROTECTED' + str(i).zfill(3)
+            text = text.replace(token, substituition)
+
         # Strips heading and trailing spaces.
         text = text.strip()
         # Separate special characters outside of IsAlnum character set.
@@ -333,6 +359,12 @@ class MosesTokenizer(object):
         # Cleans up extraneous spaces.
         regexp, substitution = self.DEDUPLICATE_SPACE
         text = re.sub(regexp, substitution, text).strip()
+
+        # Restore the protected tokens.
+        for i, token in enumerate(protected_tokens):
+            substituition = 'THISISPROTECTED' + str(i).zfill(3)
+            text = text.replace(substituition, token)
+
         # Restore multidots.
         text = self.restore_multidots(text)
         if escape:
