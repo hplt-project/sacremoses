@@ -22,7 +22,7 @@ Usage (Python)
 
 ```python
 >>> from sacremoses import MosesTokenizer, MosesDetokenizer
->>> mt = MosesTokenizer()
+>>> mt = MosesTokenizer(lang='en')
 >>> text = u'This, is a sentence with weird\xbb symbols\u2026 appearing everywhere\xbf'
 >>> expected_tokenized = u'This , is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf'
 >>> tokenized_text = mt.tokenize(text, return_str=True)
@@ -30,7 +30,7 @@ Usage (Python)
 True
 
 
->>> mt, md = MosesTokenizer(), MosesDetokenizer()
+>>> mt, md = MosesTokenizer(lang='en'), MosesDetokenizer(lang='en')
 >>> sent = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [ ] & You're gonna shake it off? Don't?"
 >>> expected_tokens = [u'This', u'ain', u'&apos;t', u'funny', u'.', u'It', u'&apos;s', u'actually', u'hillarious', u',', u'yet', u'double', u'Ls', u'.', u'&#124;', u'&#91;', u'&#93;', u'&lt;', u'&gt;', u'&#91;', u'&#93;', u'&amp;', u'You', u'&apos;re', u'gonna', u'shake', u'it', u'off', u'?', u'Don', u'&apos;t', u'?']
 >>> expected_detokens = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [] & You're gonna shake it off? Don't?"
@@ -48,7 +48,7 @@ True
 
 # Train a new truecaser from a 'big.txt' file.
 >>> mtr = MosesTruecaser()
->>> mtok = MosesTokenizer()
+>>> mtok = MosesTokenizer(lang='en')
 
 # Save the truecase model to 'big.truecasemodel' using `save_to`
 >> tokenized_docs = [mtok.tokenize(line) for line in open('big.txt')]
