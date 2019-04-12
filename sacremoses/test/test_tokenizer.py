@@ -63,6 +63,14 @@ class TestTokenzier(unittest.TestCase):
                            'that', 'kicks', 'ass']
         assert moses.tokenize(text, moses.BASIC_PROTECTED_PATTERNS) == expected_tokens
 
+        # Testing against pattern from https://github.com/alvations/sacremoses/issues/35
+        noe_patterns = [r'(?:http|ftp)s?://'  # http:// or https://
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?))'
+            r'(?::\d+)?'  # optional port
+            r'(?:/\w+)*'
+            r'(?:(?:\.[a-z]+)|/?)']
+        assert moses.tokenize(text, noe_patterns) == expected_tokens
+
     def test_dot_splitting(self):
         moses = MosesTokenizer()
         text = "The meeting will take place at 11:00 a.m. Tuesday."
