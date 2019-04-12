@@ -362,9 +362,10 @@ class MosesTokenizer(object):
         text = re.sub(regexp, substitution, text).strip()
 
         # Restore the protected tokens.
-        for i, token in enumerate(protected_tokens):
-            substituition = 'THISISPROTECTED' + str(i).zfill(3)
-            text = text.replace(substituition, token)
+        if protected_patterns:
+            for i, token in enumerate(protected_tokens):
+                substituition = 'THISISPROTECTED' + str(i).zfill(3)
+                text = text.replace(substituition, token)
 
         # Restore multidots.
         text = self.restore_multidots(text)

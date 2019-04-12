@@ -63,6 +63,11 @@ class TestTokenzier(unittest.TestCase):
                            'that', 'kicks', 'ass']
         assert moses.tokenize(text) == expected_tokens
 
+    def test_dot_splitting(self):
+        moses = MosesTokenizer()
+        text = "The meeting will take place at 11:00 a.m. Tuesday."
+        expected_tokens = "The meeting will take place at 11 : 00 a.m. Tuesday .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
 
 class TestDetokenizer(unittest.TestCase):
     def test_moses_detokenize(self):
