@@ -20,7 +20,7 @@ class MosesTokenizer(object):
     """
     # Perl Unicode Properties character sets.
     IsN = text_type(''.join(perluniprops.chars('IsN')))
-    IsAlnum = text_type(''.join(perluniprops.chars('IsAlnum')))
+    IsAlnum = text_type(''.join(perluniprops.chars('IsAlnum'))) #+ u'्'
     IsSc = text_type(''.join(perluniprops.chars('IsSc')))
     IsSo = text_type(''.join(perluniprops.chars('IsSo')))
     IsAlpha = text_type(''.join(perluniprops.chars('IsAlpha')))
@@ -299,7 +299,6 @@ class MosesTokenizer(object):
         """
         # Converts input string into unicode.
         text = text_type(text)
-
         # De-duplicate spaces and clean ASCII junk
         for regexp, substitution in [self.DEDUPLICATE_SPACE, self.ASCII_JUNK]:
             text = re.sub(regexp, substitution, text)
@@ -448,7 +447,6 @@ class MosesDetokenizer(object):
                 else:
                     detokenized_text += prepend_space + token
                 prepend_space = " "
-
             # If it's a currency symbol.
             elif re.search(u"^[" + self.IsSc + u"\(\[\{\¿\¡]+$", token):
                 # Perform right shift on currency and other random punctuation items
@@ -480,7 +478,7 @@ class MosesDetokenizer(object):
 
             elif (self.lang in ['fr', 'it', 'ga'] and i <= len(tokens) - 2
                   and re.search(u'[{}][\']$'.format(self.IsAlpha), token)
-                  and re.search(u'^[{}]$'.format(self.IsAlpha), tokens[i + 1])):  # If the next token is alpha.
+                  and re.search(u'^[{}]'.format(self.IsAlpha), tokens[i + 1])):  # If the next token is alpha.
                 # For French and Italian, right-shift the contraction.
                 detokenized_text += prepend_space + token
                 prepend_space = ""
