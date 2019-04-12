@@ -39,15 +39,18 @@ def cli():
                 help='Escape special characters for XML.')
 @click.option('--protected-patterns', '-p', help='Specify file with patters to be protected in tokenisation.')
 @click.option('--encoding', '-e', default='utf8', help='Specify encoding of file.')
-def tokenize_file(language, processes, xml_escape, aggressive_dash_splits, protect_patterns, encoding):
+def tokenize_file(language, processes, xml_escape, aggressive_dash_splits, protected_patterns, encoding):
     moses = MosesTokenizer(lang=language)
-    with open(protect_patterns, encoding='utf8') as fin:
-        protected = [pattern for pattern in fin.readlines()]
+
+    if protected_patterns:
+        with open(protected_patterns, encoding='utf8') as fin:
+            protected_patterns = [pattern.strip() for pattern in fin.readlines()]
+
     moses_tokenize = partial(moses.tokenize,
                         return_str=True,
                         aggressive_dash_splits=aggressive_dash_splits,
                         escape=xml_escape,
-                        protected_patterns=protected)
+                        protected_patterns=protected_patterns)
 
     with click.get_text_stream('stdin', encoding=encoding) as fin:
         with click.get_text_stream('stdout', encoding=encoding) as fout:
