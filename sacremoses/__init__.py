@@ -5,4 +5,4 @@ from sacremoses.truecase import *
 from sacremoses.normalize import *
 #from sacremoses.subwords import *
 
-__version__ = '0.0.15'
+__version__ = '0.0.19'
