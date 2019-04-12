@@ -323,7 +323,7 @@ class MosesTokenizer(object):
             # Find the tokens that needs to be protected.
             protected_tokens = [match.group()
                                 for protected_pattern in protected_patterns
-                                for match in re.finditer(protected_pattern, text)]
+                                for match in re.finditer(protected_pattern, text, re.IGNORECASE)]
             # Apply the protected_patterns.
             for i, token in enumerate(protected_tokens):
                 substituition = 'THISISPROTECTED' + str(i).zfill(3)
