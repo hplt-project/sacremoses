@@ -2,7 +2,6 @@
 
 from functools import partial
 from itertools import chain
-
 from tqdm import tqdm
 
 import click
@@ -38,13 +37,17 @@ def cli():
                 help='Triggers dash split rules.')
 @click.option('--xml-escape', '-x', default=True, is_flag=True,
                 help='Escape special characters for XML.')
+@click.option('--protected-patterns', '-p', help='Specify file with patters to be protected in tokenisation.')
 @click.option('--encoding', '-e', default='utf8', help='Specify encoding of file.')
-def tokenize_file(language, processes, xml_escape, aggressive_dash_splits, encoding):
+def tokenize_file(language, processes, xml_escape, aggressive_dash_splits, protect_patterns, encoding):
     moses = MosesTokenizer(lang=language)
+    with open(protect_patterns, encoding='utf8') as fin:
+        protected = [pattern for pattern in fin.readlines()]
     moses_tokenize = partial(moses.tokenize,
                         return_str=True,
                         aggressive_dash_splits=aggressive_dash_splits,
-                        escape=xml_escape)
+                        escape=xml_escape,
+                        protected_patterns=protected)
 
     with click.get_text_stream('stdin', encoding=encoding) as fin:
         with click.get_text_stream('stdout', encoding=encoding) as fout:
