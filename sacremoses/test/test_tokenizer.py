@@ -67,7 +67,7 @@ class TestTokenzier(unittest.TestCase):
         expected_tokens = ['this', 'is', 'a', 'webpage',
                            'https://stackoverflow.com/questions/6181381/how-to-print-variables-in-perl',
                            'that', 'kicks', 'ass']
-        assert moses.tokenize(text, moses.BASIC_PROTECTED_PATTERNS) == expected_tokens
+        assert moses.tokenize(text, protected_patterns=moses.BASIC_PROTECTED_PATTERNS) == expected_tokens
 
         # Testing against pattern from https://github.com/alvations/sacremoses/issues/35
         noe_patterns = [r'(?:http|ftp)s?://'  # http:// or https://
@@ -75,7 +75,7 @@ class TestTokenzier(unittest.TestCase):
             r'(?::\d+)?'  # optional port
             r'(?:/\w+)*'
             r'(?:(?:\.[a-z]+)|/?)']
-        assert moses.tokenize(text, noe_patterns) == expected_tokens
+        assert moses.tokenize(text, protected_patterns=noe_patterns) == expected_tokens
 
 class TestDetokenizer(unittest.TestCase):
     def test_moses_detokenize(self):
