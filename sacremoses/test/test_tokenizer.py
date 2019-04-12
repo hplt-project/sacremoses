@@ -85,5 +85,11 @@ class TestDetokenizer(unittest.TestCase):
         detokenizer = MosesDetokenizer()
 
         text = "By the mid 1990s a version of the game became a Latvian television series (with a parliamentary setting, and played by Latvian celebrities)."
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
 
+    def test_french_apostrophes(self):
+        tokenizer = MosesTokenizer(lang='fr')
+        detokenizer = MosesDetokenizer(lang='fr')
+
+        text = "L'amitié nous a fait forts d'esprit"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
