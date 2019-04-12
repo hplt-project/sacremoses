@@ -91,5 +91,5 @@ class TestDetokenizer(unittest.TestCase):
         tokenizer = MosesTokenizer(lang='fr')
         detokenizer = MosesDetokenizer(lang='fr')
 
-        text = "L'amitié nous a fait forts d'esprit"
+        text = u"L'amitié nous a fait forts d'esprit"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
