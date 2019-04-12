@@ -78,7 +78,7 @@ True
 
 **Normalizer**
 
-```
+```python
 >>> from sacremoses import MosesPunctNormalizer
 >>> mpn = MosesPunctNormalizer()
 >>> mpn.normalize('THIS EBOOK IS OTHERWISE PROVIDED TO YOU "AS-IS."')
@@ -121,12 +121,18 @@ Options:
   -j, --processes INTEGER       No. of processes.
   -a, --aggressive-dash-splits  Triggers dash split rules.
   -x, --xml-escape              Escape special characters for XML.
+  -p, --protected-patterns TEXT Specify file with patters to be protected in
+                                tokenisation.
   -e, --encoding TEXT           Specify encoding of file.
   -h, --help                    Show this message and exit.
 
 
  $ sacremoses tokenize -j 4 < big.txt > big.txt.tok
-100%|██████████████████████████████████| 128457/128457 [00:15<00:00, 8059.72it/s]
+100%|██████████████████████████████████| 128457/128457 [00:05<00:00, 24363.39it/s
+
+ $ wget https://raw.githubusercontent.com/moses-smt/mosesdecoder/master/scripts/tokenizer/basic-protected-patterns
+ $ sacremoses tokenize -j 4 -p basic-protected-patterns < big.txt > big.txt.tok
+100%|██████████████████████████████████| 128457/128457 [00:05<00:00, 22183.94it/s
  ```
 
  **Detokenizer**
