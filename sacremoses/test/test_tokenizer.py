@@ -61,12 +61,6 @@ class TestTokenzier(unittest.TestCase):
         expected_tokens = "The meeting will take place at 11 : 00 a.m. Tuesday .".split()
         self.assertEqual(moses.tokenize(text), expected_tokens)
 
-    def test_period_apostrophe(self):
-        moses = MosesTokenizer()
-        text = "'Hello.'"
-        expected_tokens = "&apos;Hello . &apos;".split()
-        self.assertEqual(moses.tokenize(text), expected_tokens)
-
     def test_protect_patterns(self):
         moses = MosesTokenizer()
         text = "this is a webpage https://stackoverflow.com/questions/6181381/how-to-print-variables-in-perl that kicks ass"
