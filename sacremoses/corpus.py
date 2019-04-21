@@ -27,18 +27,18 @@ class Perluniprops:
 
             >>> from sacremoses.corpus import Perluniprops
             >>> pup = Perluniprops()
-            >>> pup.chars('Open_Punctuation')[:5] == [u'(', u'[', u'{', u'\u0f3a', u'\u0f3c']
+            >>> list(pup.chars('Open_Punctuation'))[:5] == [u'(', u'[', u'{', u'\u0f3a', u'\u0f3c']
             True
-            >>> pup.chars('Currency_Symbol')[:5] == [u'$', u'\xa2', u'\xa3', u'\xa4', u'\xa5']
+            >>> list(pup.chars('Currency_Symbol'))[:5] == [u'$', u'\xa2', u'\xa3', u'\xa4', u'\xa5']
             True
-            >>> pup.available_categories
-            ['Close_Punctuation', 'Currency_Symbol', 'IsAlnum', 'IsAlpha', 'IsLower', 'IsN', 'IsSc', 'IsSo', 'IsUpper', 'Line_Separator', 'Number', 'Open_Punctuation', 'Punctuation', 'Separator', 'Symbol']
+            >>> pup.available_categories[:5]
+            ['Close_Punctuation', 'Currency_Symbol', 'IsAlnum', 'IsAlpha', 'IsLower']
 
         :return: a generator of characters given the specific unicode character category
         """
         relative_path = os.path.join("data", "perluniprops", category + ".txt")
         binary_data = pkgutil.get_data("sacremoses", relative_path)
-        return binary_data.decode("utf-8")
+        yield from binary_data.decode("utf-8")
 
 
 class NonbreakingPrefixes:
@@ -80,9 +80,9 @@ class NonbreakingPrefixes:
 
             >>> from sacremoses.corpus import NonbreakingPrefixes
             >>> nbp = NonbreakingPrefixes()
-            >>> nbp.words('en')[:10] == [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J']
+            >>> list(nbp.words('en'))[:10] == [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J']
             True
-            >>> nbp.words('ta')[:5] == [u'\u0b85', u'\u0b86', u'\u0b87', u'\u0b88', u'\u0b89']
+            >>> list(nbp.words('ta'))[:5] == [u'\u0b85', u'\u0b86', u'\u0b87', u'\u0b88', u'\u0b89']
             True
 
         :return: a generator words for the specified language(s).
