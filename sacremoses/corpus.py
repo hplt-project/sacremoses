@@ -19,7 +19,7 @@ class Perluniprops:
                             'Symbol', 'Lowercase_Letter', 'Titlecase_Letter',
                             'Uppercase_Letter']
 
-    def chars(self, category=None, fileids=None):
+    def chars(self, category=None):
         """
         This module returns a list of characters from  the Perl Unicode Properties.
         They are very useful when porting Perl tokenizers to Python.
