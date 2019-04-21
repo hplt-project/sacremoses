@@ -37,7 +37,8 @@ class Perluniprops:
         """
         relative_path = os.path.join("data", "perluniprops", category + ".txt")
         binary_data = pkgutil.get_data("sacremoses", relative_path)
-        yield from binary_data.decode("utf-8")
+        for ch in binary_data.decode("utf-8"):
+            yield ch
 
 
 class NonbreakingPrefixes:
