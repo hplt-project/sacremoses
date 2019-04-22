@@ -4,6 +4,7 @@
 Tests for corpus.py
 """
 
+import doctest
 import unittest
 
 from sacremoses import corpus
@@ -43,3 +44,8 @@ class CorpusTest(unittest.TestCase):
                              [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J'])
         self.assertListEqual(list(nonbreaking_prefixes.words('ta'))[:5],
                              [u'\u0b85', u'\u0b86', u'\u0b87', u'\u0b88', u'\u0b89'])
+
+
+def load_tests(loader, tests, ignore):
+    tests.addTests(doctest.DocTestSuite(corpus))
+    return tests
