@@ -23,7 +23,7 @@ class CorpusTest(unittest.TestCase):
                         count += 1
                     self.assertGreater(count, 0)
             else:
-                self.assertEqual(all(instance(char, str) for char in 
+                self.assertEqual(all(isinstance(char, str) for char in 
                                      perluniprops.chars(category=category)),
                                 True)
                 
@@ -45,7 +45,7 @@ class CorpusTest(unittest.TestCase):
                         count += 1
                     self.assertGreater(count, 0)
             else:
-                self.assertEqual(all(instance(word, str) for word in 
+                self.assertEqual(all(isinstance(word, str) for word in 
                                      nonbreaking_prefixes.words(lang=language)),
                                 True)
 
