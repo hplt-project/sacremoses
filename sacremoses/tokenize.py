@@ -170,6 +170,8 @@ class MosesTokenizer(object):
 
     NON_SPECIFIC_APOSTROPHE = r"\'", " ' "
 
+    TRAILING_DOT_APOSTROPHE = "\.\' ?$", " . ' "
+
     BASIC_PROTECTED_PATTERN_1 = r"<\/?\S+\/?>"
     BASIC_PROTECTED_PATTERN_2 = "<\S+( [a-zA-Z0-9]+\=\"?[^\"]\")+ ?\/?>"
     BASIC_PROTECTED_PATTERN_3 = "<\S+( [a-zA-Z0-9]+\=\'?[^\']\')+ ?\/?>"
@@ -360,6 +362,9 @@ class MosesTokenizer(object):
         # Cleans up extraneous spaces.
         regexp, substitution = self.DEDUPLICATE_SPACE
         text = re.sub(regexp, substitution, text).strip()
+        # Split trailing ".'".
+        regexp, substituition = self.TRAILING_DOT_APOSTROPHE
+        text = re.sub(regexp, substituition, text)
 
         # Restore the protected tokens.
         if protected_patterns:
