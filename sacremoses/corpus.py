@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import io
 import os
+import pkgutil
 
 class Perluniprops:
     """
@@ -11,36 +11,34 @@ class Perluniprops:
     The files in the perluniprop.zip are extracted using the Unicode::Tussle
     module from http://search.cpan.org/~bdfoy/Unicode-Tussle-1.11/lib/Unicode/Tussle.pm
     """
-    def __init__(self):
-        self.datadir = os.path.dirname(os.path.abspath(__file__)) + '/data/perluniprops/'
-        # These are categories similar to the Perl Unicode Properties
-        self.available_categories = ['Close_Punctuation', 'Currency_Symbol',
-                                     'IsAlnum', 'IsAlpha', 'IsLower', 'IsN', 'IsSc',
-                                     'IsSo', 'IsUpper', 'Line_Separator', 'Number',
-                                     'Open_Punctuation', 'Punctuation', 'Separator',
-                                     'Symbol',
-                                     'Lowercase_Letter.txt',
-                                     'Titlecase_Letter.txt',
-                                     'Uppercase_Letter.txt']
+    # These are categories similar to the Perl Unicode Properties
+    available_categories = ['Close_Punctuation', 'Currency_Symbol', 'IsAlnum',
+                            'IsAlpha', 'IsLower', 'IsN', 'IsSc', 'IsSo',
+                            'IsUpper', 'Line_Separator', 'Number',
+                            'Open_Punctuation', 'Punctuation', 'Separator',
+                            'Symbol', 'Lowercase_Letter', 'Titlecase_Letter',
+                            'Uppercase_Letter']
 
-    def chars(self, category=None, fileids=None):
+    def chars(self, category=None):
         """
         This module returns a list of characters from  the Perl Unicode Properties.
         They are very useful when porting Perl tokenizers to Python.
 
-            >>> from profanebleu.corpus import perluniprops as pup
-            >>> pup.chars('Open_Punctuation')[:5] == [u'(', u'[', u'{', u'\u0f3a', u'\u0f3c']
+            >>> from sacremoses.corpus import Perluniprops
+            >>> pup = Perluniprops()
+            >>> list(pup.chars('Open_Punctuation'))[:5] == [u'(', u'[', u'{', u'\u0f3a', u'\u0f3c']
             True
-            >>> pup.chars('Currency_Symbol')[:5] == [u'$', u'\xa2', u'\xa3', u'\xa4', u'\xa5']
+            >>> list(pup.chars('Currency_Symbol'))[:5] == [u'$', u'\xa2', u'\xa3', u'\xa4', u'\xa5']
             True
-            >>> pup.available_categories
-            ['Close_Punctuation', 'Currency_Symbol', 'IsAlnum', 'IsAlpha', 'IsLower', 'IsN', 'IsSc', 'IsSo', 'IsUpper', 'Line_Separator', 'Number', 'Open_Punctuation', 'Punctuation', 'Separator', 'Symbol']
+            >>> pup.available_categories[:5]
+            ['Close_Punctuation', 'Currency_Symbol', 'IsAlnum', 'IsAlpha', 'IsLower']
 
         :return: a generator of characters given the specific unicode character category
         """
-        with io.open(self.datadir+category+'.txt', encoding='utf8') as fin:
-            for ch in fin.read().strip():
-                yield ch
+        relative_path = os.path.join("data", "perluniprops", category + ".txt")
+        binary_data = pkgutil.get_data("sacremoses", relative_path)
+        for ch in binary_data.decode("utf-8"):
+            yield ch
 
 
 class NonbreakingPrefixes:
@@ -80,10 +78,11 @@ class NonbreakingPrefixes:
         This module returns a list of nonbreaking prefixes for the specified
         language(s).
 
-            >>> from profanebleu.corpus import nonbreaking_prefixes as nbp
-            >>> nbp.words('en')[:10] == [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J']
+            >>> from sacremoses.corpus import NonbreakingPrefixes
+            >>> nbp = NonbreakingPrefixes()
+            >>> list(nbp.words('en'))[:10] == [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J']
             True
-            >>> nbp.words('ta')[:5] == [u'\u0b85', u'\u0b86', u'\u0b87', u'\u0b88', u'\u0b89']
+            >>> list(nbp.words('ta'))[:5] == [u'\u0b85', u'\u0b86', u'\u0b87', u'\u0b88', u'\u0b89']
             True
 
         :return: a generator words for the specified language(s).
@@ -99,10 +98,11 @@ class NonbreakingPrefixes:
             filenames = ['nonbreaking_prefix.en']
 
         for filename in filenames:
-            with io.open(self.datadir+filename, encoding='utf8') as fin:
-                for line in fin:
-                    line = line.strip()
-                    if line and not line.startswith(ignore_lines_startswith):
-                        yield line
+            relative_path = os.path.join("data", "nonbreaking_prefixes", filename)
+            binary_data = pkgutil.get_data("sacremoses", relative_path)
+            for line in binary_data.decode("utf-8").splitlines():
+                line = line.strip()
+                if line and not line.startswith(ignore_lines_startswith):
+                    yield line
 
 __all__ = ['Perluniprops', 'NonbreakingPrefixes']
