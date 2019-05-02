@@ -46,7 +46,7 @@ class CorpusTest(unittest.TestCase):
                     self.assertGreater(count, 0)
             else:
                 self.assertEqual(all(instance(word, str) for word in 
-                                     nonbreaking_prefixes.words(lang=language))m
+                                     nonbreaking_prefixes.words(lang=language)),
                                 True)
 
     def test_nonbreaking_prefixes_manual(self):
