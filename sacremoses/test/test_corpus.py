@@ -23,8 +23,9 @@ class CorpusTest(unittest.TestCase):
                         count += 1
                     self.assertGreater(count, 0)
             else:
-                self.assert(all(instance(char, str) for char in 
-                                perluniprops.chars(category=category)))
+                self.assertEqual(all(instance(char, str) for char in 
+                                     perluniprops.chars(category=category)),
+                                True)
                 
     def test_perluniprops_chars_manual(self):
         perluniprops = Perluniprops()
@@ -44,8 +45,9 @@ class CorpusTest(unittest.TestCase):
                         count += 1
                     self.assertGreater(count, 0)
             else:
-                self.assert(all(instance(word, str) for word in 
-                                nonbreaking_prefixes.words(lang=language)))
+                self.assertEqual(all(instance(word, str) for word in 
+                                     nonbreaking_prefixes.words(lang=language))m
+                                True)
 
     def test_nonbreaking_prefixes_manual(self):
         nonbreaking_prefixes = NonbreakingPrefixes()
