@@ -19,9 +19,10 @@ class Perluniprops:
                                      'IsSo', 'IsUpper', 'Line_Separator', 'Number',
                                      'Open_Punctuation', 'Punctuation', 'Separator',
                                      'Symbol',
-                                     'Lowercase_Letter.txt',
-                                     'Titlecase_Letter.txt',
-                                     'Uppercase_Letter.txt']
+                                     'Lowercase_Letter',
+                                     'Titlecase_Letter',
+                                     'Uppercase_Letter',
+                                     'IsPf', 'IsPi', 'CJKSymbols.txt']
 
     def chars(self, category=None, fileids=None):
         """
