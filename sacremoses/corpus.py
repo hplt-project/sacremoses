@@ -22,7 +22,7 @@ class Perluniprops:
                                      'Lowercase_Letter',
                                      'Titlecase_Letter',
                                      'Uppercase_Letter',
-                                     'IsPf', 'IsPi', 'CJKSymbols.txt']
+                                     'IsPf', 'IsPi', 'CJKSymbols']
 
     def chars(self, category=None):
         """
