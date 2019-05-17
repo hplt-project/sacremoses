@@ -116,9 +116,9 @@ class TestTokenzier(unittest.TestCase):
         text = u"Sie sollten vor dem Upgrade eine Sicherung dieser Daten erstellen (wie unter Abschnitt 4.1.1, „Sichern aller Daten und Konfigurationsinformationen“ beschrieben). "
         expected_tokens = ['Sie', 'sollten', 'vor', 'dem', 'Upgrade', 'eine',
                            'Sicherung', 'dieser', 'Daten', 'erstellen', '(',
-                           'wie', 'unter', 'Abschnitt', '4.1.1', ',', '„',
+                           'wie', 'unter', 'Abschnitt', '4.1.1', ',', u'„',
                            'Sichern', 'aller', 'Daten', 'und',
-                           'Konfigurationsinformationen', '“', 'beschrieben',
+                           'Konfigurationsinformationen', u'“', 'beschrieben',
                            ')', '.']
         self.assertEqual(moses.tokenize(text), expected_tokens)
 
