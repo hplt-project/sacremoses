@@ -55,6 +55,7 @@ class MosesTokenizer(object):
     # will also space digit,letter or letter,digit forms (redundant with next section)
     COMMA_SEPARATE_1 = u'([^{}])[,]'.format(IsN), r'\1 , '
     COMMA_SEPARATE_2 = u'[,]([^{}])'.format(IsN), r' , \1'
+    COMMA_SEPARATE_3 = u'([{}])[,]$'.format(IsN), r'\1 , '
 
     # Attempt to get correct directional quotes.
     DIRECTIONAL_QUOTE_1 = r'^``', r'`` '
@@ -343,7 +344,7 @@ class MosesTokenizer(object):
         # Replaces multidots with "DOTDOTMULTI" literal strings.
         text = self.replace_multidots(text)
         # Separate out "," except if within numbers e.g. 5,300
-        for regexp, substitution in [self.COMMA_SEPARATE_1, self.COMMA_SEPARATE_2]:
+        for regexp, substitution in [self.COMMA_SEPARATE_1, self.COMMA_SEPARATE_2, self.COMMA_SEPARATE_3]:
             text = re.sub(regexp, substitution, text)
 
         # (Language-specific) apostrophe tokenization.

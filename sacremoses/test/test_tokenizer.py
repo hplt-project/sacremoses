@@ -62,10 +62,36 @@ class TestTokenzier(unittest.TestCase):
         self.assertEqual(moses.tokenize(text), expected_tokens)
 
     def test_trailing_dot_apostrophe(self):
+        # Make sure that it works for examples on
+        # https://github.com/moses-smt/mosesdecoder/pull/204.
         moses = MosesTokenizer()
         text = "'Hello.'"
         expected_tokens = "&apos;Hello . &apos;".split()
         self.assertEqual(moses.tokenize(text), expected_tokens)
+
+        text = "'So am I."
+        expected_tokens = "So am I .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+        moses = MosesTokenizer(lang='fr')
+        text = "Des gens admirent une œuvre d'art."
+        expected_tokens = "Des gens admirent une œuvre d' art .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+
+        moses = MosesTokenizer(lang='de')
+        text = "...schwer wie ein iPhone 5."
+        expected_tokens = "... schwer wie ein iPhone 5 .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+
+        moses = MosesTokenizer(lang='cz')
+        text = "Dvě děti, které běží bez bot."
+        expected_tokens = "Dvě děti , které běží bez bot .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+        # Make sure that non-breaking words remain non breaking.
+
 
     def test_protect_patterns(self):
         moses = MosesTokenizer()
