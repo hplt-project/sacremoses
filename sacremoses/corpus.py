@@ -11,13 +11,18 @@ class Perluniprops:
     The files in the perluniprop.zip are extracted using the Unicode::Tussle
     module from http://search.cpan.org/~bdfoy/Unicode-Tussle-1.11/lib/Unicode/Tussle.pm
     """
-    # These are categories similar to the Perl Unicode Properties
-    available_categories = ['Close_Punctuation', 'Currency_Symbol', 'IsAlnum',
-                            'IsAlpha', 'IsLower', 'IsN', 'IsSc', 'IsSo',
-                            'IsUpper', 'Line_Separator', 'Number',
-                            'Open_Punctuation', 'Punctuation', 'Separator',
-                            'Symbol', 'Lowercase_Letter', 'Titlecase_Letter',
-                            'Uppercase_Letter']
+    def __init__(self):
+        self.datadir = os.path.dirname(os.path.abspath(__file__)) + '/data/perluniprops/'
+        # These are categories similar to the Perl Unicode Properties
+        self.available_categories = ['Close_Punctuation', 'Currency_Symbol',
+                                     'IsAlnum', 'IsAlpha', 'IsLower', 'IsN', 'IsSc',
+                                     'IsSo', 'IsUpper', 'Line_Separator', 'Number',
+                                     'Open_Punctuation', 'Punctuation', 'Separator',
+                                     'Symbol',
+                                     'Lowercase_Letter',
+                                     'Titlecase_Letter',
+                                     'Uppercase_Letter',
+                                     'IsPf', 'IsPi', 'CJKSymbols']
 
     def chars(self, category=None):
         """

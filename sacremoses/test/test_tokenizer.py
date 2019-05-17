@@ -67,6 +67,34 @@ class TestTokenzier(unittest.TestCase):
         expected_tokens = "&apos;Hello . &apos;".split()
         self.assertEqual(moses.tokenize(text), expected_tokens)
 
+    # FIXME: Implement https://github.com/moses-smt/mosesdecoder/pull/204
+    @unittest.skip("This is not implemented yet.")
+    def test_final_dot_unconditionally(self):
+        # Make sure that it works for examples on
+        # https://github.com/moses-smt/mosesdecoder/pull/204
+        text = "'So am I."
+        expected_tokens = "&apos;So am I .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+        moses = MosesTokenizer(lang='fr')
+        text = "Des gens admirent une œuvre d'art."
+        expected_tokens = "Des gens admirent une œuvre d' art .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+
+        moses = MosesTokenizer(lang='de')
+        text = "...schwer wie ein iPhone 5."
+        expected_tokens = "... schwer wie ein iPhone 5 .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+
+        moses = MosesTokenizer(lang='cz')
+        text = "Dvě děti, které běží bez bot."
+        expected_tokens = "Dvě děti , které běží bez bot .".split()
+        self.assertEqual(moses.tokenize(text), expected_tokens)
+
+        #TODO: Make sure that non-breaking words remain non breaking.
+
     def test_protect_patterns(self):
         moses = MosesTokenizer()
         text = "this is a webpage https://stackoverflow.com/questions/6181381/how-to-print-variables-in-perl that kicks ass"
@@ -82,6 +110,17 @@ class TestTokenzier(unittest.TestCase):
             r'(?:/\w+)*'
             r'(?:(?:\.[a-z]+)|/?)']
         assert moses.tokenize(text, protected_patterns=noe_patterns) == expected_tokens
+
+    def test_final_comma_split_after_number(self):
+        moses = MosesTokenizer()
+        text = u"Sie sollten vor dem Upgrade eine Sicherung dieser Daten erstellen (wie unter Abschnitt 4.1.1, „Sichern aller Daten und Konfigurationsinformationen“ beschrieben). "
+        expected_tokens = ['Sie', 'sollten', 'vor', 'dem', 'Upgrade', 'eine',
+                           'Sicherung', 'dieser', 'Daten', 'erstellen', '(',
+                           'wie', 'unter', 'Abschnitt', '4.1.1', ',', u'„',
+                           'Sichern', 'aller', 'Daten', 'und',
+                           'Konfigurationsinformationen', u'“', 'beschrieben',
+                           ')', '.']
+        self.assertEqual(moses.tokenize(text), expected_tokens)
 
 class TestDetokenizer(unittest.TestCase):
     def test_moses_detokenize(self):
