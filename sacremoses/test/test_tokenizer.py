@@ -113,7 +113,7 @@ class TestTokenzier(unittest.TestCase):
 
     def test_final_comma_split_after_number(self):
         moses = MosesTokenizer()
-        text = "Sie sollten vor dem Upgrade eine Sicherung dieser Daten erstellen (wie unter Abschnitt 4.1.1, „Sichern aller Daten und Konfigurationsinformationen“ beschrieben). "
+        text = u"Sie sollten vor dem Upgrade eine Sicherung dieser Daten erstellen (wie unter Abschnitt 4.1.1, „Sichern aller Daten und Konfigurationsinformationen“ beschrieben). "
         expected_tokens = ['Sie', 'sollten', 'vor', 'dem', 'Upgrade', 'eine',
                            'Sicherung', 'dieser', 'Daten', 'erstellen', '(',
                            'wie', 'unter', 'Abschnitt', '4.1.1', ',', '„',
