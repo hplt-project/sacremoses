@@ -26,25 +26,44 @@ class MosesPunctNormalizer:
         (r" ;", r";"),
     ]
 
-    NORMALIZE_UNICODE_IF_NOT_PENN = [(r"`", r"'"), (r"''", r' " ')]  # lines 33 - 34
-
-    NORMALIZE_UNICODE = [  # lines 37 - 50
-        (u"„", r'"'),
-        (u"“", r'"'),
-        (u"”", r'"'),
-        (u"–", r"-"),
-        (u"—", r" - "),
-        (r" +", r" "),
-        (u"´", r"'"),
+    NORMALIZE_UNICODE = [ # lines 37 - 50
+        (u'„', r'"'),
+        (u'“', r'"'),
+        (u'”', r'"'),
+        (u'–', r'-'),
+        (u'—', r' - '),
+        (r' +', r' '),
+        (u'´', r"'"),
+        (u'([a-zA-Z])‘([a-zA-Z])', r"\g<1>'\g<2>"),
+        (u'([a-zA-Z])’([a-zA-Z])', r"\g<1>'\g<2>"),
+        (u'‘', r'"'),
+        (u'‚', r'"'),
+        (u'’', r'"'),
+        (r"''", r'"'),
+        (u'´´', r'"'),
+        (u'…', r'...'),
     ]
 
-    FRENCH_QUOTES = [  # lines 52 - 57
-        (u" « ", r'"'),
-        (u"« ", r'"'),
-        (u"«", r'"'),
-        (u" » ", r'"'),
-        (u" »", r'"'),
-        (u"»", r'"'),
+    FRENCH_QUOTES = [ # lines 52 - 57
+        (u'\u00A0«\u00A0', r'"'),
+        (u'«\u00A0', r'"'),
+        (u'«', r'"'),
+        (u'\u00A0»\u00A0', r'"'),
+        (u'\u00A0»', r'"'),
+        (u'»', r'"'),
+    ]
+
+    HANDLE_PSEUDO_SPACES = [ # lines 59 - 67
+        (u'\u00A0%', r'%'),
+        (u'nº\u00A0', u'nº '),
+        (u'\u00A0:', r':'),
+        (u'\u00A0ºC', u' ºC'),
+        (u'\u00A0cm', r' cm'),
+        (u'\u00A0\\?', u'?'),
+        (u'\u00A0\\!', u'!'),
+        (u'\u00A0;', r';'),
+        (u',\u00A0', r', '),
+        (r' +', r' '),
     ]
 
     HANDLE_PSEUDO_SPACES = [  # lines 59 - 67
@@ -67,9 +86,13 @@ class MosesPunctNormalizer:
         (r'(\.+)"(\s*[^<])', r'"\g<1>\g<2>'),  # don't fix period at end of sentence
     ]
 
-    DE_ES_CZ_CS_FR = [(r"(\d) (\d)", r"\g<1>,\g<2>")]
+    DE_ES_CZ_CS_FR = [
+        (u'(\\d)\u00A0(\\d)', r'\g<1>,\g<2>'),
+    ]
 
-    OTHER = [(u"(\d){}(\d)".format(u"\u00A0"), r"\g<1>.\g<2>")]
+    OTHER = [
+        (u'(\\d)\u00A0(\\d)', r'\g<1>.\g<2>'),
+    ]
 
     def __init__(self, lang="en", penn=True, norm_quote_commas=True, norm_numbers=True):
         """
