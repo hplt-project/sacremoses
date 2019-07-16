@@ -317,4 +317,4 @@ class TestDetokenizer(unittest.TestCase):
     def test_japanese_tokenization(self):
         tokenizer = MosesTokenizer(lang="ja")
         text = u"電話でんわの邪魔じゃまをしないでください"
-        assert tokenizer.tokenize(text)) == [text]
+        assert tokenizer.tokenize(text) == [text]
