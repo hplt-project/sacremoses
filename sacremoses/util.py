@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-try: # Python3
+try:  # Python3
     from itertools import zip_longest
-except ImportError: # Python2
+except ImportError:  # Python2
     from itertools import izip_longest as zip_longest
 
 from xml.sax.saxutils import escape, unescape
@@ -17,6 +17,7 @@ class CJKChars(object):
     An object that enumerates the code points of the CJK characters as listed on
     http://en.wikipedia.org/wiki/Basic_Multilingual_Plane#Basic_Multilingual_Plane
     """
+
     # Hangul Jamo (1100–11FF)
     Hangul_Jamo = (4352, 4607)  # (ord(u"\u1100"), ord(u"\u11ff"))
 
@@ -57,8 +58,11 @@ class CJKChars(object):
     Katakana_Hangul_Halfwidth = (65381, 65500)  # (ord(u"\uFF65"), ord(u"\uFFDC"))
 
     # Ideographic Symbols and Punctuation (16FE0–16FFF)
-    Ideographic_Symbols_And_Punctuation = (94176, 94207)  # (ord(u"\U00016FE0"), ord(u"\U00016FFF"))
-    
+    Ideographic_Symbols_And_Punctuation = (
+        94176,
+        94207,
+    )  # (ord(u"\U00016FE0"), ord(u"\U00016FFF"))
+
     # Tangut (17000-187FF)
     # Tangut Components (18800-18AFF)
     Tangut = (94208, 101119)  # (ord(u"\U00017000"), ord(u"\U00018AFF"))
@@ -71,12 +75,24 @@ class CJKChars(object):
     Nushu = (110960, 111359)  # (ord(u"\U0001B170"), ord(u"\U0001B2FF"))
 
     # Supplementary Ideographic Plane (20000–2FFFF)
-    Supplementary_Ideographic_Plane = (131072, 196607)  # (ord(u"\U00020000"), ord(u"\U0002FFFF"))
+    Supplementary_Ideographic_Plane = (
+        131072,
+        196607,
+    )  # (ord(u"\U00020000"), ord(u"\U0002FFFF"))
 
-    ranges = [Hangul_Jamo, CJK_Radicals, Phags_Pa, Hangul_Syllables,
-              CJK_Compatibility_Ideographs, CJK_Compatibility_Forms,
-              Katakana_Hangul_Halfwidth, Tangut, Kana_Supplement,
-              Nushu, Supplementary_Ideographic_Plane]
+    ranges = [
+        Hangul_Jamo,
+        CJK_Radicals,
+        Phags_Pa,
+        Hangul_Syllables,
+        CJK_Compatibility_Ideographs,
+        CJK_Compatibility_Forms,
+        Katakana_Hangul_Halfwidth,
+        Tangut,
+        Kana_Supplement,
+        Nushu,
+        Supplementary_Ideographic_Plane,
+    ]
 
 
 def is_cjk(character):
@@ -94,12 +110,24 @@ def is_cjk(character):
     :type character: char
     :return: bool
     """
-    return any([start <= ord(character) <= end for start, end in
-                [(4352, 4607), (11904, 42191), (43072, 43135), (44032, 55215),
-                 (63744, 64255), (65072, 65103), (65381, 65500),
-                 (94208, 101119), (110592, 110895), (110960, 111359),
-                 (131072, 196607)]
-                ])
+    return any(
+        [
+            start <= ord(character) <= end
+            for start, end in [
+                (4352, 4607),
+                (11904, 42191),
+                (43072, 43135),
+                (44032, 55215),
+                (63744, 64255),
+                (65072, 65103),
+                (65381, 65500),
+                (94208, 101119),
+                (110592, 110895),
+                (110960, 111359),
+                (131072, 196607),
+            ]
+        ]
+    )
 
 
 def xml_escape(text):
@@ -121,9 +149,16 @@ def xml_escape(text):
     :type text: str
     :rtype: str
     """
-    return escape(text, entities={r"'": r"&apos;", r'"': r"&quot;",
-                                  r"|": r"&#124;",
-                                  r"[": r"&#91;", r"]": r"&#93;", })
+    return escape(
+        text,
+        entities={
+            r"'": r"&apos;",
+            r'"': r"&quot;",
+            r"|": r"&#124;",
+            r"[": r"&#91;",
+            r"]": r"&#93;",
+        },
+    )
 
 
 def xml_unescape(text):
@@ -144,9 +179,16 @@ def xml_unescape(text):
     :type text: str
     :rtype: str
     """
-    return unescape(text, entities={r"&apos;": r"'", r"&quot;": r'"',
-                                    r"&#124;": r"|",
-                                    r"&#91;": r"[", r"&#93;": r"]", })
+    return unescape(
+        text,
+        entities={
+            r"&apos;": r"'",
+            r"&quot;": r'"',
+            r"&#124;": r"|",
+            r"&#91;": r"[",
+            r"&#93;": r"]",
+        },
+    )
 
 
 def pairwise(iterable):
@@ -170,4 +212,6 @@ def grouper(iterable, n, fillvalue=None):
 
 def parallelize_preprocess(func, iterator, processes, progress_bar=False):
     iterator = tqdm(iterator) if progress_bar else iterator
+    if processes <= 1:
+        return map(func, iterator)
     return Parallel(n_jobs=processes)(delayed(func)(line) for line in iterator)

@@ -15,14 +15,21 @@ from sacremoses.util import parallelize_preprocess, grouper
 
 # Hack to enable Python2.7 to use encoding.
 import sys
+
 if sys.version_info[0] < 3:
     import io
     import warnings
+
     open = io.open
-    warnings.warn(str('You should really be using Python3!!! '
-                      'Tick tock, tick tock, https://pythonclock.org/'))
+    warnings.warn(
+        str(
+            "You should really be using Python3!!! "
+            "Tick tock, tick tock, https://pythonclock.org/"
+        )
+    )
 
 perluniprops = Perluniprops()
+
 
 class MosesTruecaser(object):
     """
@@ -30,12 +37,13 @@ class MosesTruecaser(object):
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/train-truecaser.perl
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl
     """
-    # Perl Unicode Properties character sets.
-    Lowercase_Letter = text_type(''.join(perluniprops.chars('Lowercase_Letter')))
-    Uppercase_Letter = text_type(''.join(perluniprops.chars('Uppercase_Letter')))
-    Titlecase_Letter = text_type(''.join(perluniprops.chars('Uppercase_Letter')))
 
-    def __init__(self, load_from=None, is_asr=None, encoding='utf8'):
+    # Perl Unicode Properties character sets.
+    Lowercase_Letter = text_type("".join(perluniprops.chars("Lowercase_Letter")))
+    Uppercase_Letter = text_type("".join(perluniprops.chars("Uppercase_Letter")))
+    Titlecase_Letter = text_type("".join(perluniprops.chars("Uppercase_Letter")))
+
+    def __init__(self, load_from=None, is_asr=None, encoding="utf8"):
         """
         :param load_from:
         :type load_from:
@@ -48,16 +56,25 @@ class MosesTruecaser(object):
         # Initialize the object.
         super(MosesTruecaser, self).__init__()
         # Initialize the language specific nonbreaking prefixes.
-        self.SKIP_LETTERS_REGEX = re.compile(u"[{}{}{}]".format(
-                                                self.Lowercase_Letter,
-                                                self.Uppercase_Letter,
-                                                self.Titlecase_Letter)
-                                            )
+        self.SKIP_LETTERS_REGEX = re.compile(
+            u"[{}{}{}]".format(
+                self.Lowercase_Letter, self.Uppercase_Letter, self.Titlecase_Letter
+            )
+        )
 
         self.XML_SPLIT_REGX = re.compile("(<.*(?<=>))(.*)((?=</)[^>]*>)")
 
         self.SENT_END = {".", ":", "?", "!"}
-        self.DELAYED_SENT_START = {"(", "[", "\"", "'", "&apos;", "&quot;", "&#91;", "&#93;"}
+        self.DELAYED_SENT_START = {
+            "(",
+            "[",
+            '"',
+            "'",
+            "&apos;",
+            "&quot;",
+            "&#91;",
+            "&#93;",
+        }
 
         self.encoding = encoding
 
@@ -111,9 +128,14 @@ class MosesTruecaser(object):
                 truecase_weights.append((token.lower(), token, current_word_weight))
         return truecase_weights
 
-    def _train(self, document_iterator, save_to=None,
-               possibly_use_first_token=False, processes=1,
-               progress_bar=False):
+    def _train(
+        self,
+        document_iterator,
+        save_to=None,
+        possibly_use_first_token=False,
+        processes=1,
+        progress_bar=False,
+    ):
         """
         :param document_iterator: The input document, each outer list is a sentence,
                           the inner list is the list of tokens for each sentence.
@@ -130,9 +152,15 @@ class MosesTruecaser(object):
         :rtype: {'best': dict, 'known': Counter}
         """
         casing = defaultdict(Counter)
-        train_truecaser = partial(self.learn_truecase_weights,
-                            possibly_use_first_token=possibly_use_first_token)
-        token_weights = chain(*parallelize_preprocess(train_truecaser, document_iterator, processes, progress_bar=progress_bar))
+        train_truecaser = partial(
+            self.learn_truecase_weights,
+            possibly_use_first_token=possibly_use_first_token,
+        )
+        token_weights = chain(
+            *parallelize_preprocess(
+                train_truecaser, document_iterator, processes, progress_bar=progress_bar
+            )
+        )
         # Collect the token_weights from every sentence.
         for lowercase_token, surface_token, weight in token_weights:
             casing[lowercase_token][surface_token] += weight
@@ -142,41 +170,78 @@ class MosesTruecaser(object):
             self._save_model_from_casing(casing, save_to)
         return self._casing_to_model(casing)
 
-    def train(self, documents, save_to=None,
-              possibly_use_first_token=False, processes=1,
-              progress_bar=False):
+    def train(
+        self,
+        documents,
+        save_to=None,
+        possibly_use_first_token=False,
+        processes=1,
+        progress_bar=False,
+    ):
         """
         Default duck-type of _train(), accepts list(list(str)) as input documents.
         """
-        self.model = None # Clear the model first.
-        self.model = self._train(documents, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
+        self.model = None  # Clear the model first.
+        self.model = self._train(
+            documents,
+            save_to,
+            possibly_use_first_token,
+            processes,
+            progress_bar=progress_bar,
+        )
         return self.model
 
-    def train_from_file(self, filename, save_to=None,
-                        possibly_use_first_token=False, processes=1,
-                        progress_bar=False):
+    def train_from_file(
+        self,
+        filename,
+        save_to=None,
+        possibly_use_first_token=False,
+        processes=1,
+        progress_bar=False,
+    ):
         """
         Duck-type of _train(), accepts a filename to read as a `iter(list(str))`
         object.
         """
         with open(filename, encoding=self.encoding) as fin:
-            #document_iterator = map(str.split, fin.readlines())
-            document_iterator = (line.split() for line in fin.readlines()) # Lets try a generator comprehension for Python2...
-        self.model = None # Clear the model first.
-        self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
+            # document_iterator = map(str.split, fin.readlines())
+            document_iterator = (
+                line.split() for line in fin.readlines()
+            )  # Lets try a generator comprehension for Python2...
+        self.model = None  # Clear the model first.
+        self.model = self._train(
+            document_iterator,
+            save_to,
+            possibly_use_first_token,
+            processes,
+            progress_bar=progress_bar,
+        )
         return self.model
 
-    def train_from_file_object(self, file_object, save_to=None,
-                        possibly_use_first_token=False, processes=1,
-                        progress_bar=False):
+    def train_from_file_object(
+        self,
+        file_object,
+        save_to=None,
+        possibly_use_first_token=False,
+        processes=1,
+        progress_bar=False,
+    ):
         """
         Duck-type of _train(), accepts a file object to read as a `iter(list(str))`
         object.
         """
-        #document_iterator = map(str.split, file_object.readlines())
-        document_iterator = (line.split() for line in file_object.readlines()) # Lets try a generator comprehension for Python2...
-        self.model = None # Clear the model first.
-        self.model = self._train(document_iterator, save_to, possibly_use_first_token, processes, progress_bar=progress_bar)
+        # document_iterator = map(str.split, file_object.readlines())
+        document_iterator = (
+            line.split() for line in file_object.readlines()
+        )  # Lets try a generator comprehension for Python2...
+        self.model = None  # Clear the model first.
+        self.model = self._train(
+            document_iterator,
+            save_to,
+            possibly_use_first_token,
+            processes,
+            progress_bar=progress_bar,
+        )
         return self.model
 
     def truecase(self, text, return_str=False, use_known=False):
@@ -189,15 +254,17 @@ class MosesTruecaser(object):
         :param use_known: Use the known case if a word is a known word but not the first word.
         :type use_known: bool
         """
-        check_model_message = str("\nUse Truecaser.train() to train a model.\n"
-                                  "Or use Truecaser('modefile') to load a model.")
-        assert hasattr(self, 'model'), check_model_message
+        check_model_message = str(
+            "\nUse Truecaser.train() to train a model.\n"
+            "Or use Truecaser('modefile') to load a model."
+        )
+        assert hasattr(self, "model"), check_model_message
         # Keep track of first words in the sentence(s) of the line.
         is_first_word = True
         truecased_tokens = []
-        tokens =  self.split_xml(text)
-        #best_cases = best_cases if best_cases else self.model['best']
-        #known_cases = known_cases if known_cases else self.model['known']
+        tokens = self.split_xml(text)
+        # best_cases = best_cases if best_cases else self.model['best']
+        # known_cases = known_cases if known_cases else self.model['known']
 
         for i, token in enumerate(tokens):
 
@@ -222,15 +289,17 @@ class MosesTruecaser(object):
 
             # The actual case replacement happens here.
             # "Most frequent" case of the word.
-            best_case = self.model['best'].get(word.lower(), None)
+            best_case = self.model["best"].get(word.lower(), None)
             # Other known cases of the word.
-            known_case = self.model['known'].get(word, None)
+            known_case = self.model["known"].get(word, None)
             # If it's the start of sentence.
-            if is_first_word and best_case: # Truecase sentence start.
+            if is_first_word and best_case:  # Truecase sentence start.
                 word = best_case
-            elif known_case: # Don't change known words.
+            elif known_case:  # Don't change known words.
                 word = known_case if use_known else word
-            elif best_case: # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
+            elif (
+                best_case
+            ):  # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
                 word = best_case
             # Else, it's an unknown word, don't change the word.
             # Concat the truecased `word` with the `other_factors`
@@ -244,9 +313,8 @@ class MosesTruecaser(object):
             if word in self.DELAYED_SENT_START:
                 is_first_word = False
 
-
-        #return ' '.join(tokens)
-        return ' '.join(truecased_tokens) if return_str else truecased_tokens
+        # return ' '.join(tokens)
+        return " ".join(truecased_tokens) if return_str else truecased_tokens
 
     def truecase_file(self, filename, return_str=True):
         with open(filename, encoding=self.encoding) as fin:
@@ -276,7 +344,11 @@ class MosesTruecaser(object):
             if has_xml:
                 potential_xml, line_next = has_xml.groups()
                 # exception for factor that is an XML tag
-                if re.search(r"^\S", line) and len(words) > 0 and re.search(r"\|$", words[-1]):
+                if (
+                    re.search(r"^\S", line)
+                    and len(words) > 0
+                    and re.search(r"\|$", words[-1])
+                ):
                     word[-1] += potential_xml
                     # If it's a token with factors, join with the previous token.
                     is_factor = re.search(r"^(\|+)(.*)$", line_next)
@@ -284,18 +356,22 @@ class MosesTruecaser(object):
                         words[-1] += is_factor.group(1)
                         line_next = is_factor.group(2)
                 else:
-                    tokens.append(potential_xml+" ") # Token hack, unique to sacremoses.
+                    tokens.append(
+                        potential_xml + " "
+                    )  # Token hack, unique to sacremoses.
                 line = line_next
 
             elif is_non_xml:
-                tokens.append(is_non_xml.group(1)) # Token hack, unique to sacremoses.
+                tokens.append(is_non_xml.group(1))  # Token hack, unique to sacremoses.
                 line = is_non_xml.group(2)
             elif xml_cognates:
-                tokens.append(xml_cognates.group(1)) # Token hack, unique to sacremoses.
+                tokens.append(
+                    xml_cognates.group(1)
+                )  # Token hack, unique to sacremoses.
                 line = xml_cognates.group(2)
             else:
                 raise Exception("ERROR: huh? {}".format(line))
-            tokens[-1] = tokens[-1].strip() # Token hack, unique to sacremoses.
+            tokens[-1] = tokens[-1].strip()  # Token hack, unique to sacremoses.
         return tokens
 
     def _casing_to_model(self, casing):
@@ -317,11 +393,11 @@ class MosesTruecaser(object):
                     # Note: This is rather odd that the counts are thrown away...
                     # from https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L34
                     known[token] += 1
-        model = {'best':best, 'known':known, 'casing':casing}
+        model = {"best": best, "known": known, "casing": casing}
         return model
 
     def save_model(self, filename):
-        self._save_model_from_casing(self.model['casing'], filename)
+        self._save_model_from_casing(self.model["casing"], filename)
 
     def _save_model_from_casing(self, casing, filename):
         """
@@ -331,7 +407,7 @@ class MosesTruecaser(object):
         :param casing: The dictionary of tokens counter from `train()`.
         :type casing: default(Counter)
         """
-        with open(filename, 'w', encoding=self.encoding) as fout:
+        with open(filename, "w", encoding=self.encoding) as fout:
             for token in casing:
                 total_token_count = sum(casing[token].values())
                 tokens_counts = []
@@ -341,7 +417,7 @@ class MosesTruecaser(object):
                     else:
                         out_token = "{} ({})".format(word, count, total_token_count)
                     tokens_counts.append(out_token)
-                print(' '.join(tokens_counts), end='\n', file=fout)
+                print(" ".join(tokens_counts), end="\n", file=fout)
 
     def _load_model(self, filename):
         """
@@ -355,7 +431,7 @@ class MosesTruecaser(object):
             for line in fin:
                 line = line.strip().split()
                 for token, count in grouper(line, 2):
-                    count = count.split('/')[0].strip('()')
+                    count = count.split("/")[0].strip("()")
                     casing[token.lower()][token] = int(count)
         # Returns the best and known object from `_casing_to_model()`
         return self._casing_to_model(casing)
@@ -366,14 +442,55 @@ class MosesDetruecaser(object):
         # Initialize the object.
         super(MosesDetruecaser, self).__init__()
         self.SENT_END = {".", ":", "?", "!"}
-        self.DELAYED_SENT_START = {"(", "[", "\"", "'", "&apos;", "&quot;", "&#91;", "&#93;"}
+        self.DELAYED_SENT_START = {
+            "(",
+            "[",
+            '"',
+            "'",
+            "&apos;",
+            "&quot;",
+            "&#91;",
+            "&#93;",
+        }
 
         # Some predefined words that will always be in lowercase.
-        self.ALWAYS_LOWER = {"a","after","against","al-.+","and","any","as",
-                             "at","be","because","between","by","during","el-.+",
-                             "for","from","his","in","is","its","last","not","of",
-                             "off","on","than","the","their","this","to","was",
-                             "were","which","will","with"}
+        self.ALWAYS_LOWER = {
+            "a",
+            "after",
+            "against",
+            "al-.+",
+            "and",
+            "any",
+            "as",
+            "at",
+            "be",
+            "because",
+            "between",
+            "by",
+            "during",
+            "el-.+",
+            "for",
+            "from",
+            "his",
+            "in",
+            "is",
+            "its",
+            "last",
+            "not",
+            "of",
+            "off",
+            "on",
+            "than",
+            "the",
+            "their",
+            "this",
+            "to",
+            "was",
+            "were",
+            "which",
+            "will",
+            "with",
+        }
 
     def detruecase(self, text, is_headline=False, return_str=False):
         """
@@ -396,10 +513,12 @@ class MosesDetruecaser(object):
                 sentence_start = False
         # Check if it's a headline, if so then use title case.
         if is_headline:
-            cased_tokens = [token if token in self.ALWAYS_LOWER
-                            else token.capitalize() for token in cased_tokens]
+            cased_tokens = [
+                token if token in self.ALWAYS_LOWER else token.capitalize()
+                for token in cased_tokens
+            ]
 
         return " ".join(cased_tokens) if return_str else cased_tokens
 
 
-__all__ = ['MosesTruecaser', 'MosesDetruecaser']
+__all__ = ["MosesTruecaser", "MosesDetruecaser"]

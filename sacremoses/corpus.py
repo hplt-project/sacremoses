@@ -4,6 +4,7 @@
 import os
 import pkgutil
 
+
 class Perluniprops:
     """
     This class is used to read lists of characters from the Perl Unicode
@@ -11,18 +12,35 @@ class Perluniprops:
     The files in the perluniprop.zip are extracted using the Unicode::Tussle
     module from http://search.cpan.org/~bdfoy/Unicode-Tussle-1.11/lib/Unicode/Tussle.pm
     """
+
     def __init__(self):
-        self.datadir = os.path.dirname(os.path.abspath(__file__)) + '/data/perluniprops/'
+        self.datadir = (
+            os.path.dirname(os.path.abspath(__file__)) + "/data/perluniprops/"
+        )
         # These are categories similar to the Perl Unicode Properties
-        self.available_categories = ['Close_Punctuation', 'Currency_Symbol',
-                                     'IsAlnum', 'IsAlpha', 'IsLower', 'IsN', 'IsSc',
-                                     'IsSo', 'IsUpper', 'Line_Separator', 'Number',
-                                     'Open_Punctuation', 'Punctuation', 'Separator',
-                                     'Symbol',
-                                     'Lowercase_Letter',
-                                     'Titlecase_Letter',
-                                     'Uppercase_Letter',
-                                     'IsPf', 'IsPi', 'CJKSymbols']
+        self.available_categories = [
+            "Close_Punctuation",
+            "Currency_Symbol",
+            "IsAlnum",
+            "IsAlpha",
+            "IsLower",
+            "IsN",
+            "IsSc",
+            "IsSo",
+            "IsUpper",
+            "Line_Separator",
+            "Number",
+            "Open_Punctuation",
+            "Punctuation",
+            "Separator",
+            "Symbol",
+            "Lowercase_Letter",
+            "Titlecase_Letter",
+            "Uppercase_Letter",
+            "IsPf",
+            "IsPi",
+            "CJKSymbols",
+        ]
 
     def chars(self, category=None):
         """
@@ -52,33 +70,38 @@ class NonbreakingPrefixes:
     Moses Machine Translation toolkit. These lists are used in the Python port
     of the Moses' word tokenizer.
     """
-    def __init__(self):
-        self.datadir = os.path.dirname(os.path.abspath(__file__)) + '/data/nonbreaking_prefixes/'
-        self.available_langs = {'catalan':    'ca',
-                                'czech':      'cs',
-                                'german':     'de',
-                                'greek':      'el',
-                                'english':    'en',
-                                'spanish':    'es',
-                                'finnish':    'fi',
-                                'french':     'fr',
-                                'hungarian':  'hu',
-                                'icelandic':  'is',
-                                'italian':    'it',
-                                'latvian':    'lv',
-                                'dutch':      'nl',
-                                'polish':     'pl',
-                                'portuguese': 'pt',
-                                'romanian':   'ro',
-                                'russian':    'ru',
-                                'slovak':     'sk',
-                                'slovenian':  'sl',
-                                'swedish':    'sv',
-                                'tamil':      'ta'}
-        # Also, add the lang IDs as the keys.
-        self.available_langs.update({v:v for v in self.available_langs.values()})
 
-    def words(self, lang=None, ignore_lines_startswith='#'):
+    def __init__(self):
+        self.datadir = (
+            os.path.dirname(os.path.abspath(__file__)) + "/data/nonbreaking_prefixes/"
+        )
+        self.available_langs = {
+            "catalan": "ca",
+            "czech": "cs",
+            "german": "de",
+            "greek": "el",
+            "english": "en",
+            "spanish": "es",
+            "finnish": "fi",
+            "french": "fr",
+            "hungarian": "hu",
+            "icelandic": "is",
+            "italian": "it",
+            "latvian": "lv",
+            "dutch": "nl",
+            "polish": "pl",
+            "portuguese": "pt",
+            "romanian": "ro",
+            "russian": "ru",
+            "slovak": "sk",
+            "slovenian": "sl",
+            "swedish": "sv",
+            "tamil": "ta",
+        }
+        # Also, add the lang IDs as the keys.
+        self.available_langs.update({v: v for v in self.available_langs.values()})
+
+    def words(self, lang=None, ignore_lines_startswith="#"):
         """
         This module returns a list of nonbreaking prefixes for the specified
         language(s).
@@ -94,13 +117,14 @@ class NonbreakingPrefixes:
         """
         # If *lang* in list of languages available, allocate apt fileid.
         if lang in self.available_langs:
-            filenames = ['nonbreaking_prefix.'+self.available_langs[lang]]
+            filenames = ["nonbreaking_prefix." + self.available_langs[lang]]
         # Use non-breaking praefixes for all languages when lang==None.
         elif lang == None:
-            filenames = ['nonbreaking_prefix.'+v for v in
-                         set(self.available_langs.values())]
+            filenames = [
+                "nonbreaking_prefix." + v for v in set(self.available_langs.values())
+            ]
         else:
-            filenames = ['nonbreaking_prefix.en']
+            filenames = ["nonbreaking_prefix.en"]
 
         for filename in filenames:
             relative_path = os.path.join("data", "nonbreaking_prefixes", filename)
@@ -110,4 +134,5 @@ class NonbreakingPrefixes:
                 if line and not line.startswith(ignore_lines_startswith):
                     yield line
 
-__all__ = ['Perluniprops', 'NonbreakingPrefixes']
+
+__all__ = ["Perluniprops", "NonbreakingPrefixes"]

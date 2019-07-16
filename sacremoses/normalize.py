@@ -12,23 +12,21 @@ class MosesPunctNormalizer:
     This is a Python port of the Moses punctuation normalizer from
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/tokenizer/normalize-punctuation.perl
     """
-    EXTRA_WHITESPACE = [ # lines 21 - 30
-        (r'\r', r''),
-        (r'\(', r' ('),
-        (r'\)', r') '),
-        (r' +', r' '),
-        (r'\) ([.!:?;,])', r')\g<1>'),
-        (r'\( ', r'('),
-        (r' \)', r')'),
-        (r'(\d) %', r'\g<1>%'),
-        (r' :', r':'),
-        (r' ;', r';'),
+
+    EXTRA_WHITESPACE = [  # lines 21 - 30
+        (r"\r", r""),
+        (r"\(", r" ("),
+        (r"\)", r") "),
+        (r" +", r" "),
+        (r"\) ([.!:?;,])", r")\g<1>"),
+        (r"\( ", r"("),
+        (r" \)", r")"),
+        (r"(\d) %", r"\g<1>%"),
+        (r" :", r":"),
+        (r" ;", r";"),
     ]
 
-    NORMALIZE_UNICODE_IF_NOT_PENN = [ # lines 33 - 34
-        (r'`', r"'"),
-        (r"''", r' " '),
-    ]
+    NORMALIZE_UNICODE_IF_NOT_PENN = [(r"`", r"'"), (r"''", r' " ')]  # lines 33 - 34
 
     NORMALIZE_UNICODE = [ # lines 37 - 50
         (u'„', r'"'),
@@ -70,13 +68,24 @@ class MosesPunctNormalizer:
         (r' +', r' '),
     ]
 
-    EN_QUOTATION_FOLLOWED_BY_COMMA = [
-        (r'"([,.]+)', r'\g<1>"'),
+    HANDLE_PSEUDO_SPACES = [  # lines 59 - 67
+        (r" %", r"%"),
+        (u"nº ", u"nº "),
+        (r" :", r":"),
+        (u" ºC", u" ºC"),
+        (r" cm", r" cm"),
+        (r" \?", r"\?"),
+        (r" \!", r"\!"),
+        (r" ;", r";"),
+        (r", ", r", "),
+        (r" +", r" "),
     ]
+
+    EN_QUOTATION_FOLLOWED_BY_COMMA = [(r'"([,.]+)', r'\g<1>"')]
 
     DE_ES_FR_QUOTATION_FOLLOWED_BY_COMMA = [
         (r',"', r'",'),
-        (r'(\.+)"(\s*[^<])', r'"\g<1>\g<2>'), # don't fix period at end of sentence
+        (r'(\.+)"(\s*[^<])', r'"\g<1>\g<2>'),  # don't fix period at end of sentence
     ]
 
     DE_ES_CZ_CS_FR = [
@@ -87,9 +96,7 @@ class MosesPunctNormalizer:
         (u'(\\d)\u00A0(\\d)', r'\g<1>.\g<2>'),
     ]
 
-    def __init__(self, lang='en', penn=True,
-                 norm_quote_commas=True,
-                 norm_numbers=True):
+    def __init__(self, lang="en", penn=True, norm_quote_commas=True, norm_numbers=True):
         """
         :param language: The two-letter language code.
         :type lang: str
@@ -100,24 +107,25 @@ class MosesPunctNormalizer:
         :param norm_numbers: Normalize numbers
         :type norm_numbers: bool
         """
-        self.substitutions = [self.EXTRA_WHITESPACE,
-                              self.NORMALIZE_UNICODE,
-                              self.FRENCH_QUOTES,
-                              self.HANDLE_PSEUDO_SPACES,
-                              self.HANDLE_PSEUDO_SPACES
-                             ]
+        self.substitutions = [
+            self.EXTRA_WHITESPACE,
+            self.NORMALIZE_UNICODE,
+            self.FRENCH_QUOTES,
+            self.HANDLE_PSEUDO_SPACES,
+            self.HANDLE_PSEUDO_SPACES,
+        ]
 
-        if penn: # Adds the penn substitutions after extra_whitespace regexes.
+        if penn:  # Adds the penn substitutions after extra_whitespace regexes.
             self.substitutions.insert(1, self.NORMALIZE_UNICODE_IF_NOT_PENN)
 
         if norm_quote_commas:
-            if lang == 'en':
+            if lang == "en":
                 self.substitutions.append(self.EN_QUOTATION_FOLLOWED_BY_COMMA)
-            elif lang in ['de', 'es', 'fr']:
+            elif lang in ["de", "es", "fr"]:
                 self.substitutions.append(self.DE_ES_FR_QUOTATION_FOLLOWED_BY_COMMA)
 
         if norm_numbers:
-            if lang in ['de', 'es', 'cz', 'cs', 'fr']:
+            if lang in ["de", "es", "cz", "cs", "fr"]:
                 self.substitutions.append(self.DE_ES_CZ_CS_FR)
             else:
                 self.substitutions.append(self.OTHER)
@@ -129,7 +137,7 @@ class MosesPunctNormalizer:
         Returns a string with normalized punctuation.
         """
         for regexp, substitution in self.substitutions:
-            #print(regexp, substitution)
+            # print(regexp, substitution)
             text = re.sub(regexp, substitution, text_type(text))
-            #print(text)
+            # print(text)
         return text
