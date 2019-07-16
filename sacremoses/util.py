@@ -56,7 +56,7 @@ class CJKChars(object):
 
     # Ideographic Symbols and Punctuation (16FE0–16FFF)
     Ideographic_Symbols_And_Punctuation = (94176, 94207)  # (ord(u"\U00016FE0"), ord(u"\U00016FFF"))
-    
+
     # Tangut (17000-187FF)
     # Tangut Components (18800-18AFF)
     Tangut = (94208, 101119)  # (ord(u"\U00017000"), ord(u"\U00018AFF"))
@@ -168,4 +168,6 @@ def grouper(iterable, n, fillvalue=None):
 
 def parallelize_preprocess(func, iterator, processes, progress_bar=False):
     iterator = tqdm(iterator) if progress_bar else iterator
+    if processes <= 1:
+        return map(func, iterator)
     return Parallel(n_jobs=processes)(delayed(func)(line) for line in iterator)
