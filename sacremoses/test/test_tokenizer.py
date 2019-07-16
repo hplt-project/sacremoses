@@ -301,3 +301,15 @@ class TestDetokenizer(unittest.TestCase):
 
         text = u"L'amitié nous a fait forts d'esprit"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
+
+    def test_chinese_tokenization(self):
+        tokenizer = MosesTokenizer(lang="zh")
+        detokenizer = MosesDetokenizer(lang="zh")
+        text = "记者 应谦 美国"
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
+
+    def test_korean_tokenization(self):
+        tokenizer = MosesTokenizer(lang="ko")
+        detokenizer = MosesDetokenizer(lang="ko")
+        text = "세계 에서 가장 강력한"
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
