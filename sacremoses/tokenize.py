@@ -269,7 +269,8 @@ class MosesTokenizer(object):
                 if (('.' in prefix and self.isanyalpha(prefix)) or
                         (prefix in self.NONBREAKING_PREFIXES and
                          prefix not in self.NUMERIC_ONLY_PREFIXES) or
-                        (i != num_tokens - 1 and self.islower(tokens[i + 1]))):
+                        (i != num_tokens - 1 and tokens[i+1] and self.islower(tokens[i + 1][0]))
+                    ):
                     pass  # No change to the token.
                 # Checks if the prefix is in NUMERIC_ONLY_PREFIXES
                 # and ensures that the next word is a digit.
