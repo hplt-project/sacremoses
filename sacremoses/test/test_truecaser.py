@@ -52,7 +52,14 @@ class TestTruecaser(unittest.TestCase):
             with open('big.txt') as fin:
                 self.big_txt = fin.read()
         else: # Otherwise, download the big.txt.
-            self.big_txt = get_content("https://norvig.com/big.txt").decode('utf8')
+            try: # Download from the original norvig.com
+                self.big_txt = get_content("https://norvig.com/big.txt").decode('utf8')
+            except: # Otherwise get it from the github gist mirror.
+                big_text_url = str("https://gist.githubusercontent.com/alvations/"
+                                   "6e878bab0eda2624167aa7ec13fc3e94/raw/"
+                                   "4fb3bac1da1ba7a172ff1936e96bee3bc8892931/"
+                                   "big.txt")
+                self.big_text = get_content(big_text_url).decode('utf8')
             with open('big.txt', 'w') as fout:
                 fout.write(self.big_txt)
 
