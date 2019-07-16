@@ -309,8 +309,10 @@ class TestDetokenizer(unittest.TestCase):
 
     def test_korean_tokenization(self):
         tokenizer = MosesTokenizer(lang="ko")
-        text = u"세계 에서 가장 강력한"
-        assert tokenizer.tokenize(text) == [u'세계', u'에서', u'가장', u'강력한']
+        detokenizer = MosesDetokenizer(lang="ko")
+        text = u"세계 에서 가장 강력한."
+        assert tokenizer.tokenize(text) == [u'세계', u'에서', u'가장', u'강력한', u'.']
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
 
     def test_japanese_tokenization(self):
         tokenizer = MosesTokenizer(lang="ja")
