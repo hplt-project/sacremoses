@@ -313,3 +313,9 @@ class TestDetokenizer(unittest.TestCase):
         detokenizer = MosesDetokenizer(lang="ko")
         text = "세계 에서 가장 강력한"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
+
+    def test_japanese_tokenization(self):
+        tokenizer = MosesTokenizer(lang="ja")
+        detokenizer = MosesDetokenizer(lang="ja")
+        text = "電話でんわの邪魔じゃまをしないでください"
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
