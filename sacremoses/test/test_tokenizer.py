@@ -305,17 +305,17 @@ class TestDetokenizer(unittest.TestCase):
     def test_chinese_tokenization(self):
         tokenizer = MosesTokenizer(lang="zh")
         detokenizer = MosesDetokenizer(lang="zh")
-        text = "记者 应谦 美国"
+        text = u"记者 应谦 美国"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
 
     def test_korean_tokenization(self):
         tokenizer = MosesTokenizer(lang="ko")
         detokenizer = MosesDetokenizer(lang="ko")
-        text = "세계 에서 가장 강력한"
+        text = u"세계 에서 가장 강력한"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
 
     def test_japanese_tokenization(self):
         tokenizer = MosesTokenizer(lang="ja")
         detokenizer = MosesDetokenizer(lang="ja")
-        text = "電話でんわの邪魔じゃまをしないでください"
+        text = u"電話でんわの邪魔じゃまをしないでください"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
