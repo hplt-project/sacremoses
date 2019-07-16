@@ -27,6 +27,7 @@ class MosesTokenizer(object):
     IsAlpha = text_type("".join(perluniprops.chars("IsAlpha")))
     IsLower = text_type("".join(perluniprops.chars("IsLower")))
 
+
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = r"\s+", r" "
     ASCII_JUNK = r"[\000-\037]", r""
@@ -417,6 +418,22 @@ class MosesTokenizer(object):
 
         # Strips heading and trailing spaces.
         text = text.strip()
+
+        # FIXME!!!
+        '''
+        # For Finnish and Swedish, seperate out all "other" special characters.
+        if self.lang in ["fi", "sv"]:
+            # In Finnish and Swedish, the colon can be used inside words
+            # as an apostrophe-like character:
+            # USA:n, 20:een, EU:ssa, USA:s, S:t
+            regexp, substitution = self.FI_SV_COLON_APOSTROPHE
+            text = re.sub(regexp, substitution, text)
+            # If a colon is not immediately followed by lower-case characters,
+            # separate it out anyway.
+            regexp, substitution = self.FI_SV_COLON_NO_LOWER_FOLLOW
+            text = re.sub(regexp, substitution, text)
+        else:
+        '''
         # Separate special characters outside of IsAlnum character set.
         regexp, substitution = self.PAD_NOT_ISALNUM
         text = re.sub(regexp, substitution, text)
@@ -424,8 +441,10 @@ class MosesTokenizer(object):
         if aggressive_dash_splits:
             regexp, substitution = self.AGGRESSIVE_HYPHEN_SPLIT
             text = re.sub(regexp, substitution, text)
+
         # Replaces multidots with "DOTDOTMULTI" literal strings.
         text = self.replace_multidots(text)
+
         # Separate out "," except if within numbers e.g. 5,300
         for regexp, substitution in [
             self.COMMA_SEPARATE_1,
@@ -441,6 +460,10 @@ class MosesTokenizer(object):
         elif self.lang in ["fr", "it"]:
             for regexp, substitution in self.FR_IT_SPECIFIC_APOSTROPHE:
                 text = re.sub(regexp, substitution, text)
+        # FIXME!!!
+        ##elif self.lang == "so":
+        ##    for regexp, substitution in self.SO_SPECIFIC_APOSTROPHE:
+        ##        text = re.sub(regexp, substitution, text)
         else:
             regexp, substitution = self.NON_SPECIFIC_APOSTROPHE
             text = re.sub(regexp, substitution, text)
@@ -630,7 +653,7 @@ class MosesDetokenizer(object):
         # Iterate through every token and apply language specific detokenization rule(s).
         for i, token in enumerate(iter(tokens)):
             # Check if the first char is CJK.
-            if is_cjk(token[0]):
+            if is_cjk(token[0]) and self.lang != "ko":
                 # Perform left shift if this is a second consecutive CJK word.
                 if i > 0 and is_cjk(token[-1]):
                     detokenized_text += token
