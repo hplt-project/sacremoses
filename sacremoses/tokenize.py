@@ -27,7 +27,6 @@ class MosesTokenizer(object):
     IsAlpha = text_type("".join(perluniprops.chars("IsAlpha")))
     IsLower = text_type("".join(perluniprops.chars("IsLower")))
 
-
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = r"\s+", r" "
     ASCII_JUNK = r"[\000-\037]", r""
@@ -297,6 +296,29 @@ class MosesTokenizer(object):
             for w in self.NONBREAKING_PREFIXES
             if self.has_numeric_only(w)
         ]
+        # Add CJK characters to alpha and alnum.
+        if self.lang in ['zh', 'ja', 'ko', 'cjk']:
+            cjk_chars = ""
+            if self.lang in ["ko", 'cjk']:
+                cjk_chars += text_type("".join(perluniprops.chars("Hangul")))
+            if self.lang in ["zh", 'cjk']:
+                cjk_chars += text_type("".join(perluniprops.chars("Han")))
+            if self.lang in ["ja", 'cjk']:
+                cjk_chars += text_type("".join(perluniprops.chars("Hiragana")))
+                cjk_chars += text_type("".join(perluniprops.chars("Katakana")))
+                cjk_chars += text_type("".join(perluniprops.chars("Han")))
+            self.IsAlpha += cjk_chars
+            self.IsAlnum += cjk_chars
+            # Overwrite the alnum regexes.
+            self.PAD_NOT_ISALNUM = u"([^{}\s\.'\`\,\-])".format(self.IsAlnum), r" \1 "
+            self.AGGRESSIVE_HYPHEN_SPLIT = (
+                  u"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=self.IsAlnum),
+                  r"\1 @-@ ",
+              )
+            self.INTRATOKEN_SLASHES  = (
+                u"([{alphanum}])\/([{alphanum}])".format(alphanum=self.IsAlnum),
+                r"$1 \@\/\@ $2",
+            )
 
     def replace_multidots(self, text):
         text = re.sub(r"\.([\.]+)", r" DOTMULTI\1", text)
