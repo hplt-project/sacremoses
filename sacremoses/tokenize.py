@@ -299,12 +299,15 @@ class MosesTokenizer(object):
         # Add CJK characters to alpha and alnum.
         if self.lang in ['zh', 'ja', 'ko']:
             if self.lang == "ko":
-                self.IsAlpha += text_type("".join(perluniprops.chars("Hangul")))
+                cjk_chars = text_type("".join(perluniprops.chars("Hangul")))
             if self.lang == "zh":
-                self.IsAlpha += text_type("".join(perluniprops.chars("Han")))
+                cjk_chars = text_type("".join(perluniprops.chars("Han")))
             if self.lang == "ja":
-                self.IsAlpha += text_type("".join(perluniprops.chars("Hiragana")))
-                self.IsAlpha += text_type("".join(perluniprops.chars("Katakana")))
+                cjk_chars = text_type("".join(perluniprops.chars("Hiragana")))
+                cjk_chars += text_type("".join(perluniprops.chars("Katakana")))
+                cjk_chars += text_type("".join(perluniprops.chars("Han")))
+            self.IsAlpha += cjk_chars
+            self.IsAlnum += cjk_chars
             # Overwrite the alnum regexes.
             self.PAD_NOT_ISALNUM = u"([^{}\s\.'\`\,\-])".format(self.IsAlnum), r" \1 "
             self.AGGRESSIVE_HYPHEN_SPLIT = (
