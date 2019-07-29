@@ -92,7 +92,7 @@ Usage (CLI)
 
 
 ```shell
-$ pip install -U sacremoses>=0.0.22
+$ pip install -U sacremoses>=0.0.24
 
 $ sacremoses --help
 Usage: sacremoses [OPTIONS] COMMAND [ARGS]...
