@@ -27,7 +27,6 @@ class MosesTokenizer(object):
     IsAlpha = text_type("".join(perluniprops.chars("IsAlpha")))
     IsLower = text_type("".join(perluniprops.chars("IsLower")))
 
-
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = r"\s+", r" "
     ASCII_JUNK = r"[\000-\037]", r""
@@ -297,6 +296,14 @@ class MosesTokenizer(object):
             for w in self.NONBREAKING_PREFIXES
             if self.has_numeric_only(w)
         ]
+        # Add CJK characters to alpha and alnum.
+        if self.lang == 'ko':
+            self.IsAlpha += text_type("".join(perluniprops.chars("Hangul")))
+        if self.lang == 'zh':
+            self.IsAlpha += text_type("".join(perluniprops.chars("Han")))
+        if self.lang == 'ja'":
+            self.IsAlpha += text_type("".join(perluniprops.chars("Hiragana")))
+            self.IsAlpha += text_type("".join(perluniprops.chars("Katakana")))
 
     def replace_multidots(self, text):
         text = re.sub(r"\.([\.]+)", r" DOTMULTI\1", text)
