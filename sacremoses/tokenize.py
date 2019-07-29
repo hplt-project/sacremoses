@@ -302,7 +302,7 @@ class MosesTokenizer(object):
             if self.lang in ["ko", 'cjk']:
                 cjk_chars += text_type("".join(perluniprops.chars("Hangul")))
             if self.lang in ["zh", 'cjk']:
-                cjk_chars = text_type("".join(perluniprops.chars("Han")))
+                cjk_chars += text_type("".join(perluniprops.chars("Han")))
             if self.lang in ["ja", 'cjk']:
                 cjk_chars += text_type("".join(perluniprops.chars("Hiragana")))
                 cjk_chars += text_type("".join(perluniprops.chars("Katakana")))
