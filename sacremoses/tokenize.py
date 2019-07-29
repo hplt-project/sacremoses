@@ -306,13 +306,13 @@ class MosesTokenizer(object):
                 self.IsAlpha += text_type("".join(perluniprops.chars("Hiragana")))
                 self.IsAlpha += text_type("".join(perluniprops.chars("Katakana")))
             # Overwrite the alnum regexes.
-            self.PAD_NOT_ISALNUM = u"([^{}\s\.'\`\,\-])".format(IsAlnum), r" \1 "
+            self.PAD_NOT_ISALNUM = u"([^{}\s\.'\`\,\-])".format(self.IsAlnum), r" \1 "
             self.AGGRESSIVE_HYPHEN_SPLIT = (
-                  u"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=IsAlnum),
+                  u"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=self.IsAlnum),
                   r"\1 @-@ ",
               )
             self.INTRATOKEN_SLASHES  = (
-                u"([{alphanum}])\/([{alphanum}])".format(alphanum=IsAlnum),
+                u"([{alphanum}])\/([{alphanum}])".format(alphanum=self.IsAlnum),
                 r"$1 \@\/\@ $2",
             )
 
