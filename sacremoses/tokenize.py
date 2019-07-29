@@ -297,11 +297,11 @@ class MosesTokenizer(object):
             if self.has_numeric_only(w)
         ]
         # Add CJK characters to alpha and alnum.
-        if self.lang == 'ko':
+        if self.lang == "ko":
             self.IsAlpha += text_type("".join(perluniprops.chars("Hangul")))
-        if self.lang == 'zh':
+        if self.lang == "zh":
             self.IsAlpha += text_type("".join(perluniprops.chars("Han")))
-        if self.lang == 'ja'":
+        if self.lang == "ja":
             self.IsAlpha += text_type("".join(perluniprops.chars("Hiragana")))
             self.IsAlpha += text_type("".join(perluniprops.chars("Katakana")))
 
