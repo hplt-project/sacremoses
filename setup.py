@@ -9,7 +9,7 @@ sacremoses=sacremoses.cli:cli
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.22',
+  version = '0.0.23',
   description = 'SacreMoses',
   long_description = 'LGPL MosesTokenizer in Python',
   author = '',
