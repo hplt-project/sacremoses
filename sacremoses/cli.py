@@ -217,7 +217,7 @@ def detruecase_file(processes, is_headline, encoding):
 @cli.command("chinese")
 @click.option("--t2s/--s2t", default=False, help="Convert traditional to simplified Chinese (t2s) or vice versa (s2t)")
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-def convert_chinese(t2s):
+def convert_chinese(t2s, encoding):
     convert = simplify if t2s else tradify
     with click.get_text_stream("stdin", encoding=encoding) as fin:
         with click.get_text_stream("stdout", encoding=encoding) as fout:
