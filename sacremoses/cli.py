@@ -230,7 +230,7 @@ def convert_chinese(t2s, processes, encoding):
                 #       preprocessing interfaces, so we're doing it line by line here.
                 for line in tqdm(fin.readlines()):
                     # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
-                    print(convert(fin.read()), end="", file=fout)
+                    print(convert(line), end="", file=fout)
             else:
                 for outline in parallelize_preprocess(convert, fin.readlines(), processes, progress_bar=True):
                     # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
@@ -276,7 +276,7 @@ def normalize_file(
                 #       preprocessing interfaces, so we're doing it line by line here.
                 for line in tqdm(fin.readlines()):
                     # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
-                    print(moses_normalize(fin.read()), end="", file=fout)
+                    print(moses_normalize(line), end="", file=fout)
             else:
                 for outline in parallelize_preprocess(
                     moses_normalize, fin.readlines(), processes, progress_bar=True
