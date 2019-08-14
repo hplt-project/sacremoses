@@ -117,14 +117,17 @@ $ sacremoses tokenize --help
 Usage: sacremoses tokenize [OPTIONS]
 
 Options:
-  -l, --language TEXT           Use language specific rules when tokenizing
-  -j, --processes INTEGER       No. of processes.
-  -a, --aggressive-dash-splits  Triggers dash split rules.
-  -x, --xml-escape              Escape special characters for XML.
-  -p, --protected-patterns TEXT Specify file with patters to be protected in
-                                tokenisation.
-  -e, --encoding TEXT           Specify encoding of file.
-  -h, --help                    Show this message and exit.
+  -l, --language TEXT            Use language specific rules when tokenizing
+  -j, --processes INTEGER        No. of processes.
+  -a, --aggressive-dash-splits   Triggers dash split rules.
+  -x, --xml-escape               Escape special characters for XML.
+  -p, --protected-patterns TEXT  Specify file with patters to be protected in
+                                 tokenisation.
+  -c, --custom-nb-prefixes TEXT  Specify a custom non-breaking prefixes file,
+                                 add prefixes to the default ones from the
+                                 specified language.
+  -e, --encoding TEXT            Specify encoding of file.
+  -h, --help                     Show this message and exit.
 
 
  $ sacremoses tokenize -j 4 < big.txt > big.txt.tok
@@ -219,5 +222,5 @@ Options:
   -h, --help                    Show this message and exit.
 
 $ sacremoses normalize -j 4 < big.txt > big.txt.norm.cli
-100%|███████████████████████████████████████████████████████████████████████| 128457/128457 [00:09<00:00, 13096.23it/s]
+100%|██████████████████████████████████| 128457/128457 [00:09<00:00, 13096.23it/s]
 ```
