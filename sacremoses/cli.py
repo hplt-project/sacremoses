@@ -62,6 +62,11 @@ def cli():
     "-p",
     help="Specify file with patters to be protected in tokenisation.",
 )
+@click.option(
+    "--custom-nb-prefixes",
+    "-c",
+    help="Specify a custom non-breaking prefixes file, add prefixes to the default ones from the specified language.",
+)
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
 def tokenize_file(
     language,
@@ -69,9 +74,10 @@ def tokenize_file(
     xml_escape,
     aggressive_dash_splits,
     protected_patterns,
+    custom_nb_prefixes,
     encoding,
 ):
-    moses = MosesTokenizer(lang=language)
+    moses = MosesTokenizer(lang=language, custom_nonbreaking_prefixes=custom_nb_prefixes)
 
     if protected_patterns:
         with open(protected_patterns, encoding="utf8") as fin:
