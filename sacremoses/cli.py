@@ -77,7 +77,8 @@ def tokenize_file(
     custom_nb_prefixes,
     encoding,
 ):
-    moses = MosesTokenizer(lang=language, custom_nonbreaking_prefixes=custom_nb_prefixes)
+    moses = MosesTokenizer(lang=language,
+        custom_nonbreaking_prefixes_file=custom_nb_prefixes)
 
     if protected_patterns:
         with open(protected_patterns, encoding="utf8") as fin:
