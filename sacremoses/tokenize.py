@@ -283,14 +283,26 @@ class MosesTokenizer(object):
         BASIC_PROTECTED_PATTERN_5,
     ]
 
-    def __init__(self, lang="en"):
+    def __init__(self, lang="en", custom_nonbreaking_prefixes=None):
         # Initialize the object.
         super(MosesTokenizer, self).__init__()
         self.lang = lang
+
         # Initialize the language specific nonbreaking prefixes.
         self.NONBREAKING_PREFIXES = [
             _nbp.strip() for _nbp in nonbreaking_prefixes.words(lang)
         ]
+
+        # Load custom nonbreaking prefixes file.
+        if custom_nonbreaking_prefixes:
+            self.NONBREAKING_PREFIXES  = []
+            with open(custom_nonbreaking_prefixes, 'r') as fin:
+                for line in fin:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        if line not in self.NONBREAKING_PREFIXES:
+                            self.NONBREAKING_PREFIXES.append(line)
+
         self.NUMERIC_ONLY_PREFIXES = [
             w.rpartition(" ")[0]
             for w in self.NONBREAKING_PREFIXES
