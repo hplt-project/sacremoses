@@ -118,7 +118,7 @@ class NonbreakingPrefixes:
         # If *lang* in list of languages available, allocate apt fileid.
         if lang in self.available_langs:
             filenames = ["nonbreaking_prefix." + self.available_langs[lang]]
-        # Use non-breaking praefixes for all languages when lang==None.
+        # Use non-breaking prefixes for all languages when lang==None.
         elif lang == None:
             filenames = [
                 "nonbreaking_prefix." + v for v in set(self.available_langs.values())
