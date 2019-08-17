@@ -84,6 +84,7 @@ class NonbreakingPrefixes:
             "spanish": "es",
             "finnish": "fi",
             "french": "fr",
+            "irish": "ga",
             "hungarian": "hu",
             "icelandic": "is",
             "italian": "it",
