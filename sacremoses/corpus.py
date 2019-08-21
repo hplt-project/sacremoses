@@ -100,7 +100,7 @@ class NonbreakingPrefixes:
             "swedish": "sv",
             "tamil": "ta",
             "cantonese": "yue",
-            "chinese":, "zh"
+            "chinese": "zh",
         }
         # Also, add the lang IDs as the keys.
         self.available_langs.update({v: v for v in self.available_langs.values()})
