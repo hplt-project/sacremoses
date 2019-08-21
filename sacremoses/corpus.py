@@ -89,6 +89,7 @@ class NonbreakingPrefixes:
             "icelandic": "is",
             "italian": "it",
             "latvian": "lv",
+            "lithuanian": "lt", 
             "dutch": "nl",
             "polish": "pl",
             "portuguese": "pt",
