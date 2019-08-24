@@ -68,19 +68,6 @@ class MosesPunctNormalizer:
         (r' +', r' '),
     ]
 
-    HANDLE_PSEUDO_SPACES = [  # lines 59 - 67
-        (r" %", r"%"),
-        (u"nº ", u"nº "),
-        (r" :", r":"),
-        (u" ºC", u" ºC"),
-        (r" cm", r" cm"),
-        (r" \?", r"\?"),
-        (r" \!", r"\!"),
-        (r" ;", r";"),
-        (r", ", r", "),
-        (r" +", r" "),
-    ]
-
     EN_QUOTATION_FOLLOWED_BY_COMMA = [(r'"([,.]+)', r'\g<1>"')]
 
     DE_ES_FR_QUOTATION_FOLLOWED_BY_COMMA = [
@@ -111,7 +98,6 @@ class MosesPunctNormalizer:
             self.EXTRA_WHITESPACE,
             self.NORMALIZE_UNICODE,
             self.FRENCH_QUOTES,
-            self.HANDLE_PSEUDO_SPACES,
             self.HANDLE_PSEUDO_SPACES,
         ]
 
