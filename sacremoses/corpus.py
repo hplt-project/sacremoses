@@ -40,6 +40,7 @@ class Perluniprops:
             "IsPf",
             "IsPi",
             "CJKSymbols",
+            "CJK",
         ]
 
     def chars(self, category=None):
