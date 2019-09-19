@@ -85,9 +85,11 @@ class NonbreakingPrefixes:
             "spanish": "es",
             "finnish": "fi",
             "french": "fr",
+            "irish": "ga",
             "hungarian": "hu",
             "icelandic": "is",
             "italian": "it",
+            "lithuanian": "lt", 
             "latvian": "lv",
             "dutch": "nl",
             "polish": "pl",
@@ -98,6 +100,8 @@ class NonbreakingPrefixes:
             "slovenian": "sl",
             "swedish": "sv",
             "tamil": "ta",
+            "cantonese": "yue",
+            "chinese": "zh",
         }
         # Also, add the lang IDs as the keys.
         self.available_langs.update({v: v for v in self.available_langs.values()})
@@ -119,7 +123,7 @@ class NonbreakingPrefixes:
         # If *lang* in list of languages available, allocate apt fileid.
         if lang in self.available_langs:
             filenames = ["nonbreaking_prefix." + self.available_langs[lang]]
-        # Use non-breaking praefixes for all languages when lang==None.
+        # Use non-breaking prefixes for all languages when lang==None.
         elif lang == None:
             filenames = [
                 "nonbreaking_prefix." + v for v in set(self.available_langs.values())
