@@ -68,6 +68,7 @@ def cli():
     help="Specify a custom non-breaking prefixes file, add prefixes to the default ones from the specified language.",
 )
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
 def tokenize_file(
     language,
     processes,
@@ -76,6 +77,7 @@ def tokenize_file(
     protected_patterns,
     custom_nb_prefixes,
     encoding,
+    quiet
 ):
     moses = MosesTokenizer(lang=language,
         custom_nonbreaking_prefixes_file=custom_nb_prefixes)
@@ -101,7 +103,7 @@ def tokenize_file(
                     print(moses_tokenize(line), end="\n", file=fout)
             else:
                 for outline in parallelize_preprocess(
-                    moses_tokenize, fin.readlines(), processes, progress_bar=True
+                    moses_tokenize, fin.readlines(), processes, progress_bar=(not quiet)
                 ):
                     print(outline, end="\n", file=fout)
 
@@ -119,7 +121,8 @@ def tokenize_file(
     help="Unescape special characters for XML.",
 )
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-def detokenize_file(language, processes, xml_unescape, encoding):
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+def detokenize_file(language, processes, xml_unescape, encoding, quiet):
     moses = MosesDetokenizer(lang=language)
     moses_detokenize = partial(moses.detokenize, return_str=True, unescape=xml_unescape)
     with click.get_text_stream("stdin", encoding=encoding) as fin:
@@ -132,7 +135,7 @@ def detokenize_file(language, processes, xml_unescape, encoding):
             else:
                 document_iterator = map(str.split, fin.readlines())
                 for outline in parallelize_preprocess(
-                    moses_detokenize, document_iterator, processes, progress_bar=True
+                    moses_detokenize, document_iterator, processes, progress_bar=(not quiet)
                 ):
                     print(outline, end="\n", file=fout)
 
@@ -157,14 +160,15 @@ def detokenize_file(language, processes, xml_unescape, encoding):
     help="Use the first token as part of truecasing.",
 )
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-def train_truecaser(modelfile, processes, is_asr, possibly_use_first_token, encoding):
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+def train_truecaser(modelfile, processes, is_asr, possibly_use_first_token, encoding, quiet):
     moses = MosesTruecaser(is_asr=is_asr, encoding=encoding)
     with click.get_text_stream("stdin", encoding=encoding) as fin:
         model = moses.train_from_file_object(
             fin,
             possibly_use_first_token=possibly_use_first_token,
             processes=processes,
-            progress_bar=True,
+            progress_bar=(not quiet),
         )
         moses.save_model(modelfile)
 
@@ -180,12 +184,14 @@ def train_truecaser(modelfile, processes, is_asr, possibly_use_first_token, enco
     help="A flag to indicate that model is for ASR.",
 )
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-def truecase_file(modelfile, processes, is_asr, encoding):
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+def truecase_file(modelfile, processes, is_asr, encoding, quiet):
     moses = MosesTruecaser(load_from=modelfile, is_asr=is_asr, encoding=encoding)
     moses_truecase = partial(moses.truecase, return_str=True)
     with click.get_text_stream("stdin", encoding=encoding) as fin:
         with click.get_text_stream("stdout", encoding=encoding) as fout:
-            for line in tqdm(fin):
+            fin = fin if quiet else tqdm(fin)
+            for line in fin:
                 print(moses.truecase(line, return_str=True), end="\n", file=fout)
             # FIXME: parallelize job don't work properly for MosesTruecaser.truecase
             ##else:
@@ -203,7 +209,8 @@ def truecase_file(modelfile, processes, is_asr, encoding):
     help="Whether the file are headlines.",
 )
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-def detruecase_file(processes, is_headline, encoding):
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+def detruecase_file(processes, is_headline, encoding, quiet):
     moses = MosesDetruecaser()
     moses_detruecase = partial(
         moses.detruecase, return_str=True, is_headline=is_headline
@@ -217,7 +224,7 @@ def detruecase_file(processes, is_headline, encoding):
                     print(moses_detruecase(line), end="\n", file=fout)
             else:
                 for outline in parallelize_preprocess(
-                    moses_detruecase, fin.readlines(), processes, progress_bar=True
+                    moses_detruecase, fin.readlines(), processes, progress_bar=(not quiet)
                 ):
                     print(outline, end="\n", file=fout)
 
@@ -225,7 +232,8 @@ def detruecase_file(processes, is_headline, encoding):
 @click.option("--t2s/--s2t", default=False, help="Convert traditional to simplified Chinese (t2s) or vice versa (s2t)")
 @click.option("--processes", "-j", default=1, help="No. of processes.")
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-def convert_chinese(t2s, processes, encoding):
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+def convert_chinese(t2s, processes, encoding, quiet):
     convert = simplify if t2s else tradify
     with click.get_text_stream("stdin", encoding=encoding) as fin:
         with click.get_text_stream("stdout", encoding=encoding) as fout:
@@ -239,7 +247,7 @@ def convert_chinese(t2s, processes, encoding):
                     # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
                     print(convert(line), end="", file=fout)
             else:
-                for outline in parallelize_preprocess(convert, fin.readlines(), processes, progress_bar=True):
+                for outline in parallelize_preprocess(convert, fin.readlines(), processes, progress_bar=(not quiet)):
                     # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
                     print(outline, end="", file=fout)
 
@@ -263,8 +271,10 @@ def convert_chinese(t2s, processes, encoding):
     "--normalize-numbers", "-d", default=True, is_flag=True, help="Normalize number."
 )
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
 def normalize_file(
-    language, processes, normalize_quote_commas, normalize_numbers, encoding
+    language, processes, normalize_quote_commas, normalize_numbers, encoding,
+    quiet
 ):
     moses = MosesPunctNormalizer(
         language,
@@ -286,7 +296,7 @@ def normalize_file(
                     print(moses_normalize(line), end="", file=fout)
             else:
                 for outline in parallelize_preprocess(
-                    moses_normalize, fin.readlines(), processes, progress_bar=True
+                    moses_normalize, fin.readlines(), processes, progress_bar=(not quiet)
                 ):
                     # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
                     print(outline, end="", file=fout)
