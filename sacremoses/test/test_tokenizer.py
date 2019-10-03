@@ -318,3 +318,18 @@ class TestDetokenizer(unittest.TestCase):
         tokenizer = MosesTokenizer(lang="ja")
         text = u"電話でんわの邪魔じゃまをしないでください"
         assert tokenizer.tokenize(text) == [text]
+
+    def test_mixed_cjk_tokenization(self):
+        tokenizer = MosesTokenizer()
+        detokenizer = MosesDetokenizer()
+        text = u"Japan is 日本 in Japanese."
+        assert tokenizer.tokenize(text) == [
+            u"Japan",
+            u"is",
+            u"日",
+            u"本",
+            u"in",
+            u"Japanese",
+            u".",
+        ]
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text

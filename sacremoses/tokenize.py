@@ -689,7 +689,7 @@ class MosesDetokenizer(object):
             # Check if the first char is CJK.
             if is_cjk(token[0]) and self.lang != "ko":
                 # Perform left shift if this is a second consecutive CJK word.
-                if i > 0 and is_cjk(token[-1]):
+                if i > 0 and is_cjk(tokens[i - 1][-1]):
                     detokenized_text += token
                 # But do nothing special if this is a CJK word that doesn't follow a CJK word
                 else:
