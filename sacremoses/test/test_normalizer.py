@@ -54,3 +54,9 @@ class TestNormalizer(unittest.TestCase):
 
         text = expected = u"12 123"
         assert moses_no_norm_num.normalize(text) == expected
+
+    def test_moses_noralize_single_apostrophe(self):
+        moses_norm_num = MosesPunctNormalizer("en")
+        text = u"yesterday ’s reception"
+        expected = u"yesterday 's reception"
+        assert moses_norm_num.normalize(text) == expected
