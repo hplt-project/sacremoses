@@ -39,7 +39,7 @@ class MosesPunctNormalizer:
         (u'([a-zA-Z])‘([a-zA-Z])', r"\g<1>'\g<2>"),
         (u'([a-zA-Z])’([a-zA-Z])', r"\g<1>'\g<2>"),
         (u'‘', r"'"),
-        (u'‚', r'"'),
+        (u'‚', r"'"),
         (u'’', r"'"),
         (r"''", r'"'),
         (u'´´', r'"'),
