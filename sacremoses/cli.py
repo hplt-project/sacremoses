@@ -288,7 +288,7 @@ def convert_chinese(t2s, processes, encoding, quiet):
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
 def normalize_file(
     language, processes, normalize_quote_commas, normalize_numbers,
-    pre_replace_unicode_punct, post_remove_control_chars, encoding, quiet
+    replace_unicode_punct, remove_control_chars, encoding, quiet
 ):
     moses = MosesPunctNormalizer(
         language,
