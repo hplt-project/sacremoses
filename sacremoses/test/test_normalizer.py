@@ -60,3 +60,9 @@ class TestNormalizer(unittest.TestCase):
         text = u"yesterday ’s reception"
         expected = u"yesterday 's reception"
         assert moses_norm_num.normalize(text) == expected
+
+    def test_replace_unicode_punct(self):
+        moses_norm_unicode = MosesPunctNormalizer()
+        text = u"０《１２３》 ４５６％ 【７８９】"
+        expected = u"0[123] 456% [789]"
+        assert moses_norm_unicode.replace_unicode_punct(text) == expected

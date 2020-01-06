@@ -13,6 +13,8 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
+  - "3.7"
+  - "3.8"
 
 cache: pip
 
@@ -21,6 +23,7 @@ install:
   - pip install joblib  # For parallelization.
   - pip install click   # For CLI.
   - pip install tqdm    # For progressbar.
+  - pip install regex   # For regex (simpler access to perluniprops)
 
 script:
   - unbuffer python -m unittest discover sacremoses/test/ -v

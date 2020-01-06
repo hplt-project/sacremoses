@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import regex
 
 from six import text_type
 from itertools import chain
@@ -83,6 +84,47 @@ class MosesPunctNormalizer:
         (u'(\\d)\u00A0(\\d)', r'\g<1>.\g<2>'),
     ]
 
+    # Regex substitutions from replace-unicode-punctuation.perl
+    # https://github.com/moses-smt/mosesdecoder/blob/master/scripts/tokenizer/replace-unicode-punctuation.perl
+    REPLACE_UNICODE_PUNCTUATION = [
+        (u"，", u","),
+        (r"。\s*", u". "),
+        (u"、", u","),
+        (u"”", u'"'),
+        (u"“", u'"'),
+        (u"∶", u":"),
+        (u"：", u":"),
+        (u"？", u"?"),
+        (u"《", u'"'),
+        (u"》", u'"'),
+        (u"）", u")"),
+        (u"！", u"!"),
+        (u"（", u"("),
+        (u"；", u";"),
+        (u"」", u'"'),
+        (u"「", u'"'),
+        (u"０", u"0"),
+        (u"１", u'1'),
+        (u"２", u"2"),
+        (u"３", u"3"),
+        (u"４", u"4"),
+        (u"５", u"5"),
+        (u"６", u"6"),
+        (u"７", u"7"),
+        (u"８", u"8"),
+        (u"９", u"9"),
+        (r"．\s*", u". "),
+        (u"～", u"~"),
+        (u"’", u"'"),
+        (u"…", u"..."),
+        (u"━", u"-"),
+        (u"〈", u"<"),
+        (u"〉", u">"),
+        (u"【", u"["),
+        (u"】", u"]"),
+        (u"％", u"%"),
+    ]
+    
     def __init__(self, lang="en", penn=True, norm_quote_commas=True, norm_numbers=True):
         """
         :param language: The two-letter language code.
@@ -127,3 +169,11 @@ class MosesPunctNormalizer:
             text = re.sub(regexp, substitution, text_type(text))
             # print(text)
         return text
+
+    def replace_unicode_punct(self, text):
+        for regexp, substitution in self.REPLACE_UNICODE_PUNCTUATION:
+            text = re.sub(regexp, substitution, text_type(text))
+        return text
+
+    def remove_control_chars(self, text):
+        return regex.sub(r"\p{C}", "", text)
