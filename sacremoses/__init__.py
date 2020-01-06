@@ -5,4 +5,4 @@ from sacremoses.normalize import *
 
 # from sacremoses.subwords import *
 
-__version__ = "0.0.35"
+__version__ = "0.0.36"
