@@ -270,16 +270,32 @@ def convert_chinese(t2s, processes, encoding, quiet):
 @click.option(
     "--normalize-numbers", "-d", default=True, is_flag=True, help="Normalize number."
 )
+@click.option(
+    "--replace-unicode-puncts",
+    '-p',
+    default=False,
+    is_flag=True,
+    help="Replace unicode punctuations BEFORE normalization.",
+)
+@click.option(
+    "--remove-control-chars",
+    '-c',
+    default=False,
+    is_flag=True,
+    help="Remove control characters AFTER normalization.",
+)
 @click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
 def normalize_file(
-    language, processes, normalize_quote_commas, normalize_numbers, encoding,
-    quiet
+    language, processes, normalize_quote_commas, normalize_numbers,
+    replace_unicode_punct, remove_control_chars, encoding, quiet
 ):
     moses = MosesPunctNormalizer(
         language,
         norm_quote_commas=normalize_quote_commas,
         norm_numbers=normalize_numbers,
+        pre_replace_unicode_punct=replace_unicode_punct,
+        post_remove_control_chars=remove_control_chars,
     )
     moses_normalize = partial(moses.normalize)
 

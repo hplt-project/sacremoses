@@ -9,7 +9,7 @@ sacremoses=sacremoses.cli:cli
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.35',
+  version = '0.0.37',
   description = 'SacreMoses',
   long_description = 'LGPL MosesTokenizer in Python',
   author = '',
@@ -18,6 +18,6 @@ setup(
   url = 'https://github.com/alvations/sacremoses',
   keywords = [],
   classifiers = [],
-  install_requires = ['six', 'click', 'joblib', 'tqdm'],
+  install_requires = ['regex', 'six', 'click', 'joblib', 'tqdm'],
   entry_points=console_scripts,
 )
