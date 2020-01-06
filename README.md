@@ -92,7 +92,7 @@ Usage (CLI)
 
 
 ```shell
-$ pip install -U sacremoses>=0.0.34
+$ pip install -U sacremoses>=0.0.38
 
 $ sacremoses --help
 Usage: sacremoses [OPTIONS] COMMAND [ARGS]...
@@ -218,7 +218,11 @@ Options:
   -j, --processes INTEGER       No. of processes.
   -q, --normalize-quote-commas  Normalize quotations and commas.
   -d, --normalize-numbers       Normalize number.
+  -p, --replace-unicode-puncts  Replace unicode punctuations BEFORE
+                                normalization.
+  -c, --remove-control-chars    Remove control characters AFTER normalization.
   -e, --encoding TEXT           Specify encoding of file.
+  -q, --quiet                   Disable progress bar.
   -h, --help                    Show this message and exit.
 
 $ sacremoses normalize -j 4 < big.txt > big.txt.norm.cli
