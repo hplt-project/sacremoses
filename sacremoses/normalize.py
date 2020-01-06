@@ -124,8 +124,9 @@ class MosesPunctNormalizer:
         (u"】", u"]"),
         (u"％", u"%"),
     ]
-    
-    def __init__(self, lang="en", penn=True, norm_quote_commas=True, norm_numbers=True):
+
+    def __init__(self, lang="en", penn=True, norm_quote_commas=True, norm_numbers=True,
+        pre_replace_unicode_punct=False, post_remove_control_chars=False):
         """
         :param language: The two-letter language code.
         :type lang: str
@@ -160,14 +161,27 @@ class MosesPunctNormalizer:
 
         self.substitutions = list(chain(*self.substitutions))
 
+        self.pre_replace_unicode_punct = pre_replace_unicode_punct
+        self.post_remove_control_chars = post_remove_control_chars
+
     def normalize(self, text):
         """
         Returns a string with normalized punctuation.
         """
+        # Optionally, replace unicode puncts BEFORE normalization.
+        if self.pre_replace_unicode_punct:
+            text = self.replace_unicode_punct(text)
+
+        # Actual normalization.
         for regexp, substitution in self.substitutions:
             # print(regexp, substitution)
             text = re.sub(regexp, substitution, text_type(text))
             # print(text)
+
+        # Optionally, replace unicode puncts BEFORE normalization.
+        if self.post_remove_control_chars:
+            text = self.remove_control_chars(text)
+
         return text
 
     def replace_unicode_punct(self, text):
