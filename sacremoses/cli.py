@@ -294,7 +294,7 @@ def normalize_file(
         language,
         norm_quote_commas=normalize_quote_commas,
         norm_numbers=normalize_numbers,
-        pre_replace_unicode_punct=replace_unicode_puncts,
+        pre_replace_unicode_punct=replace_unicode_punct,
         post_remove_control_chars=remove_control_chars,
     )
     moses_normalize = partial(moses.normalize)
