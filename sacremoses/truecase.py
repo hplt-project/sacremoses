@@ -281,36 +281,36 @@ class MosesTruecaser(object):
                 continue
 
             # Reads the word token and factors separatedly
-            word, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
+            token, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
 
             # Lowercase the ASR tokens.
             if self.is_asr:
-                word = word.lower()
+                token = token.lower()
 
             # The actual case replacement happens here.
             # "Most frequent" case of the word.
-            best_case = self.model["best"].get(word.lower(), None)
+            best_case = self.model["best"].get(token.lower(), None)
             # Other known cases of the word.
-            known_case = self.model["known"].get(word, None)
+            known_case = self.model["known"].get(token, None)
             # If it's the start of sentence.
             if is_first_word and best_case:  # Truecase sentence start.
-                word = best_case
+                token = best_case
             elif known_case:  # Don't change known tokens.
-                word = known_case if use_known else word
+                token = known_case if use_known else token
             elif (
                 best_case
             ):  # Truecase otherwise unknown tokens? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
-                word = best_case
+                token = best_case
             # Else, it's an unknown word, don't change the word.
             # Concat the truecased `word` with the `other_factors`
-            word = word + other_factors
+            token = token + other_factors
             # Adds the truecased word.
-            truecased_tokens.append(word)
+            truecased_tokens.append(token)
 
             # Resets sentence start if this token is an ending punctuation.
-            is_first_word = word in self.SENT_END
+            is_first_word = token in self.SENT_END
 
-            if word in self.DELAYED_SENT_START:
+            if token in self.DELAYED_SENT_START:
                 is_first_word = False
 
         # return ' '.join(tokens)
@@ -411,11 +411,11 @@ class MosesTruecaser(object):
             for token in casing:
                 total_token_count = sum(casing[token].values())
                 tokens_counts = []
-                for i, (word, count) in enumerate(casing[token].most_common()):
+                for i, (token, count) in enumerate(casing[token].most_common()):
                     if i == 0:
-                        out_token = "{} ({}/{})".format(word, count, total_token_count)
+                        out_token = "{} ({}/{})".format(token, count, total_token_count)
                     else:
-                        out_token = "{} ({})".format(word, count, total_token_count)
+                        out_token = "{} ({})".format(token, count, total_token_count)
                     tokens_counts.append(out_token)
                 print(" ".join(tokens_counts), end="\n", file=fout)
 
