@@ -15,6 +15,8 @@ Install
 pip install -U sacremoses
 ```
 
+NOTE: Sacremoses only supports Python 3 now (`sacremoses>=0.0.41`). If you're using Python 2, the last possible version is `sacremoses==0.0.40`.
+
 Usage (Python)
 ====
 

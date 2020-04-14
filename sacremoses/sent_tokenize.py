@@ -20,7 +20,7 @@ class MosesSentTokenizer(object):
     """
     raise NotImplementedError
 
-    """
+    r"""
     # Perl Unicode Properties character sets.
     IsPi = text_type("".join(perluniprops.chars("IsPi")))
     IsUpper = text_type("".join(perluniprops.chars("IsUpper")))
