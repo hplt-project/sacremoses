@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
+from functools import update_wrapper
+from io import StringIO
 from itertools import chain
 from tqdm import tqdm
 
@@ -31,18 +33,51 @@ if sys.version_info[0] < 3:
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
-
-@click.group(context_settings=CONTEXT_SETTINGS)
-@click.version_option()
-def cli():
-    pass
-
-
-@cli.command("tokenize")
+@click.group(chain=True, context_settings=CONTEXT_SETTINGS)
 @click.option(
     "--language", "-l", default="en", help="Use language specific rules when tokenizing"
 )
 @click.option("--processes", "-j", default=1, help="No. of processes.")
+@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+@click.version_option()
+def cli(language, encoding, processes, quiet):
+    pass
+
+@cli.resultcallback()
+def process_pipeline(processors, encoding, **kwargs):
+    with click.get_text_stream("stdin", encoding=encoding) as fin:
+        iterator = fin # Initialize fin as the first iterator.
+        for proc in processors:
+            iterator = proc(list(iterator), **kwargs)
+        for item in iterator:
+            click.echo(item)
+
+def processor(f, **kwargs):
+    """Helper decorator to rewrite a function so that
+    it returns another function from it.
+    """
+    def new_func(**kwargs):
+        def processor(stream, **kwargs):
+            return f(stream, **kwargs)
+        return partial(processor, **kwargs)
+    return update_wrapper(new_func, f, **kwargs)
+
+def parallel_or_not(iterator, func, processes, quiet):
+    if processes == 1:
+        for line in iterator:
+            yield func(line)
+    else:
+        for outline in parallelize_preprocess(
+            func, iterator, processes, progress_bar=(not quiet)
+        ):
+            yield outline
+
+########################################################################
+# Tokenize
+########################################################################
+
+@cli.command("tokenize")
 @click.option(
     "--aggressive-dash-splits",
     "-a",
@@ -67,17 +102,11 @@ def cli():
     "-c",
     help="Specify a custom non-breaking prefixes file, add prefixes to the default ones from the specified language.",
 )
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+@processor
 def tokenize_file(
-    language,
-    processes,
-    xml_escape,
-    aggressive_dash_splits,
-    protected_patterns,
-    custom_nb_prefixes,
-    encoding,
-    quiet
+    iterator,
+    language, processes, quiet,
+    xml_escape, aggressive_dash_splits, protected_patterns, custom_nb_prefixes,
 ):
     moses = MosesTokenizer(lang=language,
         custom_nonbreaking_prefixes_file=custom_nb_prefixes)
@@ -93,26 +122,14 @@ def tokenize_file(
         escape=xml_escape,
         protected_patterns=protected_patterns,
     )
+    return parallel_or_not(iterator, moses_tokenize, processes, quiet)
 
-    with click.get_text_stream("stdin", encoding=encoding) as fin:
-        with click.get_text_stream("stdout", encoding=encoding) as fout:
-            # If it's single process, joblib parallization is slower,
-            # so just process line by line normally.
-            if processes == 1:
-                for line in tqdm(fin.readlines()):
-                    print(moses_tokenize(line), end="\n", file=fout)
-            else:
-                for outline in parallelize_preprocess(
-                    moses_tokenize, fin.readlines(), processes, progress_bar=(not quiet)
-                ):
-                    print(outline, end="\n", file=fout)
 
+########################################################################
+# Detokenize
+########################################################################
 
 @cli.command("detokenize")
-@click.option(
-    "--language", "-l", default="en", help="Use language specific rules when tokenizing"
-)
-@click.option("--processes", "-j", default=1, help="No. of processes.")
 @click.option(
     "--xml-unescape",
     "-x",
@@ -120,146 +137,21 @@ def tokenize_file(
     is_flag=True,
     help="Unescape special characters for XML.",
 )
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
-def detokenize_file(language, processes, xml_unescape, encoding, quiet):
+@processor
+def detokenize_file(
+    iterator,
+    language, processes, quiet,
+    xml_unescape,
+):
     moses = MosesDetokenizer(lang=language)
     moses_detokenize = partial(moses.detokenize, return_str=True, unescape=xml_unescape)
-    with click.get_text_stream("stdin", encoding=encoding) as fin:
-        with click.get_text_stream("stdout", encoding=encoding) as fout:
-            # If it's single process, joblib parallization is slower,
-            # so just process line by line normally.
-            if processes == 1:
-                for line in tqdm(fin.readlines()):
-                    print(moses_detokenize(str.split(line)), end="\n", file=fout)
-            else:
-                document_iterator = map(str.split, fin.readlines())
-                for outline in parallelize_preprocess(
-                    moses_detokenize, document_iterator, processes, progress_bar=(not quiet)
-                ):
-                    print(outline, end="\n", file=fout)
+    return parallel_or_not(list(map(str.split, iterator)), moses_detokenize, processes, quiet)
 
-
-@cli.command("train-truecase")
-@click.option(
-    "--modelfile", "-m", required=True, help="Filename to save the modelfile."
-)
-@click.option("--processes", "-j", default=1, help="No. of processes.")
-@click.option(
-    "--is-asr",
-    "-a",
-    default=False,
-    is_flag=True,
-    help="A flag to indicate that model is for ASR.",
-)
-@click.option(
-    "--possibly-use-first-token",
-    "-p",
-    default=False,
-    is_flag=True,
-    help="Use the first token as part of truecasing.",
-)
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
-def train_truecaser(modelfile, processes, is_asr, possibly_use_first_token, encoding, quiet):
-    moses = MosesTruecaser(is_asr=is_asr, encoding=encoding)
-    with click.get_text_stream("stdin", encoding=encoding) as fin:
-        model = moses.train_from_file_object(
-            fin,
-            possibly_use_first_token=possibly_use_first_token,
-            processes=processes,
-            progress_bar=(not quiet),
-        )
-        moses.save_model(modelfile)
-
-
-@cli.command("truecase")
-@click.option("--modelfile", "-m", required=True, help="The trucaser modelfile to use.")
-@click.option("--processes", "-j", default=1, help="No. of processes.")
-@click.option(
-    "--is-asr",
-    "-a",
-    default=False,
-    is_flag=True,
-    help="A flag to indicate that model is for ASR.",
-)
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
-def truecase_file(modelfile, processes, is_asr, encoding, quiet):
-    moses = MosesTruecaser(load_from=modelfile, is_asr=is_asr, encoding=encoding)
-    moses_truecase = partial(moses.truecase, return_str=True)
-    with click.get_text_stream("stdin", encoding=encoding) as fin:
-        with click.get_text_stream("stdout", encoding=encoding) as fout:
-            fin = fin if quiet else tqdm(fin)
-            for line in fin:
-                print(moses.truecase(line, return_str=True), end="\n", file=fout)
-            # FIXME: parallelize job don't work properly for MosesTruecaser.truecase
-            ##else:
-            ##    for outline in parallelize_preprocess(moses_truecase, fin.readlines(), processes, progress_bar=True):
-            ##        print(outline, end='\n', file=fout)
-
-
-@cli.command("detruecase")
-@click.option("--processes", "-j", default=1, help="No. of processes.")
-@click.option(
-    "--is-headline",
-    "-a",
-    default=False,
-    is_flag=True,
-    help="Whether the file are headlines.",
-)
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
-def detruecase_file(processes, is_headline, encoding, quiet):
-    moses = MosesDetruecaser()
-    moses_detruecase = partial(
-        moses.detruecase, return_str=True, is_headline=is_headline
-    )
-    with click.get_text_stream("stdin", encoding=encoding) as fin:
-        with click.get_text_stream("stdout", encoding=encoding) as fout:
-            # If it's single process, joblib parallization is slower,
-            # so just process line by line normally.
-            if processes == 1:
-                for line in tqdm(fin.readlines()):
-                    print(moses_detruecase(line), end="\n", file=fout)
-            else:
-                for outline in parallelize_preprocess(
-                    moses_detruecase, fin.readlines(), processes, progress_bar=(not quiet)
-                ):
-                    print(outline, end="\n", file=fout)
-
-@cli.command("chinese")
-@click.option("--t2s/--s2t", default=False, help="Convert traditional to simplified Chinese (t2s) or vice versa (s2t)")
-@click.option("--processes", "-j", default=1, help="No. of processes.")
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
-def convert_chinese(t2s, processes, encoding, quiet):
-    convert = simplify if t2s else tradify
-    with click.get_text_stream("stdin", encoding=encoding) as fin:
-        with click.get_text_stream("stdout", encoding=encoding) as fout:
-            # If it's single process, joblib parallization is slower,
-            # so just process line by line normally.
-            if processes == 1:
-                # TODO: Actually moses_normalize(fin.read()) gives the same output
-                #       and it's a lot better but it's inconsistent with the other
-                #       preprocessing interfaces, so we're doing it line by line here.
-                for line in tqdm(fin.readlines()):
-                    # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
-                    print(convert(line), end="", file=fout)
-            else:
-                for outline in parallelize_preprocess(convert, fin.readlines(), processes, progress_bar=(not quiet)):
-                    # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
-                    print(outline, end="", file=fout)
-
+########################################################################
+# Normalize
+########################################################################
 
 @cli.command("normalize")
-@click.option(
-    "--language",
-    "-l",
-    default="en",
-    help="Use language specific rules when normalizing.",
-)
-@click.option("--processes", "-j", default=1, help="No. of processes.")
 @click.option(
     "--normalize-quote-commas",
     "-q",
@@ -284,11 +176,12 @@ def convert_chinese(t2s, processes, encoding, quiet):
     is_flag=True,
     help="Remove control characters AFTER normalization.",
 )
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+@processor
 def normalize_file(
-    language, processes, normalize_quote_commas, normalize_numbers,
-    replace_unicode_puncts, remove_control_chars, encoding, quiet
+    iterator,
+    language, processes, quiet,
+    normalize_quote_commas, normalize_numbers,
+    replace_unicode_puncts, remove_control_chars,
 ):
     moses = MosesPunctNormalizer(
         language,
@@ -298,21 +191,122 @@ def normalize_file(
         post_remove_control_chars=remove_control_chars,
     )
     moses_normalize = partial(moses.normalize)
+    return parallel_or_not(iterator, moses_normalize, processes, quiet)
 
+########################################################################
+# Train Truecase
+########################################################################
+
+@cli.command("train-truecase")
+@click.option(
+    "--modelfile", "-m", required=True, help="Filename to save the modelfile."
+)
+@click.option(
+    "--is-asr",
+    "-a",
+    default=False,
+    is_flag=True,
+    help="A flag to indicate that model is for ASR.",
+)
+@click.option(
+    "--possibly-use-first-token",
+    "-p",
+    default=False,
+    is_flag=True,
+    help="Use the first token as part of truecasing.",
+)
+@processor
+def train_truecaser(
+    iterator,
+    language, processes, quiet,
+    modelfile, is_asr, possibly_use_first_token
+):
+    moses = MosesTruecaser(is_asr=is_asr)
+    iterator_str = '\n'.join(iterator)
+    model = moses.train_from_file_object(
+        StringIO('\n'.join(iterator_str)),
+        possibly_use_first_token=possibly_use_first_token,
+        processes=processes,
+        progress_bar=(not quiet),
+    )
+    moses.save_model(modelfile)
+    # Re-emit the unchanged iterator.
+    for item in iterator_str.split('\n'):
+        yield item
+
+########################################################################
+# Train Truecase File
+########################################################################
+@cli.command("train-truecase-file")
+@click.option(
+    "--modelfile", "-m", required=True, help="Filename to save the modelfile."
+)
+@click.option("--processes", "-j", default=1, help="No. of processes.")
+@click.option(
+    "--is-asr",
+    "-a",
+    default=False,
+    is_flag=True,
+    help="A flag to indicate that model is for ASR.",
+)
+@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
+@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
+@click.option(
+    "--possibly-use-first-token",
+    "-p",
+    default=False,
+    is_flag=True,
+    help="Use the first token as part of truecasing.",
+)
+def train_truecaser_file(modelfile, processes, encoding, quiet, is_asr, possibly_use_first_token):
+    moses = MosesTruecaser(is_asr=is_asr, encoding=encoding)
     with click.get_text_stream("stdin", encoding=encoding) as fin:
-        with click.get_text_stream("stdout", encoding=encoding) as fout:
-            # If it's single process, joblib parallization is slower,
-            # so just process line by line normally.
-            if processes == 1:
-                # TODO: Actually moses_normalize(fin.read()) gives the same output
-                #       and it's a lot better but it's inconsistent with the other
-                #       preprocessing interfaces, so we're doing it line by line here.
-                for line in tqdm(fin.readlines()):
-                    # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
-                    print(moses_normalize(line), end="", file=fout)
-            else:
-                for outline in parallelize_preprocess(
-                    moses_normalize, fin.readlines(), processes, progress_bar=(not quiet)
-                ):
-                    # Note: not stripping newlines, so don't need end='\n' when printing to stdout.
-                    print(outline, end="", file=fout)
+        model = moses.train_from_file_object(
+            fin,
+            possibly_use_first_token=possibly_use_first_token,
+            processes=processes,
+            progress_bar=(not quiet),
+        )
+        moses.save_model(modelfile)
+    exit()
+
+########################################################################
+# Truecase
+########################################################################
+
+@cli.command("truecase")
+@click.option(
+    "--modelfile", "-m", required=True, help="Filename to save the modelfile."
+)
+@click.option(
+    "--is-asr",
+    "-a",
+    default=False,
+    is_flag=True,
+    help="A flag to indicate that model is for ASR.",
+)
+@processor
+def truecase_file(iterator, language, processes, quiet, modelfile, is_asr):
+    moses = MosesTruecaser(load_from=modelfile, is_asr=is_asr)
+    moses_truecase = partial(moses.truecase, return_str=True)
+    return parallel_or_not(iterator, moses_truecase, processes, quiet)
+
+########################################################################
+# Detruecase
+########################################################################
+
+@cli.command("detruecase")
+@click.option(
+    "--is-headline",
+    "-a",
+    default=False,
+    is_flag=True,
+    help="Whether the file are headlines.",
+)
+@processor
+def detruecase_file(iterator, language, processes, quiet, is_headline):
+    moses = MosesDetruecaser()
+    moses_detruecase = partial(
+        moses.detruecase, return_str=True, is_headline=is_headline
+    )
+    return parallel_or_not(iterator, moses_detruecase, processes, quiet)
