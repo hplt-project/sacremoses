@@ -38,12 +38,12 @@ class MosesTokenizer(object):
     RIGHT_STRIP = r" $", r""  # Uses text.rstrip() instead.
 
     # Pad all "other" special characters not in IsAlnum.
-    PAD_NOT_ISALNUM = u"([^{}\s\.'\`\,\-])".format(IsAlnum), r" \1 "
+    PAD_NOT_ISALNUM = r"([^{}\s\.'\`\,\-])".format(IsAlnum), r" \1 "
 
     # Splits all hyphens (regardless of circumstances), e.g.
     # 'foo-bar' -> 'foo @-@ bar'
     AGGRESSIVE_HYPHEN_SPLIT = (
-        u"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=IsAlnum),
+        r"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=IsAlnum),
         r"\1 @-@ ",
     )
 
@@ -57,9 +57,9 @@ class MosesTokenizer(object):
     # First application uses up B so rule can't see B,C
     # two-step version here may create extra spaces but these are removed later
     # will also space digit,letter or letter,digit forms (redundant with next section)
-    COMMA_SEPARATE_1 = u"([^{}])[,]".format(IsN), r"\1 , "
-    COMMA_SEPARATE_2 = u"[,]([^{}])".format(IsN), r" , \1"
-    COMMA_SEPARATE_3 = u"([{}])[,]$".format(IsN), r"\1 , "
+    COMMA_SEPARATE_1 = r"([^{}])[,]".format(IsN), r"\1 , "
+    COMMA_SEPARATE_2 = r"[,]([^{}])".format(IsN), r" , \1"
+    COMMA_SEPARATE_3 = r"([{}])[,]$".format(IsN), r"\1 , "
 
     # Attempt to get correct directional quotes.
     DIRECTIONAL_QUOTE_1 = r"^``", r"`` "
@@ -77,18 +77,18 @@ class MosesTokenizer(object):
     RESTORE_ELLIPSIS = r"_ELLIPSIS_", r"\.\.\."
 
     # Pad , with tailing space except if within numbers, e.g. 5,300
-    COMMA_1 = u"([^{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2"
-    COMMA_2 = u"([{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2"
-    COMMA_3 = u"([^{numbers}])[,]([{numbers}])".format(numbers=IsN), r"\1 , \2"
+    COMMA_1 = r"([^{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2"
+    COMMA_2 = r"([{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2"
+    COMMA_3 = r"([^{numbers}])[,]([{numbers}])".format(numbers=IsN), r"\1 , \2"
 
     # Pad unicode symbols with spaces.
-    SYMBOLS = u"([;:@#\$%&{}{}])".format(IsSc, IsSo), r" \1 "
+    SYMBOLS = r"([;:@#\$%&{}{}])".format(IsSc, IsSo), r" \1 "
 
     # Separate out intra-token slashes.  PTB tokenization doesn't do this, so
     # the tokens should be merged prior to parsing with a PTB-trained parser.
     # e.g. "and/or" -> "and @/@ or"
     INTRATOKEN_SLASHES = (
-        u"([{alphanum}])\/([{alphanum}])".format(alphanum=IsAlnum),
+        r"([{alphanum}])\/([{alphanum}])".format(alphanum=IsAlnum),
         r"$1 \@\/\@ $2",
     )
 
@@ -159,14 +159,14 @@ class MosesTokenizer(object):
     ESCAPE_LEFT_SQUARE_BRACKET = r"\[", r"&#91;"
     ESCAPE_RIGHT_SQUARE_BRACKET = r"]", r"&#93;"
 
-    EN_SPECIFIC_1 = u"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    EN_SPECIFIC_1 = r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
     EN_SPECIFIC_2 = (
-        u"([^{alpha}{isn}])[']([{alpha}])".format(alpha=IsAlpha, isn=IsN),
+        r"([^{alpha}{isn}])[']([{alpha}])".format(alpha=IsAlpha, isn=IsN),
         r"\1 ' \2",
     )
-    EN_SPECIFIC_3 = u"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    EN_SPECIFIC_4 = u"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 '\2"
-    EN_SPECIFIC_5 = u"([{isn}])[']([s])".format(isn=IsN), r"\1 '\2"
+    EN_SPECIFIC_3 = r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    EN_SPECIFIC_4 = r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 '\2"
+    EN_SPECIFIC_5 = r"([{isn}])[']([s])".format(isn=IsN), r"\1 '\2"
 
     ENGLISH_SPECIFIC_APOSTROPHE = [
         EN_SPECIFIC_1,
@@ -176,10 +176,10 @@ class MosesTokenizer(object):
         EN_SPECIFIC_5,
     ]
 
-    FR_IT_SPECIFIC_1 = u"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    FR_IT_SPECIFIC_2 = u"([^{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    FR_IT_SPECIFIC_3 = u"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    FR_IT_SPECIFIC_4 = u"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1' \2"
+    FR_IT_SPECIFIC_1 = r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    FR_IT_SPECIFIC_2 = r"([^{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    FR_IT_SPECIFIC_3 = r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    FR_IT_SPECIFIC_4 = r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1' \2"
 
     FR_IT_SPECIFIC_APOSTROPHE = [
         FR_IT_SPECIFIC_1,
@@ -190,13 +190,13 @@ class MosesTokenizer(object):
 
     NON_SPECIFIC_APOSTROPHE = r"\'", " ' "
 
-    TRAILING_DOT_APOSTROPHE = "\.' ?$", " . ' "
+    TRAILING_DOT_APOSTROPHE = r"\.' ?$", " . ' "
 
     BASIC_PROTECTED_PATTERN_1 = r"<\/?\S+\/?>"
-    BASIC_PROTECTED_PATTERN_2 = '<\S+( [a-zA-Z0-9]+\="?[^"]")+ ?\/?>'
-    BASIC_PROTECTED_PATTERN_3 = "<\S+( [a-zA-Z0-9]+\='?[^']')+ ?\/?>"
-    BASIC_PROTECTED_PATTERN_4 = "[\w\-\_\.]+\@([\w\-\_]+\.)+[a-zA-Z]{2,}"
-    BASIC_PROTECTED_PATTERN_5 = "(http[s]?|ftp):\/\/[^:\/\s]+(\/\w+)*\/[\w\-\.]+"
+    BASIC_PROTECTED_PATTERN_2 = r'<\S+( [a-zA-Z0-9]+\="?[^"]")+ ?\/?>'
+    BASIC_PROTECTED_PATTERN_3 = r"<\S+( [a-zA-Z0-9]+\='?[^']')+ ?\/?>"
+    BASIC_PROTECTED_PATTERN_4 = r"[\w\-\_\.]+\@([\w\-\_]+\.)+[a-zA-Z]{2,}"
+    BASIC_PROTECTED_PATTERN_5 = r"(http[s]?|ftp):\/\/[^:\/\s]+(\/\w+)*\/[\w\-\.]+"
 
     MOSES_PENN_REGEXES_1 = [
         DEDUPLICATE_SPACE,
@@ -288,6 +288,11 @@ class MosesTokenizer(object):
         super(MosesTokenizer, self).__init__()
         self.lang = lang
 
+        # Initialize the language specific nonbreaking prefixes.
+        self.NONBREAKING_PREFIXES = [
+            _nbp.strip() for _nbp in nonbreaking_prefixes.words(lang)
+        ]
+
         # Load custom nonbreaking prefixes file.
         if custom_nonbreaking_prefixes_file:
             self.NONBREAKING_PREFIXES  = []
@@ -297,11 +302,6 @@ class MosesTokenizer(object):
                     if line and not line.startswith("#"):
                         if line not in self.NONBREAKING_PREFIXES:
                             self.NONBREAKING_PREFIXES.append(line)
-        else:
-            # Initialize the language specific nonbreaking prefixes.
-            self.NONBREAKING_PREFIXES = [
-                _nbp.strip() for _nbp in nonbreaking_prefixes.words(lang)
-            ]
 
         self.NUMERIC_ONLY_PREFIXES = [
             w.rpartition(" ")[0]
@@ -322,13 +322,13 @@ class MosesTokenizer(object):
             self.IsAlpha += cjk_chars
             self.IsAlnum += cjk_chars
             # Overwrite the alnum regexes.
-            self.PAD_NOT_ISALNUM = u"([^{}\s\.'\`\,\-])".format(self.IsAlnum), r" \1 "
+            self.PAD_NOT_ISALNUM = r"([^{}\s\.'\`\,\-])".format(self.IsAlnum), r" \1 "
             self.AGGRESSIVE_HYPHEN_SPLIT = (
-                  u"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=self.IsAlnum),
+                  r"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=self.IsAlnum),
                   r"\1 @-@ ",
               )
             self.INTRATOKEN_SLASHES  = (
-                u"([{alphanum}])\/([{alphanum}])".format(alphanum=self.IsAlnum),
+                r"([{alphanum}])\/([{alphanum}])".format(alphanum=self.IsAlnum),
                 r"$1 \@\/\@ $2",
             )
 
@@ -642,7 +642,7 @@ class MosesDetokenizer(object):
         u"kin",
     ]
 
-    FINNISH_REGEX = u"^({})({})?({})$".format(
+    FINNISH_REGEX = r"^({})({})?({})$".format(
         text_type("|".join(FINNISH_MORPHSET_1)),
         text_type("|".join(FINNISH_MORPHSET_2)),
         text_type("|".join(FINNISH_MORPHSET_3)),
@@ -665,7 +665,7 @@ class MosesDetokenizer(object):
         :return: str
         """
         # Convert the list of tokens into a string and pad it with spaces.
-        text = u" {} ".format(" ".join(tokens))
+        text = r" {} ".format(" ".join(tokens))
         # Converts input string into unicode.
         text = text_type(text)
         # Detokenize the agressive hyphen split.
@@ -696,7 +696,7 @@ class MosesDetokenizer(object):
                     detokenized_text += prepend_space + token
                 prepend_space = " "
             # If it's a currency symbol.
-            elif re.search(u"^[" + self.IsSc + u"\(\[\{\¿\¡]+$", token):
+            elif re.search(r"^[" + self.IsSc + r"\(\[\{\¿\¡]+$", token):
                 # Perform right shift on currency and other random punctuation items
                 detokenized_text += prepend_space + token
                 prepend_space = ""
@@ -712,7 +712,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "en"
                 and i > 0
-                and re.search(u"^['][{}]".format(self.IsAlpha), token)
+                and re.search(r"^['][{}]".format(self.IsAlpha), token)
             ):
                 # and re.search(u'[{}]$'.format(self.IsAlnum), tokens[i-1])):
                 # For English, left-shift the contraction.
@@ -735,8 +735,8 @@ class MosesDetokenizer(object):
             elif (
                 self.lang in ["fr", "it", "ga"]
                 and i <= len(tokens) - 2
-                and re.search(u"[{}][']$".format(self.IsAlpha), token)
-                and re.search(u"^[{}]".format(self.IsAlpha), tokens[i + 1])
+                and re.search(r"[{}][']$".format(self.IsAlpha), token)
+                and re.search(r"^[{}]".format(self.IsAlpha), tokens[i + 1])
             ):  # If the next token is alpha.
                 # For French and Italian, right-shift the contraction.
                 detokenized_text += prepend_space + token
@@ -745,9 +745,9 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "cs"
                 and i <= len(tokens) - 3
-                and re.search(u"[{}][']$".format(self.IsAlpha), token)
-                and re.search(u"^[-–]$", tokens[i + 1])
-                and re.search(u"^li$|^mail.*", tokens[i + 2], re.IGNORECASE)
+                and re.search(r"[{}][']$".format(self.IsAlpha), token)
+                and re.search(r"^[-–]$", tokens[i + 1])
+                and re.search(r"^li$|^mail.*", tokens[i + 2], re.IGNORECASE)
             ):  # In Perl, ($words[$i+2] =~ /^li$|^mail.*/i)
                 # In Czech, right-shift "-li" and a few Czech dashed words (e.g. e-mail)
                 detokenized_text += prepend_space + token + tokens[i + 1]

@@ -87,7 +87,7 @@ class MosesTruecaser(object):
         This function checks through each tokens in a sentence and returns the
         appropriate weight of each surface token form.
         """
-        # Keep track of first words in the sentence(s) of the line.
+        # Keep track of first tokens in the sentence(s) of the line.
         is_first_word = True
         truecase_weights = []
         for i, token in enumerate(tokens):
@@ -102,7 +102,7 @@ class MosesTruecaser(object):
             if not is_first_word and token in self.SENT_END:
                 is_first_word = True
                 continue
-            # Skips words with nothing to case.
+            # Skips tokens with nothing to case.
             if not self.SKIP_LETTERS_REGEX.search(token):
                 is_first_word = False
                 continue
@@ -259,7 +259,7 @@ class MosesTruecaser(object):
             "Or use Truecaser('modefile') to load a model."
         )
         assert hasattr(self, "model"), check_model_message
-        # Keep track of first words in the sentence(s) of the line.
+        # Keep track of first tokens in the sentence(s) of the line.
         is_first_word = True
         truecased_tokens = []
         tokens = self.split_xml(text)
@@ -281,36 +281,36 @@ class MosesTruecaser(object):
                 continue
 
             # Reads the word token and factors separatedly
-            word, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
+            token, other_factors = re.search(r"^([^\|]+)(.*)", token).groups()
 
             # Lowercase the ASR tokens.
             if self.is_asr:
-                word = word.lower()
+                token = token.lower()
 
             # The actual case replacement happens here.
             # "Most frequent" case of the word.
-            best_case = self.model["best"].get(word.lower(), None)
+            best_case = self.model["best"].get(token.lower(), None)
             # Other known cases of the word.
-            known_case = self.model["known"].get(word, None)
+            known_case = self.model["known"].get(token, None)
             # If it's the start of sentence.
             if is_first_word and best_case:  # Truecase sentence start.
-                word = best_case
-            elif known_case:  # Don't change known words.
-                word = known_case if use_known else word
+                token = best_case
+            elif known_case:  # Don't change known tokens.
+                token = known_case if use_known else token
             elif (
                 best_case
-            ):  # Truecase otherwise unknown words? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
-                word = best_case
+            ):  # Truecase otherwise unknown tokens? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
+                token = best_case
             # Else, it's an unknown word, don't change the word.
             # Concat the truecased `word` with the `other_factors`
-            word = word + other_factors
+            token = token + other_factors
             # Adds the truecased word.
-            truecased_tokens.append(word)
+            truecased_tokens.append(token)
 
             # Resets sentence start if this token is an ending punctuation.
-            is_first_word = word in self.SENT_END
+            is_first_word = token in self.SENT_END
 
-            if word in self.DELAYED_SENT_START:
+            if token in self.DELAYED_SENT_START:
                 is_first_word = False
 
         # return ' '.join(tokens)
@@ -346,14 +346,14 @@ class MosesTruecaser(object):
                 # exception for factor that is an XML tag
                 if (
                     re.search(r"^\S", line)
-                    and len(words) > 0
-                    and re.search(r"\|$", words[-1])
+                    and len(tokens) > 0
+                    and re.search(r"\|$", tokens[-1])
                 ):
-                    word[-1] += potential_xml
+                    tokens[-1] += potential_xml
                     # If it's a token with factors, join with the previous token.
                     is_factor = re.search(r"^(\|+)(.*)$", line_next)
                     if is_factor:
-                        words[-1] += is_factor.group(1)
+                        tokens[-1] += is_factor.group(1)
                         line_next = is_factor.group(2)
                 else:
                     tokens.append(
@@ -411,11 +411,11 @@ class MosesTruecaser(object):
             for token in casing:
                 total_token_count = sum(casing[token].values())
                 tokens_counts = []
-                for i, (word, count) in enumerate(casing[token].most_common()):
+                for i, (token, count) in enumerate(casing[token].most_common()):
                     if i == 0:
-                        out_token = "{} ({}/{})".format(word, count, total_token_count)
+                        out_token = "{} ({}/{})".format(token, count, total_token_count)
                     else:
-                        out_token = "{} ({})".format(word, count, total_token_count)
+                        out_token = "{} ({})".format(token, count, total_token_count)
                     tokens_counts.append(out_token)
                 print(" ".join(tokens_counts), end="\n", file=fout)
 
@@ -453,7 +453,7 @@ class MosesDetruecaser(object):
             "&#93;",
         }
 
-        # Some predefined words that will always be in lowercase.
+        # Some predefined tokens that will always be in lowercase.
         self.ALWAYS_LOWER = {
             "a",
             "after",

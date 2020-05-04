@@ -10,8 +10,8 @@ environment:
   matrix:
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python
-    - PYTHON: "C:\\Python27-x64"
     - PYTHON: "C:\\Python36-x64"
+    - PYTHON: "C:\\Python38-x64"
 
 install:
   # We need wheel installed to build wheels
