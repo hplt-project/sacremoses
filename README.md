@@ -123,7 +123,9 @@ Example to chain the following commands:
 
  - `normalize` with `-c` option to remove control characters.
  - `tokenize` with `-a` option for aggressive dash split rules.
- - `truecase` with `-a` option to indicate that model is for ASR and save the model with `-m` option to `big.truemodel` file.
+ - `truecase` with `-a` option to indicate that model is for ASR 
+   - if `big.truemodel` exists, load the model with `-m` option,
+   - otherwise train a model and save it with `-m` option to `big.truemodel` file.
  - save the output to console to the `big.txt.norm.tok.true` file.
 
 ```shell
