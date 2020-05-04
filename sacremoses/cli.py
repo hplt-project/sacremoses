@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import os
+from copy import deepcopy
 from functools import partial
 from functools import update_wrapper
 from io import StringIO
 from itertools import chain
+
 from tqdm import tqdm
 
 import click
@@ -50,8 +53,9 @@ def process_pipeline(processors, encoding, **kwargs):
         iterator = fin # Initialize fin as the first iterator.
         for proc in processors:
             iterator = proc(list(iterator), **kwargs)
-        for item in iterator:
-            click.echo(item)
+        if iterator:
+            for item in iterator:
+                click.echo(item)
 
 def processor(f, **kwargs):
     """Helper decorator to rewrite a function so that
@@ -222,53 +226,14 @@ def train_truecaser(
     modelfile, is_asr, possibly_use_first_token
 ):
     moses = MosesTruecaser(is_asr=is_asr)
-    iterator_str = '\n'.join(iterator)
-    model = moses.train_from_file_object(
-        StringIO('\n'.join(iterator_str)),
+    #iterator_copy = deepcopy(iterator)
+    model = moses.train(
+        iterator,
         possibly_use_first_token=possibly_use_first_token,
         processes=processes,
         progress_bar=(not quiet),
     )
     moses.save_model(modelfile)
-    # Re-emit the unchanged iterator.
-    for item in iterator_str.split('\n'):
-        yield item
-
-########################################################################
-# Train Truecase File
-########################################################################
-@cli.command("train-truecase-file")
-@click.option(
-    "--modelfile", "-m", required=True, help="Filename to save the modelfile."
-)
-@click.option("--processes", "-j", default=1, help="No. of processes.")
-@click.option(
-    "--is-asr",
-    "-a",
-    default=False,
-    is_flag=True,
-    help="A flag to indicate that model is for ASR.",
-)
-@click.option("--encoding", "-e", default="utf8", help="Specify encoding of file.")
-@click.option("--quiet", "-q", is_flag=True, default=False, help="Disable progress bar.")
-@click.option(
-    "--possibly-use-first-token",
-    "-p",
-    default=False,
-    is_flag=True,
-    help="Use the first token as part of truecasing.",
-)
-def train_truecaser_file(modelfile, processes, encoding, quiet, is_asr, possibly_use_first_token):
-    moses = MosesTruecaser(is_asr=is_asr, encoding=encoding)
-    with click.get_text_stream("stdin", encoding=encoding) as fin:
-        model = moses.train_from_file_object(
-            fin,
-            possibly_use_first_token=possibly_use_first_token,
-            processes=processes,
-            progress_bar=(not quiet),
-        )
-        moses.save_model(modelfile)
-    exit()
 
 ########################################################################
 # Truecase
@@ -276,7 +241,7 @@ def train_truecaser_file(modelfile, processes, encoding, quiet, is_asr, possibly
 
 @cli.command("truecase")
 @click.option(
-    "--modelfile", "-m", required=True, help="Filename to save the modelfile."
+    "--modelfile", "-m", required=True, help="Filename to save/load the modelfile."
 )
 @click.option(
     "--is-asr",
@@ -285,11 +250,34 @@ def train_truecaser_file(modelfile, processes, encoding, quiet, is_asr, possibly
     is_flag=True,
     help="A flag to indicate that model is for ASR.",
 )
+@click.option(
+    "--possibly-use-first-token",
+    "-p",
+    default=False,
+    is_flag=True,
+    help="Use the first token as part of truecase training.",
+)
 @processor
-def truecase_file(iterator, language, processes, quiet, modelfile, is_asr):
+def truecase_file(
+    iterator,
+    language, processes, quiet,
+    modelfile, is_asr, possibly_use_first_token):
+    # If model file doesn't exists, train a model.
+    if not os.path.isfile(modelfile):
+        iterator_copy = deepcopy(iterator)
+        truecaser = MosesTruecaser(is_asr=is_asr)
+        model = truecaser.train(
+            iterator_copy,
+            possibly_use_first_token=possibly_use_first_token,
+            processes=processes,
+            progress_bar=(not quiet),
+        )
+        truecaser.save_model(modelfile)
+    # Truecase the file.
     moses = MosesTruecaser(load_from=modelfile, is_asr=is_asr)
     moses_truecase = partial(moses.truecase, return_str=True)
     return parallel_or_not(iterator, moses_truecase, processes, quiet)
+
 
 ########################################################################
 # Detruecase
