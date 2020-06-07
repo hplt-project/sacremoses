@@ -8,7 +8,7 @@ from six import text_type
 from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
 from sacremoses.util import is_cjk
-
+from sacremoses.indic import VIRAMAS, NUKTAS
 perluniprops = Perluniprops()
 nonbreaking_prefixes = NonbreakingPrefixes()
 
@@ -21,10 +21,12 @@ class MosesTokenizer(object):
 
     # Perl Unicode Properties character sets.
     IsN = text_type("".join(perluniprops.chars("IsN")))
-    IsAlnum = text_type("".join(perluniprops.chars("IsAlnum")))  # + u'्'
+    IsAlnum = text_type("".join(perluniprops.chars("IsAlnum"))
+                        + "".join(VIRAMAS) + "".join(NUKTAS))  # + u'्'
     IsSc = text_type("".join(perluniprops.chars("IsSc")))
     IsSo = text_type("".join(perluniprops.chars("IsSo")))
-    IsAlpha = text_type("".join(perluniprops.chars("IsAlpha")))
+    IsAlpha = text_type("".join(perluniprops.chars("IsAlpha"))
+                        + "".join(VIRAMAS) + "".join(NUKTAS))
     IsLower = text_type("".join(perluniprops.chars("IsLower")))
 
     # Remove ASCII junk.
@@ -460,7 +462,6 @@ class MosesTokenizer(object):
 
         # Strips heading and trailing spaces.
         text = text.strip()
-
         # FIXME!!!
         '''
         # For Finnish and Swedish, seperate out all "other" special characters.
