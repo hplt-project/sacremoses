@@ -282,6 +282,14 @@ class MosesTokenizer(object):
         BASIC_PROTECTED_PATTERN_4,
         BASIC_PROTECTED_PATTERN_5,
     ]
+    WEB_PROTECTED_PATTERNS = [
+        r'((https?|ftp|rsync)://|www\.)[^ ]*',   # URLs
+        r'[\w\-\_\.]+\@([\w\-\_]+\.)+[a-zA-Z]{2,}', # Emails user@host.domain
+        r'@[a-zA-Z0-9_]+', # @handler such as twitter/github ID
+        r'#[a-zA-Z0-9_]+', # @hashtag
+        #TODO: emojis especially the multi codepoints
+    ]
+
 
     def __init__(self, lang="en", custom_nonbreaking_prefixes_file=None):
         # Initialize the object.

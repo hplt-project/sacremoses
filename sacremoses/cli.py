@@ -99,7 +99,7 @@ def parallel_or_not(iterator, func, processes, quiet):
 @click.option(
     "--protected-patterns",
     "-p",
-    help="Specify file with patters to be protected in tokenisation.",
+    help="Specify file with patters to be protected in tokenisation. Special values: :basic: :web:",
 )
 @click.option(
     "--custom-nb-prefixes",
@@ -116,8 +116,13 @@ def tokenize_file(
         custom_nonbreaking_prefixes_file=custom_nb_prefixes)
 
     if protected_patterns:
-        with open(protected_patterns, encoding="utf8") as fin:
-            protected_patterns = [pattern.strip() for pattern in fin.readlines()]
+        if protected_patterns == ':basic:':
+            protected_patterns = moses.BASIC_PROTECTED_PATTERNS
+        elif protected_patterns == ':web:':
+            protected_patterns = moses.WEB_PROTECTED_PATTERNS
+        else:
+            with open(protected_patterns, encoding="utf8") as fin:
+                protected_patterns = [pattern.strip() for pattern in fin.readlines()]
 
     moses_tokenize = partial(
         moses.tokenize,
