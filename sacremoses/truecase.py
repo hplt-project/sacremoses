@@ -156,8 +156,8 @@ class MosesTruecaser(object):
             self.learn_truecase_weights,
             possibly_use_first_token=possibly_use_first_token,
         )
-        token_weights = chain(
-            *parallelize_preprocess(
+        token_weights = chain.from_iterable(
+            parallelize_preprocess(
                 train_truecaser, document_iterator, processes, progress_bar=progress_bar
             )
         )
