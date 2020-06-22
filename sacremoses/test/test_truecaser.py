@@ -62,7 +62,7 @@ class TestTruecaser(unittest.TestCase):
                     "4fb3bac1da1ba7a172ff1936e96bee3bc8892931/"
                     "big.txt"
                 )
-                self.big_text = get_content(big_text_url).decode("utf8")
+                self.big_txt = get_content(big_text_url).decode("utf8")
             with open("big.txt", "w") as fout:
                 fout.write(self.big_txt)
 
