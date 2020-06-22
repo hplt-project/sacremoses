@@ -159,7 +159,7 @@ class MosesPunctNormalizer:
             else:
                 self.substitutions.append(self.OTHER)
 
-        self.substitutions = list(chain(*self.substitutions))
+        self.substitutions = list(chain.from_iterable(self.substitutions))
 
         self.pre_replace_unicode_punct = pre_replace_unicode_punct
         self.post_remove_control_chars = post_remove_control_chars
