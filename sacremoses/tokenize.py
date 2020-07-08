@@ -22,7 +22,7 @@ class MosesTokenizer(object):
     # Perl Unicode Properties character sets.
     IsN = text_type("".join(perluniprops.chars("IsN")))
     IsAlnum = text_type("".join(perluniprops.chars("IsAlnum"))
-                        + "".join(VIRAMAS) + "".join(NUKTAS))  # + u'्'
+                        + "".join(VIRAMAS) + "".join(NUKTAS))
     IsSc = text_type("".join(perluniprops.chars("IsSc")))
     IsSo = text_type("".join(perluniprops.chars("IsSo")))
     IsAlpha = text_type("".join(perluniprops.chars("IsAlpha"))
