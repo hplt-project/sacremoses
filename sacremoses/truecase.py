@@ -295,7 +295,7 @@ class MosesTruecaser(object):
             # If it's the start of sentence.
             if is_first_word and best_case:  # Truecase sentence start.
                 token = best_case
-            elif known_case:  # Don't change known tokens.
+            elif known_case and use_known:  # Don't change known tokens.
                 token = known_case if use_known else token
             elif (
                 best_case
