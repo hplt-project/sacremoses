@@ -182,7 +182,7 @@ class MosesPunctNormalizer:
         if self.post_remove_control_chars:
             text = self.remove_control_chars(text)
 
-        return text
+        return text.strip()
 
     def replace_unicode_punct(self, text):
         for regexp, substitution in self.REPLACE_UNICODE_PUNCTUATION:
