@@ -1,3 +1,4 @@
+#File adapted for TDT from PT by Raphael Merx. Last update: 10.11.2009.
 #Anything in this file, followed by a period (and an upper-case word), does NOT indicate an end-of-sentence marker.
 #Special cases are included for prefixes that ONLY appear before 0-9 numbers.
 
@@ -29,16 +30,82 @@ W
 X
 Y
 Z
+a
+b
+c
+d
+e
+f
+g
+h
+i
+j
+k
+l
+m
+n
+o
+p
+q
+r
+s
+t
+u
+v
+w
+x
+y
+z
+
+
+#Roman Numerals. A dot after one of these is not a sentence break in Portuguese.
+I
+II
+III
+IV
+V
+VI
+VII
+VIII
+IX
+X
+XI
+XII
+XIII
+XIV
+XV
+XVI
+XVII
+XVIII
+XIX
+XX
+i
+ii
+iii
+iv
+v
+vi
+vii
+viii
+ix
+x
+xi
+xii
+xiii
+xiv
+xv
+xvi
+xvii
+xviii
+xix
+xx
 
 #List of titles. These are often followed by upper-case names, but do not indicate sentence breaks
 Adj
 Adm
 Adv
-Asst
-Bart
-Bldg
-Brig
-Bros
+Art
+Ca
 Capt
 Cmdr
 Col
@@ -47,25 +114,28 @@ Con
 Corp
 Cpl
 DR
+DRA
 Dr
+Dra
+Dras
 Drs
-Ens
+Eng
+Enga
+Engas
+Engos
+Ex
+Exo
+Exmo
+Fig
 Gen
-Gov
-Hon
-Hr
 Hosp
 Insp
-Lt
+Lda
 MM
 MR
 MRS
 MS
 Maj
-Messrs
-Mlle
-Mme
-Mr
 Mrs
 Ms
 Msgr
@@ -85,9 +155,40 @@ Sens
 Sfc
 Sgt
 Sr
-St
+Sra
+Sras
+Srs
+Sto
 Supt
 Surg
+adj
+adm
+adv
+art
+cit
+col
+con
+corp
+cpl
+dr
+dra
+dras
+drs
+eng
+enga
+engas
+engos
+ex
+exo
+exmo
+fig
+op
+prof
+sr
+sra
+sras
+srs
+sto
 
 #misc - odd period-ending items that NEVER indicate breaks (p.m. does NOT fall into this category - it sometimes ends a sentence)
 v
@@ -95,8 +196,6 @@ vs
 i.e
 rev
 e.g
-# rupees
-Rs
 
 #Numbers only. These should only induce breaks when followed by a numeric sequence
 # add NUMERIC_ONLY after the word for this function
@@ -106,18 +205,6 @@ No #NUMERIC_ONLY#
 Nos
 Art #NUMERIC_ONLY#
 Nr
+p #NUMERIC_ONLY#
 pp #NUMERIC_ONLY#
 
-#month abbreviations
-Jan
-Feb
-Mar
-Apr
-#May is a full word
-Jun
-Jul
-Aug
-Sep
-Oct
-Nov
-Dec
