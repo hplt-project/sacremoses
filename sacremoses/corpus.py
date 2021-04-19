@@ -127,7 +127,7 @@ class NonbreakingPrefixes:
             >>> nbp = NonbreakingPrefixes()
             >>> list(nbp.words('en'))[:10] == [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J']
             True
-            >>> list(nbp.words('ta'))[:5] == [u'\u0b85', u'\u0b86', u'\u0b87', u'\u0b88', u'\u0b89']
+            >>> list(nbp.words('ta'))[:5] == ['\u0bb0', '\u0bc2', '\u0ba4\u0bbf\u0bb0\u0bc1', '\u0b8f', '\u0baa\u0bc0']
             True
 
         :return: a generator words for the specified language(s).
