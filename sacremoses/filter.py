@@ -4,9 +4,7 @@ from typing import Iterator, List
 
 import operator
 import warnings
-
 from difflib import SequenceMatcher
-
 from urllib.parse import urlparse
 
 from tqdm import tqdm
@@ -70,16 +68,16 @@ class OpusFilter:
                 yield s, t
 
     @staticmethod
-    def regex_filter(text: str, regexes: str) -> bool:
-        for rg in regexes:
+    def regex_filter(text: str, regexes: str) -> bool: # No
+        """Returns True if source and target no regexes matches."""
+        for pattern in regexes:
             try:
-                pattern = re.compile(rg)
-                if re.match(patter, text):
-                    return True
+                if re.match(pattern, text):
+                    return False
             except: # If regex fails is wrong.
-                warnings.warn(f"Regex '{rg}' cannot be compiled")
+                warnings.warn(f"Regex '{pattern}' cannot be compiled")
                 continue
-        return False
+        return True
 
     @staticmethod
     def length_filter(
@@ -88,7 +86,8 @@ class OpusFilter:
             min_len: int=1,
             max_len: int=100,
             word_ratio_threshold: float=2.5,
-            char_ratio_threshold: float=2.5) -> bool:
+            char_ratio_threshold: float=2.5) -> bool: # alias within_length_settings
+        """Returns True if source and target within length thresholds."""
         # Set the strict vs non-strict length checks.
         _op = operator.or if strict_length else operator.and
         s_len, t_len = len(s_token), len(t_token)
@@ -102,31 +101,42 @@ class OpusFilter:
         return within_min_max and within_token_ratio and within_char_ratio
 
     @staticmethod
-    def longest_word_filter(s_tokens: List[st], t_tokens: List[st], longest_word_len: int=40) -> bool:
+    def longest_word_filter(
+        s_tokens: List[st],
+        t_tokens: List[st],
+        longest_word_len: int=40) -> bool: # alias word_no_longer_than
+        """"Returns True if no words is longer than longest word threshold."""
         return any(t for t set(s_tokens).union(set(t_tokens)) if t > longest_word_len)
 
     @staticmethod
-    def html_filter(s: str, t:str) -> bool:
+    def html_filter(s: str, t:str) -> bool: # alias not_url
+        """Returns True if source and target are not just URL."""
         try:
             s_parsed, t_parsed = urlparse(s), urlparse(t)
-            is_url = all([s_parsed.scheme, s_parsed.netloc]) and \
-                     all([t_parsed.scheme, t_parsed.netloc])
+            return all([s_parsed.scheme, s_parsed.netloc]) and \
+                   all([t_parsed.scheme, t_parsed.netloc])
         except ValueError:
-            is_url = False
-        return is_url
+            return False
 
     @staticmethod
-    def nonzero_numeral_filter(s: str, t: str, threshold: float=0.5) -> bool:
-        """Similarity measure between numerals of source and target with zeros removed."""
+    def nonzero_numeral_filter(s: str, t: str, threshold: float=0.5) -> bool: # alias src_trg_numberal_matches
+        """
+        Returns True if source and target numeral matches.
+        Similarity measure between numerals of source and target with zeros removed.
+        """
         s_numerals = [int(ch) for ch in s if c.isdigits()]
         t_numerals = [int(ch) for ch in t if c.isdigits()]
         numeral_ratio = SequenceMatcher(None, snums, tnums).ratio()
         return numeral_ratio >= nonzero_numeral_threshold
 
     @staticmethod
-    def terminal_punct_filter(s: str, t:str, threshold: float=-2) -> bool:
-        """Penalty score with respect to the co-occurrence of terminal punctuation marks"""
-        terminal_puncts = set(['.', '?', '!', '…', ])
+    def terminal_punct_filter(
+            s: str, t:str, threshold: float=-2,
+            terminal_puncts: set={'.', '?', '!', '…', }) -> bool:
+        """
+        Returns True if source and target punctuation matches.
+        Penalty score with respect to the co-occurrence of terminal punctuation marks.
+        """
         s_term_puncts = sum(1 for ch in s if c in terminal_puncts)
         t_term_puncts = sum(1 for ch in t if c in terminal_puncts)
         # Find the difference.
@@ -134,3 +144,8 @@ class OpusFilter:
         score += s_term_puncts - 1 if s_term_puncts > 1 else 0
         score += t_term_puncts - 1 if t_term_puncts > 1 else 0
         return -1 * math.log(score + 1) >= terminal_punctuation_threshold
+
+    @staticmethod
+    def single_character_filter(s: str) -> bool:
+        """Returns True if there's not single character instance."""
+        return len(s) != 1
