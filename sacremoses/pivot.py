@@ -29,13 +29,13 @@ def pivot_bitext(src, pivot1, pivot2, trg, outputfile='pivoted.tsv'):
             if hash in overlaps:
                 hash2src[hash] = s.strip()
                 hash2pivot1[hash] = t.strip()
-                print('\t'.join([hash, s.strip(), t.strip()]), end='\n', file=fout)
+                print('\t'.join([str(hash), s.strip(), t.strip()]), end='\n', file=fout)
     # Iterate through the second lang pair, populate `data`.
     with open(pivot2) as sfin, open(trg) as tfin, \
     open('pivot2_trg.tsv', 'w') as fout, open(outputfile, 'w') as fout_pivot:
         print('\t'.join(['hash', 'pivot2', 'trg']), end='\n', file=fout)
-        print('\t'.join(['hash', 'src', 'pivot', 'trg']), end='\n', file=fout)
+        print('\t'.join(['hash', 'src', 'pivot', 'trg']), end='\n', file=fout_pivot)
         for s, t, hash in tqdm(zip(sfin, tfin, pivot2_hashes)):
-            if hash in overlaps and hash2src[hash] == pivot2:
-                print('\t'.join([hash, s.strip(), t.strip()]), end='\n', file=fout)
-                print('\t'.join([hash, hash2pivot1[hash], s.strip(), t.strip()]), end='\n', file=fout_pivot)
+            if hash in overlaps and hash2pivot1[hash] == s.strip():
+                print('\t'.join([str(hash), s.strip(), t.strip()]), end='\n', file=fout)
+                print('\t'.join([str(hash), hash2src[hash], s.strip(), t.strip()]), end='\n', file=fout_pivot)
