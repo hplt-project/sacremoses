@@ -19,23 +19,16 @@ def pivot_bitext(src, pivot1, pivot2, trg, outputfile='pivoted.tsv'):
         pivot2_hashes = [xxh64(line) for line in tqdm(fin)]
     # Find the overlaps.
     overlaps = set(pivot1_hashes).intersection(pivot2_hashes)
-    # Keep tracks on one src_pivot1.
-    hash2src = {}
-    hash2pivot1 = {}
-    # Iterate through the first lang pair, populate `data`.
-    with open(src) as sfin, open(pivot1) as tfin, open('src_pivot1.tsv', 'w') as fout:
-        print('\t'.join(['hash', 'src', 'pivot1']), end='\n', file=fout)
-        for s, t, hash in tqdm(zip(sfin, tfin, pivot1_hashes)):
-            if hash in overlaps:
-                hash2src[hash] = s.strip()
-                hash2pivot1[hash] = t.strip()
-                print('\t'.join([str(hash), s.strip(), t.strip()]), end='\n', file=fout)
-    # Iterate through the second lang pair, populate `data`.
-    with open(pivot2) as sfin, open(trg) as tfin, \
-    open('pivot2_trg.tsv', 'w') as fout, open(outputfile, 'w') as fout_pivot:
-        print('\t'.join(['hash', 'pivot2', 'trg']), end='\n', file=fout)
-        print('\t'.join(['hash', 'src', 'pivot', 'trg']), end='\n', file=fout_pivot)
+    # Iterate through the first lang pair, populate `hash_to_src_pivot1`.
+    with open(src) as sfin, open(pivot1) as tfin:
+        hash_to_src_pivot1 = {hash:(s.strip(), t.strip()) for s, t, hash
+            in tqdm(zip(sfin, tfin, pivot1_hashes)) if hash in overlaps}
+    # Iterate through the second lang pair, print aligned output to file.
+    with open(pivot2) as sfin, open(trg) as tfin, open(outputfile, 'w') as fout:
+        print('\t'.join(['hash', 'src', 'pivot', 'trg']), end='\n', file=fout)
         for s, t, hash in tqdm(zip(sfin, tfin, pivot2_hashes)):
-            if hash in overlaps and hash2pivot1[hash] == s.strip():
-                print('\t'.join([str(hash), s.strip(), t.strip()]), end='\n', file=fout)
-                print('\t'.join([str(hash), hash2src[hash], s.strip(), t.strip()]), end='\n', file=fout_pivot)
+            s, t = s.strip(), t.strip()
+            if hash in overlaps:
+                src, pivot1 = hash_to_src_pivot1[hash]
+                if pivot1 == s:  # Check that there's no collison.
+                    print('\t'.join([str(hash), src, s, t]), end='\n', file=fout)
