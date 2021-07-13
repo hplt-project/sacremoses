@@ -69,7 +69,8 @@ class TestNormalizer(unittest.TestCase):
 
     def test_normalization_pipeline(self):
         moses_norm_unicode = MosesPunctNormalizer(
-            pre_replace_unicode_punct=True, post_remove_control_chars=True)
+            pre_replace_unicode_punct=True, post_remove_control_chars=True
+        )
         text = u"０《１２３》      ４５６％  '' 【７８９】"
         expected = u'0"123" 456% " [789]'
         assert moses_norm_unicode.normalize(text) == expected

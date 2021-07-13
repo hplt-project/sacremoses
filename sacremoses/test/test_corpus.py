@@ -71,7 +71,7 @@ class CorpusTest(unittest.TestCase):
         )
         self.assertListEqual(
             list(nonbreaking_prefixes.words("ta"))[:5],
-            ['\u0bb0', '\u0bc2', '\u0ba4\u0bbf\u0bb0\u0bc1', '\u0b8f', '\u0baa\u0bc0'],
+            ["\u0bb0", "\u0bc2", "\u0ba4\u0bbf\u0bb0\u0bc1", "\u0b8f", "\u0baa\u0bc0"],
         )
 
 

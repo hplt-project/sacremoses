@@ -18,6 +18,7 @@ class MosesSentTokenizer(object):
     This is a Python port of the Moses Tokenizer from
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/ems/support/split-sentences.perl
     """
+
     raise NotImplementedError
 
     r"""
