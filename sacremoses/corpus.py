@@ -85,6 +85,7 @@ class NonbreakingPrefixes:
             "greek": "el",
             "english": "en",
             "spanish": "es",
+            "estonian": "et",
             "finnish": "fi",
             "french": "fr",
             "irish": "ga",
