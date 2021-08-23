@@ -307,9 +307,9 @@ class MosesTruecaser(object):
             truecased_tokens.append(token)
 
             # Resets sentence start if this token is an ending punctuation.
-            is_first_word = token in self.SENT_END
-
-            if token in self.DELAYED_SENT_START:
+            if token in self.SENT_END:
+                is_first_word = True
+            elif token not in self.DELAYED_SENT_START:
                 is_first_word = False
 
         # return ' '.join(tokens)
