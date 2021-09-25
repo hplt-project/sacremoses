@@ -1,5 +1,5 @@
 import re
-
+import time
 
 import unittest
 from collections import defaultdict
@@ -7,12 +7,9 @@ from collections import defaultdict
 from sacremoses.corpus import NonbreakingPrefixes
 from sacremoses.tokenize import MosesTokenizer
 
-
-
 class HasNumericOnlyPatched(unittest.TestCase):
-    """Testing if the functionality of the NUMERIC_ONLY_PREFIXES parsing is the same without redos-able regex."""
-
     def test_expected_num_only_prefixes(self):
+        """Testing if the functionality of the NUMERIC_ONLY_PREFIXES parsing is the same without redos-able regex."""
         expected_prefixes = {'as': [], 'bn': [], 'ca': [], 'cs': [], 'de': [], 'el': [], 
                              'en': [('No', 'No #NUMERIC_ONLY#'), ('Art', 'Art #NUMERIC_ONLY#'), 
                                     ('pp', 'pp #NUMERIC_ONLY#')], 
@@ -70,3 +67,15 @@ class HasNumericOnlyPatched(unittest.TestCase):
                 for w in nonbreaking_prefixes.words(lang) if moses.has_numeric_only(w)]
             
         assert lang2numonlyprefix == expected_prefixes
+        
+        
+    def test_stress_has_numeric_only_prefixes(self):
+        """Stress testing to prevent redos."""
+        moses = MosesTokenizer()
+        for i in range(1, 10):
+            start_time = time.perf_counter()
+            payload = " " + " " * (i*500) + ""
+            moses.has_numeric_only(payload)
+            stop_time = time.perf_counter() - start_time
+            assert stop_time < 20
+        
