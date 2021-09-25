@@ -363,7 +363,7 @@ class MosesTokenizer(object):
         return any(set(text).intersection(set(self.IsAlpha)))
 
     def has_numeric_only(self, text):
-        return bool(re.search(r"(.*)[\s]+(\#NUMERIC_ONLY\#)", text))
+        return bool(re.search(r"[\s]+(\#NUMERIC_ONLY\#)", text))
 
     def handles_nonbreaking_prefixes(self, text):
         # Splits the text into tokens to check for nonbreaking prefixes.
