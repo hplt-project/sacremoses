@@ -1,8 +1,7 @@
-sudo: false
-
 language: python
 
-dist: xenial
+os: linux
+dist: focal
 
 addons:
   apt:
