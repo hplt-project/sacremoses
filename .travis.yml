@@ -1,18 +1,19 @@
-sudo: false
-
 language: python
 
-dist: xenial
+os: linux
+dist: focal
 
 addons:
   apt:
     packages:
       - expect-dev
 
-python:
+python:  # https://docs.travis-ci.com/user/languages/python/
   - "3.6"
   - "3.8"
   - "3.9"
+  - "pypy3"
+  - "3.10.1"
 
 cache: pip
 
