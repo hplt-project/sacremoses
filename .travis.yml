@@ -14,7 +14,6 @@ python:  # https://docs.travis-ci.com/user/languages/python/
   - "3.9"
   - "pypy3"
   - "3.10.1"
-  - "python-nightly"
 
 cache: pip
 
