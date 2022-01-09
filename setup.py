@@ -1,5 +1,4 @@
-from distutils.core import setup
-import setuptools
+from setuptools import setup
 
 console_scripts = """
 [console_scripts]
@@ -9,7 +8,7 @@ sacremoses=sacremoses.cli:cli
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.45',
+  version = '0.0.47',
   description = 'SacreMoses',
   long_description = 'MosesTokenizer in Python',
   author = '',
