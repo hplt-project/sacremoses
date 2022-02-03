@@ -4,17 +4,12 @@ import os
 from copy import deepcopy
 from functools import partial
 from functools import update_wrapper
-from io import StringIO
-from itertools import chain
-
-from tqdm import tqdm
 
 import click
 
 from sacremoses.tokenize import MosesTokenizer, MosesDetokenizer
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
 from sacremoses.normalize import MosesPunctNormalizer
-from sacremoses.chinese import simplify, tradify
 from sacremoses.util import parallelize_preprocess
 
 # Hack to enable Python2.7 to use encoding.

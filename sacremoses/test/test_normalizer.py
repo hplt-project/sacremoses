@@ -4,11 +4,7 @@
 Tests for MosesTokenizer
 """
 
-import io
-import os
 import unittest
-
-from six import text_type
 
 from sacremoses.normalize import MosesPunctNormalizer
 

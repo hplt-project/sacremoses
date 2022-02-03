@@ -7,7 +7,6 @@ from six import text_type
 
 from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
-from sacremoses.util import is_cjk
 
 perluniprops = Perluniprops()
 nonbreaking_prefixes = NonbreakingPrefixes()

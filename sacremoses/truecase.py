@@ -10,7 +10,6 @@ from itertools import chain
 from six import text_type
 
 from sacremoses.corpus import Perluniprops
-from sacremoses.corpus import NonbreakingPrefixes
 from sacremoses.util import parallelize_preprocess, grouper
 
 # Hack to enable Python2.7 to use encoding.
