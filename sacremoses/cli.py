@@ -18,7 +18,6 @@ import warnings
 
 if sys.version_info[0] < 3:
     import io
-    import warnings
 
     open = io.open
     warnings.warn(
