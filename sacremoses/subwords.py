@@ -5,7 +5,6 @@ from __future__ import print_function
 import copy
 from collections import Counter, defaultdict
 from functools import reduce
-from itertools import tee
 
 from sacremoses.util import pairwise
 
