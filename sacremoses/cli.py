@@ -45,7 +45,7 @@ def cli(language, encoding, processes, quiet):
     pass
 
 
-@cli.result_callback()
+@cli.resultcallback()
 def process_pipeline(processors, encoding, **kwargs):
     with click.get_text_stream("stdin", encoding=encoding) as fin:
         iterator = fin  # Initialize fin as the first iterator.
