@@ -8,7 +8,7 @@ sacremoses=sacremoses.cli:cli
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.51',
+  version = '0.0.53',
   description = 'SacreMoses',
   long_description = 'MosesTokenizer in Python',
   author = '',
@@ -20,6 +20,6 @@ setup(
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
   ],
-  install_requires = ['regex', 'six', 'click==7.1.2', 'joblib', 'tqdm'],
+  install_requires = ['regex', 'six', 'click', 'joblib', 'tqdm'],
   entry_points=console_scripts,
 )

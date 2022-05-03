@@ -27,7 +27,8 @@ if sys.version_info[0] < 3:
         )
     )
 
-
+    
+    
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
@@ -45,7 +46,11 @@ def cli(language, encoding, processes, quiet):
     pass
 
 
-@cli.resultcallback()
+# TODO: Get rid of this when it's possible.
+# https://github.com/alvations/sacremoses/issues/130
+result_callback = cli.resultcallback if int(click.__version__.split('.')[0]) < 8 else cli.result_callback
+
+@result_callback()
 def process_pipeline(processors, encoding, **kwargs):
     with click.get_text_stream("stdin", encoding=encoding) as fin:
         iterator = fin  # Initialize fin as the first iterator.
