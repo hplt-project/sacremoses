@@ -10,7 +10,6 @@ from itertools import chain
 from six import text_type
 
 from sacremoses.corpus import Perluniprops
-from sacremoses.corpus import NonbreakingPrefixes
 from sacremoses.util import parallelize_preprocess, grouper
 
 # Hack to enable Python2.7 to use encoding.
@@ -505,7 +504,7 @@ class MosesDetruecaser(object):
         sentence_start = True
         # Capitalize token if it's at the sentence start.
         for token in text.split():
-            token = token.capitalize() if sentence_start else token
+            token = token[:1].upper() + token[1:] if sentence_start else token
             cased_tokens.append(token)
             if token in self.SENT_END:
                 sentence_start = True
@@ -514,7 +513,7 @@ class MosesDetruecaser(object):
         # Check if it's a headline, if so then use title case.
         if is_headline:
             cased_tokens = [
-                token if token in self.ALWAYS_LOWER else token.capitalize()
+                token if token in self.ALWAYS_LOWER else token[:1].upper() + token[1:]
                 for token in cased_tokens
             ]
 

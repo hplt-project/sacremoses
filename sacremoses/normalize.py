@@ -29,44 +29,44 @@ class MosesPunctNormalizer:
 
     NORMALIZE_UNICODE_IF_NOT_PENN = [(r"`", r"'"), (r"''", r' " ')]  # lines 33 - 34
 
-    NORMALIZE_UNICODE = [ # lines 37 - 50
-        (u'„', r'"'),
-        (u'“', r'"'),
-        (u'”', r'"'),
-        (u'–', r'-'),
-        (u'—', r' - '),
-        (r' +', r' '),
-        (u'´', r"'"),
-        (u'([a-zA-Z])‘([a-zA-Z])', r"\g<1>'\g<2>"),
-        (u'([a-zA-Z])’([a-zA-Z])', r"\g<1>'\g<2>"),
-        (u'‘', r"'"),
-        (u'‚', r"'"),
-        (u'’', r"'"),
+    NORMALIZE_UNICODE = [  # lines 37 - 50
+        (u"„", r'"'),
+        (u"“", r'"'),
+        (u"”", r'"'),
+        (u"–", r"-"),
+        (u"—", r" - "),
+        (r" +", r" "),
+        (u"´", r"'"),
+        (u"([a-zA-Z])‘([a-zA-Z])", r"\g<1>'\g<2>"),
+        (u"([a-zA-Z])’([a-zA-Z])", r"\g<1>'\g<2>"),
+        (u"‘", r"'"),
+        (u"‚", r"'"),
+        (u"’", r"'"),
         (r"''", r'"'),
-        (u'´´', r'"'),
-        (u'…', r'...'),
+        (u"´´", r'"'),
+        (u"…", r"..."),
     ]
 
-    FRENCH_QUOTES = [ # lines 52 - 57
-        (u'\u00A0«\u00A0', r'"'),
-        (u'«\u00A0', r'"'),
-        (u'«', r'"'),
-        (u'\u00A0»\u00A0', r'"'),
-        (u'\u00A0»', r'"'),
-        (u'»', r'"'),
+    FRENCH_QUOTES = [  # lines 52 - 57
+        (u"\u00A0«\u00A0", r'"'),
+        (u"«\u00A0", r'"'),
+        (u"«", r'"'),
+        (u"\u00A0»\u00A0", r'"'),
+        (u"\u00A0»", r'"'),
+        (u"»", r'"'),
     ]
 
-    HANDLE_PSEUDO_SPACES = [ # lines 59 - 67
-        (u'\u00A0%', r'%'),
-        (u'nº\u00A0', u'nº '),
-        (u'\u00A0:', r':'),
-        (u'\u00A0ºC', u' ºC'),
-        (u'\u00A0cm', r' cm'),
-        (u'\u00A0\\?', u'?'),
-        (u'\u00A0\\!', u'!'),
-        (u'\u00A0;', r';'),
-        (u',\u00A0', r', '),
-        (r' +', r' '),
+    HANDLE_PSEUDO_SPACES = [  # lines 59 - 67
+        (u"\u00A0%", r"%"),
+        (u"nº\u00A0", u"nº "),
+        (u"\u00A0:", r":"),
+        (u"\u00A0ºC", u" ºC"),
+        (u"\u00A0cm", r" cm"),
+        (u"\u00A0\\?", u"?"),
+        (u"\u00A0\\!", u"!"),
+        (u"\u00A0;", r";"),
+        (u",\u00A0", r", "),
+        (r" +", r" "),
     ]
 
     EN_QUOTATION_FOLLOWED_BY_COMMA = [(r'"([,.]+)', r'\g<1>"')]
@@ -77,11 +77,11 @@ class MosesPunctNormalizer:
     ]
 
     DE_ES_CZ_CS_FR = [
-        (u'(\\d)\u00A0(\\d)', r'\g<1>,\g<2>'),
+        (u"(\\d)\u00A0(\\d)", r"\g<1>,\g<2>"),
     ]
 
     OTHER = [
-        (u'(\\d)\u00A0(\\d)', r'\g<1>.\g<2>'),
+        (u"(\\d)\u00A0(\\d)", r"\g<1>.\g<2>"),
     ]
 
     # Regex substitutions from replace-unicode-punctuation.perl
@@ -104,7 +104,7 @@ class MosesPunctNormalizer:
         (u"」", u'"'),
         (u"「", u'"'),
         (u"０", u"0"),
-        (u"１", u'1'),
+        (u"１", u"1"),
         (u"２", u"2"),
         (u"３", u"3"),
         (u"４", u"4"),
@@ -125,8 +125,15 @@ class MosesPunctNormalizer:
         (u"％", u"%"),
     ]
 
-    def __init__(self, lang="en", penn=True, norm_quote_commas=True, norm_numbers=True,
-        pre_replace_unicode_punct=False, post_remove_control_chars=False):
+    def __init__(
+        self,
+        lang="en",
+        penn=True,
+        norm_quote_commas=True,
+        norm_numbers=True,
+        pre_replace_unicode_punct=False,
+        post_remove_control_chars=False,
+    ):
         """
         :param language: The two-letter language code.
         :type lang: str
@@ -182,7 +189,7 @@ class MosesPunctNormalizer:
         if self.post_remove_control_chars:
             text = self.remove_control_chars(text)
 
-        return text
+        return text.strip()
 
     def replace_unicode_punct(self, text):
         for regexp, substitution in self.REPLACE_UNICODE_PUNCTUATION:

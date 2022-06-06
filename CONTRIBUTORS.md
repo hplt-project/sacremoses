@@ -11,5 +11,6 @@ Contributors
  | [BLKSerene](https://github.com/BLKSerene) | #66 |
  | [Shijie Wu](https://github.com/shijie-wu) | #67 |
  | [Matt Post](https://github.com/mjpost) | #69 |
- | [brandonherzog](brandonherzog) | #72 |
- 
+ | [brandonherzog](https://github.com/brandonherzog) | #72 |
+ | [Thamme Gowda](https://github.com/thammegowda) | #103 | 
+ | [Yu-Yang Huang](https://github.com/yuyang-huang) | #108 | 

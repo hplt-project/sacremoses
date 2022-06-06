@@ -6,6 +6,7 @@ try:  # Python3
 except ImportError:  # Python2
     from itertools import izip_longest as zip_longest
 
+from itertools import tee
 from xml.sax.saxutils import escape, unescape
 
 from joblib import Parallel, delayed

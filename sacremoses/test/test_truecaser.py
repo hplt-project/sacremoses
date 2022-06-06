@@ -4,11 +4,8 @@
 Tests for MosesTokenizer
 """
 
-import io
 import os
 import unittest
-
-from six import text_type
 
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
 
@@ -120,3 +117,11 @@ class TestDetruecaser(unittest.TestCase):
         expected_str = "The Adventures of Sherlock Holmes"
         assert moses.detruecase(text, is_headline=True) == expected
         assert moses.detruecase(text, is_headline=True, return_str=True) == expected_str
+
+    def test_moses_detruecase_allcaps(self):
+        moses = MosesDetruecaser()
+        text = "MLB Baseball standings"
+        expected = ["MLB", "Baseball", "standings"]
+        expected_str = "MLB Baseball standings"
+        assert moses.detruecase(text) == expected
+        assert moses.detruecase(text, return_str=True) == expected_str

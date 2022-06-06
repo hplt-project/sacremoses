@@ -8,6 +8,7 @@ from six import text_type
 from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
 from sacremoses.util import is_cjk
+from sacremoses.indic import VIRAMAS, NUKTAS
 
 perluniprops = Perluniprops()
 nonbreaking_prefixes = NonbreakingPrefixes()
@@ -21,10 +22,14 @@ class MosesTokenizer(object):
 
     # Perl Unicode Properties character sets.
     IsN = text_type("".join(perluniprops.chars("IsN")))
-    IsAlnum = text_type("".join(perluniprops.chars("IsAlnum")))  # + u'्'
+    IsAlnum = text_type(
+        "".join(perluniprops.chars("IsAlnum")) + "".join(VIRAMAS) + "".join(NUKTAS)
+    )
     IsSc = text_type("".join(perluniprops.chars("IsSc")))
     IsSo = text_type("".join(perluniprops.chars("IsSo")))
-    IsAlpha = text_type("".join(perluniprops.chars("IsAlpha")))
+    IsAlpha = text_type(
+        "".join(perluniprops.chars("IsAlpha")) + "".join(VIRAMAS) + "".join(NUKTAS)
+    )
     IsLower = text_type("".join(perluniprops.chars("IsLower")))
 
     # Remove ASCII junk.
@@ -294,6 +299,13 @@ class MosesTokenizer(object):
         BASIC_PROTECTED_PATTERN_4,
         BASIC_PROTECTED_PATTERN_5,
     ]
+    WEB_PROTECTED_PATTERNS = [
+        r"((https?|ftp|rsync)://|www\.)[^ ]*",  # URLs
+        r"[\w\-\_\.]+\@([\w\-\_]+\.)+[a-zA-Z]{2,}",  # Emails user@host.domain
+        r"@[a-zA-Z0-9_]+",  # @handler such as twitter/github ID
+        r"#[a-zA-Z0-9_]+",  # @hashtag
+        # TODO: emojis especially the multi codepoints
+    ]
 
     def __init__(self, lang="en", custom_nonbreaking_prefixes_file=None):
         # Initialize the object.
@@ -307,8 +319,8 @@ class MosesTokenizer(object):
 
         # Load custom nonbreaking prefixes file.
         if custom_nonbreaking_prefixes_file:
-            self.NONBREAKING_PREFIXES  = []
-            with open(custom_nonbreaking_prefixes_file, 'r') as fin:
+            self.NONBREAKING_PREFIXES = []
+            with open(custom_nonbreaking_prefixes_file, "r") as fin:
                 for line in fin:
                     line = line.strip()
                     if line and not line.startswith("#"):
@@ -321,13 +333,13 @@ class MosesTokenizer(object):
             if self.has_numeric_only(w)
         ]
         # Add CJK characters to alpha and alnum.
-        if self.lang in ['zh', 'ja', 'ko', 'cjk']:
+        if self.lang in ["zh", "ja", "ko", "cjk"]:
             cjk_chars = ""
-            if self.lang in ["ko", 'cjk']:
+            if self.lang in ["ko", "cjk"]:
                 cjk_chars += text_type("".join(perluniprops.chars("Hangul")))
-            if self.lang in ["zh", 'cjk']:
+            if self.lang in ["zh", "cjk"]:
                 cjk_chars += text_type("".join(perluniprops.chars("Han")))
-            if self.lang in ["ja", 'cjk']:
+            if self.lang in ["ja", "cjk"]:
                 cjk_chars += text_type("".join(perluniprops.chars("Hiragana")))
                 cjk_chars += text_type("".join(perluniprops.chars("Katakana")))
                 cjk_chars += text_type("".join(perluniprops.chars("Han")))
@@ -336,10 +348,10 @@ class MosesTokenizer(object):
             # Overwrite the alnum regexes.
             self.PAD_NOT_ISALNUM = r"([^{}\s\.'\`\,\-])".format(self.IsAlnum), r" \1 "
             self.AGGRESSIVE_HYPHEN_SPLIT = (
-                  r"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=self.IsAlnum),
-                  r"\1 @-@ ",
-              )
-            self.INTRATOKEN_SLASHES  = (
+                r"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=self.IsAlnum),
+                r"\1 @-@ ",
+            )
+            self.INTRATOKEN_SLASHES = (
                 r"([{alphanum}])\/([{alphanum}])".format(alphanum=self.IsAlnum),
                 r"$1 \@\/\@ $2",
             )
@@ -363,7 +375,7 @@ class MosesTokenizer(object):
         return any(set(text).intersection(set(self.IsAlpha)))
 
     def has_numeric_only(self, text):
-        return bool(re.search(r"(.*)[\s]+(\#NUMERIC_ONLY\#)", text))
+        return bool(re.search(r"[\s]+(\#NUMERIC_ONLY\#)", text))
 
     def handles_nonbreaking_prefixes(self, text):
         # Splits the text into tokens to check for nonbreaking prefixes.
@@ -464,9 +476,8 @@ class MosesTokenizer(object):
 
         # Strips heading and trailing spaces.
         text = text.strip()
-
         # FIXME!!!
-        '''
+        """
         # For Finnish and Swedish, seperate out all "other" special characters.
         if self.lang in ["fi", "sv"]:
             # In Finnish and Swedish, the colon can be used inside words
@@ -479,7 +490,7 @@ class MosesTokenizer(object):
             regexp, substitution = self.FI_SV_COLON_NO_LOWER_FOLLOW
             text = re.sub(regexp, substitution, text)
         else:
-        '''
+        """
         # Separate special characters outside of IsAlnum character set.
         regexp, substitution = self.PAD_NOT_ISALNUM
         text = re.sub(regexp, substitution, text)
@@ -826,7 +837,7 @@ class MosesDetokenizer(object):
         return detokenized_text if return_str else detokenized_text.split()
 
     def detokenize(self, tokens, return_str=True, unescape=True):
-        """ Duck-typing the abstract *tokenize()*."""
+        """Duck-typing the abstract *tokenize()*."""
         return self.tokenize(tokens, return_str, unescape)
 
 

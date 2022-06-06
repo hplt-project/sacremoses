@@ -1,4 +1,4 @@
-#File adapted for PT by H. Leal Fontes from the EN & DE versions published with moses-2009-04-13. Last update: 10.11.2009.
+#File adapted for TDT from PT by Raphael Merx. Last update: 10.11.2009.
 #Anything in this file, followed by a period (and an upper-case word), does NOT indicate an end-of-sentence marker.
 #Special cases are included for prefixes that ONLY appear before 0-9 numbers.
 

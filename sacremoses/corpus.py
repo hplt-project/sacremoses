@@ -77,21 +77,32 @@ class NonbreakingPrefixes:
             os.path.dirname(os.path.abspath(__file__)) + "/data/nonbreaking_prefixes/"
         )
         self.available_langs = {
+            "assamese": "as",
+            "bengali": "bn",
             "catalan": "ca",
             "czech": "cs",
             "german": "de",
             "greek": "el",
             "english": "en",
             "spanish": "es",
+            "estonian": "et",
             "finnish": "fi",
             "french": "fr",
             "irish": "ga",
+            "gujarati": "gu",
+            "hindi": "hi",
             "hungarian": "hu",
             "icelandic": "is",
             "italian": "it",
+            "kannada": "kn",
             "lithuanian": "lt",
             "latvian": "lv",
+            "malayalam": "ml",
+            "manipuri": "mni",
+            "marathi": "mr",
             "dutch": "nl",
+            "oriya": "or",
+            "punjabi": "pa",
             "polish": "pl",
             "portuguese": "pt",
             "romanian": "ro",
@@ -100,6 +111,8 @@ class NonbreakingPrefixes:
             "slovenian": "sl",
             "swedish": "sv",
             "tamil": "ta",
+            "telugu": "te",
+            "tetum": "tdt",
             "cantonese": "yue",
             "chinese": "zh",
         }
@@ -115,7 +128,7 @@ class NonbreakingPrefixes:
             >>> nbp = NonbreakingPrefixes()
             >>> list(nbp.words('en'))[:10] == [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J']
             True
-            >>> list(nbp.words('ta'))[:5] == [u'\u0b85', u'\u0b86', u'\u0b87', u'\u0b88', u'\u0b89']
+            >>> list(nbp.words('ta'))[:5] == ['\u0bb0', '\u0bc2', '\u0ba4\u0bbf\u0bb0\u0bc1', '\u0b8f', '\u0baa\u0bc0']
             True
 
         :return: a generator words for the specified language(s).
