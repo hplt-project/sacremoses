@@ -50,9 +50,9 @@ class Perluniprops:
 
             >>> from sacremoses.corpus import Perluniprops
             >>> pup = Perluniprops()
-            >>> list(pup.chars('Open_Punctuation'))[:5] == [u'(', u'[', u'{', u'\u0f3a', u'\u0f3c']
+            >>> list(pup.chars('Open_Punctuation'))[:5] == ['(', '[', '{', '\u0f3a', '\u0f3c']
             True
-            >>> list(pup.chars('Currency_Symbol'))[:5] == [u'$', u'\xa2', u'\xa3', u'\xa4', u'\xa5']
+            >>> list(pup.chars('Currency_Symbol'))[:5] == ['$', '\xa2', '\xa3', '\xa4', '\xa5']
             True
             >>> pup.available_categories[:5]
             ['Close_Punctuation', 'Currency_Symbol', 'IsAlnum', 'IsAlpha', 'IsLower']
@@ -126,7 +126,7 @@ class NonbreakingPrefixes:
 
             >>> from sacremoses.corpus import NonbreakingPrefixes
             >>> nbp = NonbreakingPrefixes()
-            >>> list(nbp.words('en'))[:10] == [u'A', u'B', u'C', u'D', u'E', u'F', u'G', u'H', u'I', u'J']
+            >>> list(nbp.words('en'))[:10] == ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
             True
             >>> list(nbp.words('ta'))[:5] == ['\u0bb0', '\u0bc2', '\u0ba4\u0bbf\u0bb0\u0bc1', '\u0b8f', '\u0baa\u0bc0']
             True
