@@ -20,6 +20,6 @@ setup(
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
   ],
-  install_requires = ['regex', 'six', 'click', 'joblib', 'tqdm'],
+  install_requires = ['regex', 'click', 'joblib', 'tqdm'],
   entry_points=console_scripts,
 )

@@ -4,7 +4,6 @@
 import re
 import regex
 
-from six import text_type
 from itertools import chain
 
 
@@ -30,42 +29,42 @@ class MosesPunctNormalizer:
     NORMALIZE_UNICODE_IF_NOT_PENN = [(r"`", r"'"), (r"''", r' " ')]  # lines 33 - 34
 
     NORMALIZE_UNICODE = [  # lines 37 - 50
-        (u"„", r'"'),
-        (u"“", r'"'),
-        (u"”", r'"'),
-        (u"–", r"-"),
-        (u"—", r" - "),
+        ("„", r'"'),
+        ("“", r'"'),
+        ("”", r'"'),
+        ("–", r"-"),
+        ("—", r" - "),
         (r" +", r" "),
-        (u"´", r"'"),
-        (u"([a-zA-Z])‘([a-zA-Z])", r"\g<1>'\g<2>"),
-        (u"([a-zA-Z])’([a-zA-Z])", r"\g<1>'\g<2>"),
-        (u"‘", r"'"),
-        (u"‚", r"'"),
-        (u"’", r"'"),
+        ("´", r"'"),
+        ("([a-zA-Z])‘([a-zA-Z])", r"\g<1>'\g<2>"),
+        ("([a-zA-Z])’([a-zA-Z])", r"\g<1>'\g<2>"),
+        ("‘", r"'"),
+        ("‚", r"'"),
+        ("’", r"'"),
         (r"''", r'"'),
-        (u"´´", r'"'),
-        (u"…", r"..."),
+        ("´´", r'"'),
+        ("…", r"..."),
     ]
 
     FRENCH_QUOTES = [  # lines 52 - 57
-        (u"\u00A0«\u00A0", r'"'),
-        (u"«\u00A0", r'"'),
-        (u"«", r'"'),
-        (u"\u00A0»\u00A0", r'"'),
-        (u"\u00A0»", r'"'),
-        (u"»", r'"'),
+        ("\u00A0«\u00A0", r'"'),
+        ("«\u00A0", r'"'),
+        ("«", r'"'),
+        ("\u00A0»\u00A0", r'"'),
+        ("\u00A0»", r'"'),
+        ("»", r'"'),
     ]
 
     HANDLE_PSEUDO_SPACES = [  # lines 59 - 67
-        (u"\u00A0%", r"%"),
-        (u"nº\u00A0", u"nº "),
-        (u"\u00A0:", r":"),
-        (u"\u00A0ºC", u" ºC"),
-        (u"\u00A0cm", r" cm"),
-        (u"\u00A0\\?", u"?"),
-        (u"\u00A0\\!", u"!"),
-        (u"\u00A0;", r";"),
-        (u",\u00A0", r", "),
+        ("\u00A0%", r"%"),
+        ("nº\u00A0", "nº "),
+        ("\u00A0:", r":"),
+        ("\u00A0ºC", " ºC"),
+        ("\u00A0cm", r" cm"),
+        ("\u00A0\\?", "?"),
+        ("\u00A0\\!", "!"),
+        ("\u00A0;", r";"),
+        (",\u00A0", r", "),
         (r" +", r" "),
     ]
 
@@ -77,52 +76,52 @@ class MosesPunctNormalizer:
     ]
 
     DE_ES_CZ_CS_FR = [
-        (u"(\\d)\u00A0(\\d)", r"\g<1>,\g<2>"),
+        ("(\\d)\u00A0(\\d)", r"\g<1>,\g<2>"),
     ]
 
     OTHER = [
-        (u"(\\d)\u00A0(\\d)", r"\g<1>.\g<2>"),
+        ("(\\d)\u00A0(\\d)", r"\g<1>.\g<2>"),
     ]
 
     # Regex substitutions from replace-unicode-punctuation.perl
     # https://github.com/moses-smt/mosesdecoder/blob/master/scripts/tokenizer/replace-unicode-punctuation.perl
     REPLACE_UNICODE_PUNCTUATION = [
-        (u"，", u","),
-        (r"。\s*", u". "),
-        (u"、", u","),
-        (u"”", u'"'),
-        (u"“", u'"'),
-        (u"∶", u":"),
-        (u"：", u":"),
-        (u"？", u"?"),
-        (u"《", u'"'),
-        (u"》", u'"'),
-        (u"）", u")"),
-        (u"！", u"!"),
-        (u"（", u"("),
-        (u"；", u";"),
-        (u"」", u'"'),
-        (u"「", u'"'),
-        (u"０", u"0"),
-        (u"１", u"1"),
-        (u"２", u"2"),
-        (u"３", u"3"),
-        (u"４", u"4"),
-        (u"５", u"5"),
-        (u"６", u"6"),
-        (u"７", u"7"),
-        (u"８", u"8"),
-        (u"９", u"9"),
-        (r"．\s*", u". "),
-        (u"～", u"~"),
-        (u"’", u"'"),
-        (u"…", u"..."),
-        (u"━", u"-"),
-        (u"〈", u"<"),
-        (u"〉", u">"),
-        (u"【", u"["),
-        (u"】", u"]"),
-        (u"％", u"%"),
+        ("，", ","),
+        (r"。\s*", ". "),
+        ("、", ","),
+        ("”", '"'),
+        ("“", '"'),
+        ("∶", ":"),
+        ("：", ":"),
+        ("？", "?"),
+        ("《", '"'),
+        ("》", '"'),
+        ("）", ")"),
+        ("！", "!"),
+        ("（", "("),
+        ("；", ";"),
+        ("」", '"'),
+        ("「", '"'),
+        ("０", "0"),
+        ("１", "1"),
+        ("２", "2"),
+        ("３", "3"),
+        ("４", "4"),
+        ("５", "5"),
+        ("６", "6"),
+        ("７", "7"),
+        ("８", "8"),
+        ("９", "9"),
+        (r"．\s*", ". "),
+        ("～", "~"),
+        ("’", "'"),
+        ("…", "..."),
+        ("━", "-"),
+        ("〈", "<"),
+        ("〉", ">"),
+        ("【", "["),
+        ("】", "]"),
+        ("％", "%"),
     ]
 
     def __init__(
@@ -182,7 +181,7 @@ class MosesPunctNormalizer:
         # Actual normalization.
         for regexp, substitution in self.substitutions:
             # print(regexp, substitution)
-            text = re.sub(regexp, substitution, text_type(text))
+            text = re.sub(regexp, substitution, str(text))
             # print(text)
 
         # Optionally, replace unicode puncts BEFORE normalization.
@@ -193,7 +192,7 @@ class MosesPunctNormalizer:
 
     def replace_unicode_punct(self, text):
         for regexp, substitution in self.REPLACE_UNICODE_PUNCTUATION:
-            text = re.sub(regexp, substitution, text_type(text))
+            text = re.sub(regexp, substitution, str(text))
         return text
 
     def remove_control_chars(self, text):

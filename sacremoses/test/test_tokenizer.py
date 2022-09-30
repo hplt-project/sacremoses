@@ -15,18 +15,18 @@ class TestTokenzier(unittest.TestCase):
 
         # Tokenize a sentence.
         text = (
-            u"This, is a sentence with weird\xbb symbols\u2026 appearing everywhere\xbf"
+            "This, is a sentence with weird\xbb symbols\u2026 appearing everywhere\xbf"
         )
-        expected_tokens = u"This , is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf"
+        expected_tokens = "This , is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf"
         tokenized_text = moses.tokenize(text, return_str=True)
         assert tokenized_text == expected_tokens
 
         # The nonbreaking prefixes should tokenize the final fullstop.
-        assert moses.tokenize("abc def.") == [u"abc", u"def", u"."]
+        assert moses.tokenize("abc def.") == ["abc", "def", "."]
 
         # The nonbreaking prefixes should deal the situation when numeric only prefix is the last token.
         # In below example, "pp" is the last element, and there is no digit after it.
-        assert moses.tokenize("2016, pp.") == [u"2016", u",", u"pp", u"."]
+        assert moses.tokenize("2016, pp.") == ["2016", ",", "pp", "."]
 
         # Test escape_xml
         text = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [ ] & You're gonna shake it off? Don't?"
@@ -197,7 +197,7 @@ class TestTokenzier(unittest.TestCase):
 
     def test_final_comma_split_after_number(self):
         moses = MosesTokenizer()
-        text = u"Sie sollten vor dem Upgrade eine Sicherung dieser Daten erstellen (wie unter Abschnitt 4.1.1, „Sichern aller Daten und Konfigurationsinformationen“ beschrieben). "
+        text = "Sie sollten vor dem Upgrade eine Sicherung dieser Daten erstellen (wie unter Abschnitt 4.1.1, „Sichern aller Daten und Konfigurationsinformationen“ beschrieben). "
         expected_tokens = [
             "Sie",
             "sollten",
@@ -215,13 +215,13 @@ class TestTokenzier(unittest.TestCase):
             "Abschnitt",
             "4.1.1",
             ",",
-            u"„",
+            "„",
             "Sichern",
             "aller",
             "Daten",
             "und",
             "Konfigurationsinformationen",
-            u"“",
+            "“",
             "beschrieben",
             ")",
             ".",
@@ -235,47 +235,47 @@ class TestDetokenizer(unittest.TestCase):
         md = MosesDetokenizer()
 
         text = (
-            u"This, is a sentence with weird\xbb symbols\u2026 appearing everywhere\xbf"
+            "This, is a sentence with weird\xbb symbols\u2026 appearing everywhere\xbf"
         )
         expected_tokens = mt.tokenize(text)
-        expected_detokens = u"This, is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf"
+        expected_detokens = "This, is a sentence with weird \xbb symbols \u2026 appearing everywhere \xbf"
 
         assert md.detokenize(expected_tokens) == expected_detokens
 
         text = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [ ] & You're gonna shake it off? Don't?"
         expected_tokens = [
-            u"This",
-            u"ain",
-            u"&apos;t",
-            u"funny",
-            u".",
-            u"It",
-            u"&apos;s",
-            u"actually",
-            u"hillarious",
-            u",",
-            u"yet",
-            u"double",
-            u"Ls",
-            u".",
-            u"&#124;",
-            u"&#91;",
-            u"&#93;",
-            u"&lt;",
-            u"&gt;",
-            u"&#91;",
-            u"&#93;",
-            u"&amp;",
-            u"You",
-            u"&apos;re",
-            u"gonna",
-            u"shake",
-            u"it",
-            u"off",
-            u"?",
-            u"Don",
-            u"&apos;t",
-            u"?",
+            "This",
+            "ain",
+            "&apos;t",
+            "funny",
+            ".",
+            "It",
+            "&apos;s",
+            "actually",
+            "hillarious",
+            ",",
+            "yet",
+            "double",
+            "Ls",
+            ".",
+            "&#124;",
+            "&#91;",
+            "&#93;",
+            "&lt;",
+            "&gt;",
+            "&#91;",
+            "&#93;",
+            "&amp;",
+            "You",
+            "&apos;re",
+            "gonna",
+            "shake",
+            "it",
+            "off",
+            "?",
+            "Don",
+            "&apos;t",
+            "?",
         ]
         expected_detokens = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [] & You're gonna shake it off? Don't?"
         assert mt.tokenize(text) == expected_tokens
@@ -299,37 +299,37 @@ class TestDetokenizer(unittest.TestCase):
         tokenizer = MosesTokenizer(lang="fr")
         detokenizer = MosesDetokenizer(lang="fr")
 
-        text = u"L'amitié nous a fait forts d'esprit"
+        text = "L'amitié nous a fait forts d'esprit"
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
 
     def test_chinese_tokenization(self):
         tokenizer = MosesTokenizer(lang="zh")
-        text = u"记者 应谦 美国"
-        assert tokenizer.tokenize(text) == [u"记者", u"应谦", u"美国"]
+        text = "记者 应谦 美国"
+        assert tokenizer.tokenize(text) == ["记者", "应谦", "美国"]
 
     def test_korean_tokenization(self):
         tokenizer = MosesTokenizer(lang="ko")
         detokenizer = MosesDetokenizer(lang="ko")
-        text = u"세계 에서 가장 강력한."
-        assert tokenizer.tokenize(text) == [u"세계", u"에서", u"가장", u"강력한", u"."]
+        text = "세계 에서 가장 강력한."
+        assert tokenizer.tokenize(text) == ["세계", "에서", "가장", "강력한", "."]
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
 
     def test_japanese_tokenization(self):
         tokenizer = MosesTokenizer(lang="ja")
-        text = u"電話でんわの邪魔じゃまをしないでください"
+        text = "電話でんわの邪魔じゃまをしないでください"
         assert tokenizer.tokenize(text) == [text]
 
     def test_mixed_cjk_tokenization(self):
         tokenizer = MosesTokenizer()
         detokenizer = MosesDetokenizer()
-        text = u"Japan is 日本 in Japanese."
+        text = "Japan is 日本 in Japanese."
         assert tokenizer.tokenize(text) == [
-            u"Japan",
-            u"is",
-            u"日",
-            u"本",
-            u"in",
-            u"Japanese",
-            u".",
+            "Japan",
+            "is",
+            "日",
+            "本",
+            "in",
+            "Japanese",
+            ".",
         ]
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text

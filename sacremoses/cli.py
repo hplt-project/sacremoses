@@ -27,8 +27,8 @@ if sys.version_info[0] < 3:
         )
     )
 
-    
-    
+
+
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 

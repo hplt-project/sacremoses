@@ -18,7 +18,6 @@ python:  # https://docs.travis-ci.com/user/languages/python/
 cache: pip
 
 install:
-  - pip install six     # Using six dependency for text_type()
   - pip install joblib  # For parallelization.
   - pip install click   # For CLI.
   - pip install tqdm    # For progressbar.

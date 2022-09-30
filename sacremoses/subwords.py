@@ -31,9 +31,9 @@ class SubwordTokenizer(object):
             else:
                 vocab.update(fin.read().split())
         # Converts the string keys to tuples of characters,
-        # adds u"\uE000" to the last character.
+        # adds "\uE000" to the last character.
         vocab = Counter(
-            {tuple(k[:-1]) + (k[-1] + u"\uE000",): v for (k, v) in vocab.items()}
+            {tuple(k[:-1]) + (k[-1] + "\uE000",): v for (k, v) in vocab.items()}
         )
         return vocab.most_common()
 
