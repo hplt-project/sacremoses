@@ -3,8 +3,6 @@
 
 import re
 
-from six import text_type
-
 from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
 from sacremoses.util import is_cjk
@@ -21,16 +19,16 @@ class MosesTokenizer(object):
     """
 
     # Perl Unicode Properties character sets.
-    IsN = text_type("".join(perluniprops.chars("IsN")))
-    IsAlnum = text_type(
+    IsN = str("".join(perluniprops.chars("IsN")))
+    IsAlnum = str(
         "".join(perluniprops.chars("IsAlnum")) + "".join(VIRAMAS) + "".join(NUKTAS)
     )
-    IsSc = text_type("".join(perluniprops.chars("IsSc")))
-    IsSo = text_type("".join(perluniprops.chars("IsSo")))
-    IsAlpha = text_type(
+    IsSc = str("".join(perluniprops.chars("IsSc")))
+    IsSo = str("".join(perluniprops.chars("IsSo")))
+    IsAlpha = str(
         "".join(perluniprops.chars("IsAlpha")) + "".join(VIRAMAS) + "".join(NUKTAS)
     )
-    IsLower = text_type("".join(perluniprops.chars("IsLower")))
+    IsLower = str("".join(perluniprops.chars("IsLower")))
 
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = re.compile(r"\s+"), r" "
@@ -324,13 +322,13 @@ class MosesTokenizer(object):
         if self.lang in ["zh", "ja", "ko", "cjk"]:
             cjk_chars = ""
             if self.lang in ["ko", "cjk"]:
-                cjk_chars += text_type("".join(perluniprops.chars("Hangul")))
+                cjk_chars += str("".join(perluniprops.chars("Hangul")))
             if self.lang in ["zh", "cjk"]:
-                cjk_chars += text_type("".join(perluniprops.chars("Han")))
+                cjk_chars += str("".join(perluniprops.chars("Han")))
             if self.lang in ["ja", "cjk"]:
-                cjk_chars += text_type("".join(perluniprops.chars("Hiragana")))
-                cjk_chars += text_type("".join(perluniprops.chars("Katakana")))
-                cjk_chars += text_type("".join(perluniprops.chars("Han")))
+                cjk_chars += str("".join(perluniprops.chars("Hiragana")))
+                cjk_chars += str("".join(perluniprops.chars("Katakana")))
+                cjk_chars += str("".join(perluniprops.chars("Han")))
             self.IsAlpha += cjk_chars
             self.IsAlnum += cjk_chars
             # Overwrite the alnum regexes.
@@ -419,7 +417,7 @@ class MosesTokenizer(object):
         machine translation community.
         """
         # Converts input string into unicode.
-        text = text_type(text)
+        text = str(text)
         # Perform a chain of regex substituitions using MOSES_PENN_REGEXES_1
         for regexp, substitution in self.MOSES_PENN_REGEXES_1:
             text = regexp.sub(substitution, text)
@@ -447,7 +445,7 @@ class MosesTokenizer(object):
             :type aggressive_dash_splits: bool
         """
         # Converts input string into unicode.
-        text = text_type(text)
+        text = str(text)
         # De-duplicate spaces and clean ASCII junk
         for regexp, substitution in [self.DEDUPLICATE_SPACE, self.ASCII_JUNK]:
             text = regexp.sub(substitution, text)
@@ -548,9 +546,9 @@ class MosesDetokenizer(object):
     """
 
     # Currency Symbols.
-    IsAlnum = text_type("".join(perluniprops.chars("IsAlnum")))
-    IsAlpha = text_type("".join(perluniprops.chars("IsAlpha")))
-    IsSc = text_type("".join(perluniprops.chars("IsSc")))
+    IsAlnum = str("".join(perluniprops.chars("IsAlnum")))
+    IsAlpha = str("".join(perluniprops.chars("IsAlpha")))
+    IsSc = str("".join(perluniprops.chars("IsSc")))
 
     AGGRESSIVE_HYPHEN_SPLIT = re.compile(r" \@\-\@ "), r"-"
 
@@ -586,80 +584,80 @@ class MosesDetokenizer(object):
     ]
 
     FINNISH_MORPHSET_1 = [
-        u"N",
-        u"n",
-        u"A",
-        u"a",
-        u"\xc4",
-        u"\xe4",
-        u"ssa",
-        u"Ssa",
-        u"ss\xe4",
-        u"Ss\xe4",
-        u"sta",
-        u"st\xe4",
-        u"Sta",
-        u"St\xe4",
-        u"hun",
-        u"Hun",
-        u"hyn",
-        u"Hyn",
-        u"han",
-        u"Han",
-        u"h\xe4n",
-        u"H\xe4n",
-        u"h\xf6n",
-        u"H\xf6n",
-        u"un",
-        u"Un",
-        u"yn",
-        u"Yn",
-        u"an",
-        u"An",
-        u"\xe4n",
-        u"\xc4n",
-        u"\xf6n",
-        u"\xd6n",
-        u"seen",
-        u"Seen",
-        u"lla",
-        u"Lla",
-        u"ll\xe4",
-        u"Ll\xe4",
-        u"lta",
-        u"Lta",
-        u"lt\xe4",
-        u"Lt\xe4",
-        u"lle",
-        u"Lle",
-        u"ksi",
-        u"Ksi",
-        u"kse",
-        u"Kse",
-        u"tta",
-        u"Tta",
-        u"ine",
-        u"Ine",
+        "N",
+        "n",
+        "A",
+        "a",
+        "\xc4",
+        "\xe4",
+        "ssa",
+        "Ssa",
+        "ss\xe4",
+        "Ss\xe4",
+        "sta",
+        "st\xe4",
+        "Sta",
+        "St\xe4",
+        "hun",
+        "Hun",
+        "hyn",
+        "Hyn",
+        "han",
+        "Han",
+        "h\xe4n",
+        "H\xe4n",
+        "h\xf6n",
+        "H\xf6n",
+        "un",
+        "Un",
+        "yn",
+        "Yn",
+        "an",
+        "An",
+        "\xe4n",
+        "\xc4n",
+        "\xf6n",
+        "\xd6n",
+        "seen",
+        "Seen",
+        "lla",
+        "Lla",
+        "ll\xe4",
+        "Ll\xe4",
+        "lta",
+        "Lta",
+        "lt\xe4",
+        "Lt\xe4",
+        "lle",
+        "Lle",
+        "ksi",
+        "Ksi",
+        "kse",
+        "Kse",
+        "tta",
+        "Tta",
+        "ine",
+        "Ine",
     ]
 
-    FINNISH_MORPHSET_2 = [u"ni", u"si", u"mme", u"nne", u"nsa"]
+    FINNISH_MORPHSET_2 = ["ni", "si", "mme", "nne", "nsa"]
 
     FINNISH_MORPHSET_3 = [
-        u"ko",
-        u"k\xf6",
-        u"han",
-        u"h\xe4n",
-        u"pa",
-        u"p\xe4",
-        u"kaan",
-        u"k\xe4\xe4n",
-        u"kin",
+        "ko",
+        "k\xf6",
+        "han",
+        "h\xe4n",
+        "pa",
+        "p\xe4",
+        "kaan",
+        "k\xe4\xe4n",
+        "kin",
     ]
 
     FINNISH_REGEX = re.compile(r"^({})({})?({})$".format(
-        text_type("|".join(FINNISH_MORPHSET_1)),
-        text_type("|".join(FINNISH_MORPHSET_2)),
-        text_type("|".join(FINNISH_MORPHSET_3)),
+        "|".join(FINNISH_MORPHSET_1),
+        "|".join(FINNISH_MORPHSET_2),
+        "|".join(FINNISH_MORPHSET_3),
     ))
 
     def __init__(self, lang="en"):
@@ -681,7 +679,7 @@ class MosesDetokenizer(object):
         # Convert the list of tokens into a string and pad it with spaces.
         text = r" {} ".format(" ".join(tokens))
         # Converts input string into unicode.
-        text = text_type(text)
+        text = str(text)
         # Detokenize the agressive hyphen split.
         regexp, substitution = self.AGGRESSIVE_HYPHEN_SPLIT
         text = regexp.sub(substitution, text)
@@ -689,7 +687,7 @@ class MosesDetokenizer(object):
             # Unescape the XML symbols.
             text = self.unescape_xml(text)
         # Keep track of no. of quotation marks.
-        quote_counts = {u"'": 0, u'"': 0, u"``": 0, u"`": 0, u"''": 0}
+        quote_counts = {"'": 0, '"': 0, "``": 0, "`": 0, "''": 0}
 
         # The *prepend_space* variable is used to control the "effects" of
         # detokenization as the function loops through the list of tokens and
@@ -728,7 +726,7 @@ class MosesDetokenizer(object):
                 and i > 0
                 and re.search(r"^['][{}]".format(self.IsAlpha), token)
             ):
-                # and re.search(u'[{}]$'.format(self.IsAlnum), tokens[i-1])):
+                # and re.search('[{}]$'.format(self.IsAlnum), tokens[i-1])):
                 # For English, left-shift the contraction.
                 detokenized_text += token
                 prepend_space = " "
@@ -775,15 +773,15 @@ class MosesDetokenizer(object):
                     normalized_quo = '"'
                 quote_counts[normalized_quo] = quote_counts.get(normalized_quo, 0)
 
-                if self.lang == "cs" and token == u"„":
+                if self.lang == "cs" and token == "„":
                     quote_counts[normalized_quo] = 0
-                if self.lang == "cs" and token == u"“":
+                if self.lang == "cs" and token == "“":
                     quote_counts[normalized_quo] = 1
 
                 if quote_counts[normalized_quo] % 2 == 0:
                     if (
                         self.lang == "en"
-                        and token == u"'"
+                        and token == "'"
                         and i > 0
                         and re.search(r"[s]$", tokens[i - 1])
                     ):

@@ -7,8 +7,6 @@ from collections import defaultdict, Counter
 from functools import partial
 from itertools import chain
 
-from six import text_type
-
 from sacremoses.corpus import Perluniprops
 from sacremoses.util import parallelize_preprocess, grouper
 
@@ -38,9 +36,9 @@ class MosesTruecaser(object):
     """
 
     # Perl Unicode Properties character sets.
-    Lowercase_Letter = text_type("".join(perluniprops.chars("Lowercase_Letter")))
-    Uppercase_Letter = text_type("".join(perluniprops.chars("Uppercase_Letter")))
-    Titlecase_Letter = text_type("".join(perluniprops.chars("Uppercase_Letter")))
+    Lowercase_Letter = str("".join(perluniprops.chars("Lowercase_Letter")))
+    Uppercase_Letter = str("".join(perluniprops.chars("Uppercase_Letter")))
+    Titlecase_Letter = str("".join(perluniprops.chars("Uppercase_Letter")))
 
     def __init__(self, load_from=None, is_asr=None, encoding="utf8"):
         """
@@ -56,7 +54,7 @@ class MosesTruecaser(object):
         super(MosesTruecaser, self).__init__()
         # Initialize the language specific nonbreaking prefixes.
         self.SKIP_LETTERS_REGEX = re.compile(
-            u"[{}{}{}]".format(
+            "[{}{}{}]".format(
                 self.Lowercase_Letter, self.Uppercase_Letter, self.Titlecase_Letter
             )
         )

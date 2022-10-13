@@ -6,24 +6,14 @@ Tests for MosesTokenizer
 
 import os
 import unittest
+import urllib.request
 
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
 
 
-# Crazy hack to support Python2 and 3 and requests to download files.
-# From https://stackoverflow.com/a/47897956/610569
-try:  # Try importing Python3 urllib
-    import urllib.request
-except ImportError:  # Now importing Python2 urllib
-    import urllib
-
-
 def get_content(url):
-    try:  # Using Python3 urllib.
-        with urllib.request.urlopen(url) as response:
-            return response.read()  # Returns http.client.HTTPResponse.
-    except AttributeError:  # Using Python3 urllib.
-        return urllib.urlopen(url).read()  # Returns an instance.
+    with urllib.request.urlopen(url) as response:
+        return response.read()  # Returns http.client.HTTPResponse.
 
 
 class TestTruecaser(unittest.TestCase):

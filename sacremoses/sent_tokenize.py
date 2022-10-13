@@ -3,8 +3,6 @@
 
 import re
 
-from six import text_type
-
 from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
 
@@ -22,13 +20,13 @@ class MosesSentTokenizer(object):
 
     r"""
     # Perl Unicode Properties character sets.
-    IsPi = text_type("".join(perluniprops.chars("IsPi")))
-    IsUpper = text_type("".join(perluniprops.chars("IsUpper")))
-    IsPf = text_type("".join(perluniprops.chars("IsPf")))
-    Punctuation = text_type("".join(perluniprops.chars("Punctuation")))
-    CJK = text_type("".join(perluniprops.chars("CJK")))
-    CJKSymbols = text_type("".join(perluniprops.chars("CJKSymbols")))
-    IsAlnum = text_type("".join(perluniprops.chars("IsAlnum")))
+    IsPi = str("".join(perluniprops.chars("IsPi")))
+    IsUpper = str("".join(perluniprops.chars("IsUpper")))
+    IsPf = str("".join(perluniprops.chars("IsPf")))
+    Punctuation = str("".join(perluniprops.chars("Punctuation")))
+    CJK = str("".join(perluniprops.chars("CJK")))
+    CJKSymbols = str("".join(perluniprops.chars("CJKSymbols")))
+    IsAlnum = str("".join(perluniprops.chars("IsAlnum")))
 
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = r"\s+", r" "

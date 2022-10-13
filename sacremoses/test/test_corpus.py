@@ -8,8 +8,6 @@ import sys
 import doctest
 import unittest
 
-from six import text_type
-
 from sacremoses import corpus
 
 
@@ -27,7 +25,7 @@ class CorpusTest(unittest.TestCase):
             else:
                 self.assertEqual(
                     all(
-                        isinstance(char, text_type)
+                        isinstance(char, str)
                         for char in perluniprops.chars(category=category)
                     ),
                     True,
@@ -37,11 +35,11 @@ class CorpusTest(unittest.TestCase):
         perluniprops = corpus.Perluniprops()
         self.assertListEqual(
             list(perluniprops.chars("Open_Punctuation"))[:5],
-            [u"(", u"[", u"{", u"\u0f3a", u"\u0f3c"],
+            ["(", "[", "{", "\u0f3a", "\u0f3c"],
         )
         self.assertListEqual(
             list(perluniprops.chars("Currency_Symbol"))[:5],
-            [u"$", u"\xa2", u"\xa3", u"\xa4", u"\xa5"],
+            ["$", "\xa2", "\xa3", "\xa4", "\xa5"],
         )
 
     def test_nonbreaking_prefixes_sanity_check(self):
@@ -57,7 +55,7 @@ class CorpusTest(unittest.TestCase):
             else:
                 self.assertEqual(
                     all(
-                        isinstance(word, text_type)
+                        isinstance(word, str)
                         for word in nonbreaking_prefixes.words(lang=language)
                     ),
                     True,
@@ -67,7 +65,7 @@ class CorpusTest(unittest.TestCase):
         nonbreaking_prefixes = corpus.NonbreakingPrefixes()
         self.assertListEqual(
             list(nonbreaking_prefixes.words("en"))[:10],
-            [u"A", u"B", u"C", u"D", u"E", u"F", u"G", u"H", u"I", u"J"],
+            ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
         )
         self.assertListEqual(
             list(nonbreaking_prefixes.words("ta"))[:5],
