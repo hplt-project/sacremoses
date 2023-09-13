@@ -91,6 +91,9 @@ class CJKChars(object):
     ]
 
 
+_CJKChars_ranges = CJKChars().ranges
+
+
 def is_cjk(character):
     """
     This checks for CJK character.
@@ -106,24 +109,11 @@ def is_cjk(character):
     :type character: char
     :return: bool
     """
-    return any(
-        [
-            start <= ord(character) <= end
-            for start, end in [
-                (4352, 4607),
-                (11904, 42191),
-                (43072, 43135),
-                (44032, 55215),
-                (63744, 64255),
-                (65072, 65103),
-                (65381, 65500),
-                (94208, 101119),
-                (110592, 110895),
-                (110960, 111359),
-                (131072, 196607),
-            ]
-        ]
-    )
+    char = ord(character)
+    for start, end in _CJKChars_ranges:
+        if char < end:
+            return char > start
+    return False
 
 
 def xml_escape(text):
