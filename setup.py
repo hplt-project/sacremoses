@@ -22,4 +22,5 @@ setup(
   ],
   install_requires = ['regex', 'click', 'joblib', 'tqdm'],
   entry_points=console_scripts,
+  python_requires='>=3.8',
 )
