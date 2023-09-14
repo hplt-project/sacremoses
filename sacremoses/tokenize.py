@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from functools import partial
 
 from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
@@ -10,6 +11,14 @@ from sacremoses.indic import VIRAMAS, NUKTAS
 
 perluniprops = Perluniprops()
 nonbreaking_prefixes = NonbreakingPrefixes()
+
+
+def make_search(pattern):
+    return re.compile(pattern).search
+
+
+def make_sub(pattern, replacement):
+    return partial(re.compile(pattern).sub, replacement)
 
 
 class MosesTokenizer(object):
@@ -31,8 +40,8 @@ class MosesTokenizer(object):
     IsLower = str("".join(perluniprops.chars("IsLower")))
 
     # Remove ASCII junk.
-    DEDUPLICATE_SPACE = r"\s+", r" "
-    ASCII_JUNK = r"[\000-\037]", r""
+    DEDUPLICATE_SPACE = make_sub(r"\s+", r" ")
+    ASCII_JUNK = make_sub(r"[\000-\037]", r"")
 
     # Neurotic Perl heading space, multi-space and trailing space chomp.
     # These regexes are kept for reference purposes and shouldn't be used!!
@@ -41,135 +50,135 @@ class MosesTokenizer(object):
     RIGHT_STRIP = r" $", r""  # Uses text.rstrip() instead.
 
     # Pad all "other" special characters not in IsAlnum.
-    PAD_NOT_ISALNUM = r"([^{}\s\.'\`\,\-])".format(IsAlnum), r" \1 "
+    PAD_NOT_ISALNUM = make_sub(r"([^{}\s\.'\`\,\-])".format(IsAlnum), r" \1 ")
 
     # Splits all hyphens (regardless of circumstances), e.g.
     # 'foo-bar' -> 'foo @-@ bar'
-    AGGRESSIVE_HYPHEN_SPLIT = (
+    AGGRESSIVE_HYPHEN_SPLIT = make_sub(
         r"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=IsAlnum),
         r"\1 @-@ ",
     )
 
     # Make multi-dots stay together.
-    REPLACE_DOT_WITH_LITERALSTRING_1 = r"\.([\.]+)", " DOTMULTI\1"
-    REPLACE_DOT_WITH_LITERALSTRING_2 = r"DOTMULTI\.([^\.])", "DOTDOTMULTI \1"
-    REPLACE_DOT_WITH_LITERALSTRING_3 = r"DOTMULTI\.", "DOTDOTMULTI"
+    REPLACE_DOT_WITH_LITERALSTRING_1 = make_sub(r"\.([\.]+)", r" DOTMULTI\1")
+    REPLACE_DOT_WITH_LITERALSTRING_2 = make_sub(r"DOTMULTI\.([^\.])", r"DOTDOTMULTI \1")
+    REPLACE_DOT_WITH_LITERALSTRING_3 = make_sub(r"DOTMULTI\.", r"DOTDOTMULTI")
 
     # Separate out "," except if within numbers (5,300)
     # e.g.  A,B,C,D,E > A , B,C , D,E
     # First application uses up B so rule can't see B,C
     # two-step version here may create extra spaces but these are removed later
     # will also space digit,letter or letter,digit forms (redundant with next section)
-    COMMA_SEPARATE_1 = r"([^{}])[,]".format(IsN), r"\1 , "
-    COMMA_SEPARATE_2 = r"[,]([^{}])".format(IsN), r" , \1"
-    COMMA_SEPARATE_3 = r"([{}])[,]$".format(IsN), r"\1 , "
+    COMMA_SEPARATE_1 = make_sub(r"([^{}])[,]".format(IsN), r"\1 , ")
+    COMMA_SEPARATE_2 = make_sub(r"[,]([^{}])".format(IsN), r" , \1")
+    COMMA_SEPARATE_3 = make_sub(r"([{}])[,]$".format(IsN), r"\1 , ")
 
     # Attempt to get correct directional quotes.
-    DIRECTIONAL_QUOTE_1 = r"^``", r"`` "
-    DIRECTIONAL_QUOTE_2 = r'^"', r"`` "
-    DIRECTIONAL_QUOTE_3 = r"^`([^`])", r"` \1"
-    DIRECTIONAL_QUOTE_4 = r"^'", r"`  "
-    DIRECTIONAL_QUOTE_5 = r'([ ([{<])"', r"\1 `` "
-    DIRECTIONAL_QUOTE_6 = r"([ ([{<])``", r"\1 `` "
-    DIRECTIONAL_QUOTE_7 = r"([ ([{<])`([^`])", r"\1 ` \2"
-    DIRECTIONAL_QUOTE_8 = r"([ ([{<])'", r"\1 ` "
+    DIRECTIONAL_QUOTE_1 = make_sub(r"^``", r"`` ")
+    DIRECTIONAL_QUOTE_2 = make_sub(r'^"', r"`` ")
+    DIRECTIONAL_QUOTE_3 = make_sub(r"^`([^`])", r"` \1")
+    DIRECTIONAL_QUOTE_4 = make_sub(r"^'", r"`  ")
+    DIRECTIONAL_QUOTE_5 = make_sub(r'([ ([{<])"', r"\1 `` ")
+    DIRECTIONAL_QUOTE_6 = make_sub(r"([ ([{<])``", r"\1 `` ")
+    DIRECTIONAL_QUOTE_7 = make_sub(r"([ ([{<])`([^`])", r"\1 ` \2")
+    DIRECTIONAL_QUOTE_8 = make_sub(r"([ ([{<])'", r"\1 ` ")
 
     # Replace ... with _ELLIPSIS_
-    REPLACE_ELLIPSIS = r"\.\.\.", r" _ELLIPSIS_ "
+    REPLACE_ELLIPSIS = make_sub(r"\.\.\.", r" _ELLIPSIS_ ")
     # Restore _ELLIPSIS_ with ...
-    RESTORE_ELLIPSIS = r"_ELLIPSIS_", r"\.\.\."
+    RESTORE_ELLIPSIS = make_sub(r"_ELLIPSIS_", r"\.\.\.")
 
     # Pad , with tailing space except if within numbers, e.g. 5,300
-    COMMA_1 = r"([^{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2"
-    COMMA_2 = r"([{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2"
-    COMMA_3 = r"([^{numbers}])[,]([{numbers}])".format(numbers=IsN), r"\1 , \2"
+    COMMA_1 = make_sub(r"([^{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2")
+    COMMA_2 = make_sub(r"([{numbers}])[,]([^{numbers}])".format(numbers=IsN), r"\1 , \2")
+    COMMA_3 = make_sub(r"([^{numbers}])[,]([{numbers}])".format(numbers=IsN), r"\1 , \2")
 
     # Pad unicode symbols with spaces.
-    SYMBOLS = r"([;:@#\$%&{}{}])".format(IsSc, IsSo), r" \1 "
+    SYMBOLS = make_sub(r"([;:@#\$%&{}{}])".format(IsSc, IsSo), r" \1 ")
 
     # Separate out intra-token slashes.  PTB tokenization doesn't do this, so
     # the tokens should be merged prior to parsing with a PTB-trained parser.
     # e.g. "and/or" -> "and @/@ or"
-    INTRATOKEN_SLASHES = (
+    INTRATOKEN_SLASHES = make_sub(
         r"([{alphanum}])\/([{alphanum}])".format(alphanum=IsAlnum),
         r"$1 \@\/\@ $2",
     )
 
     # Splits final period at end of string.
-    FINAL_PERIOD = r"""([^.])([.])([\]\)}>"']*) ?$""", r"\1 \2\3"
+    FINAL_PERIOD = make_sub(r"""([^.])([.])([\]\)}>"']*) ?$""", r"\1 \2\3")
     # Pad all question marks and exclamation marks with spaces.
-    PAD_QUESTION_EXCLAMATION_MARK = r"([?!])", r" \1 "
+    PAD_QUESTION_EXCLAMATION_MARK = make_sub(r"([?!])", r" \1 ")
 
     # Handles parentheses, brackets and converts them to PTB symbols.
-    PAD_PARENTHESIS = r"([\]\[\(\){}<>])", r" \1 "
-    CONVERT_PARENTHESIS_1 = r"\(", "-LRB-"
-    CONVERT_PARENTHESIS_2 = r"\)", "-RRB-"
-    CONVERT_PARENTHESIS_3 = r"\[", "-LSB-"
-    CONVERT_PARENTHESIS_4 = r"\]", "-RSB-"
-    CONVERT_PARENTHESIS_5 = r"\{", "-LCB-"
-    CONVERT_PARENTHESIS_6 = r"\}", "-RCB-"
+    PAD_PARENTHESIS = make_sub(r"([\]\[\(\){}<>])", r" \1 ")
+    CONVERT_PARENTHESIS_1 = make_sub(r"\(", "-LRB-")
+    CONVERT_PARENTHESIS_2 = make_sub(r"\)", "-RRB-")
+    CONVERT_PARENTHESIS_3 = make_sub(r"\[", "-LSB-")
+    CONVERT_PARENTHESIS_4 = make_sub(r"\]", "-RSB-")
+    CONVERT_PARENTHESIS_5 = make_sub(r"\{", "-LCB-")
+    CONVERT_PARENTHESIS_6 = make_sub(r"\}", "-RCB-")
 
     # Pads double dashes with spaces.
-    PAD_DOUBLE_DASHES = r"--", " -- "
+    PAD_DOUBLE_DASHES = make_sub(r"--", " -- ")
 
     # Adds spaces to start and end of string to simplify further regexps.
-    PAD_START_OF_STR = r"^", " "
-    PAD_END_OF_STR = r"$", " "
+    PAD_START_OF_STR = make_sub(r"^", " ")
+    PAD_END_OF_STR = make_sub(r"$", " ")
 
     # Converts double quotes to two single quotes and pad with spaces.
-    CONVERT_DOUBLE_TO_SINGLE_QUOTES = r'"', " '' "
+    CONVERT_DOUBLE_TO_SINGLE_QUOTES = make_sub(r'"', " '' ")
     # Handles single quote in possessives or close-single-quote.
-    HANDLES_SINGLE_QUOTES = r"([^'])' ", r"\1 ' "
+    HANDLES_SINGLE_QUOTES = make_sub(r"([^'])' ", r"\1 ' ")
 
     # Pad apostrophe in possessive or close-single-quote.
-    APOSTROPHE = r"([^'])'", r"\1 ' "
+    APOSTROPHE = make_sub(r"([^'])'", r"\1 ' ")
 
     # Prepend space on contraction apostrophe.
-    CONTRACTION_1 = r"'([sSmMdD]) ", r" '\1 "
-    CONTRACTION_2 = r"'ll ", r" 'll "
-    CONTRACTION_3 = r"'re ", r" 're "
-    CONTRACTION_4 = r"'ve ", r" 've "
-    CONTRACTION_5 = r"n't ", r" n't "
-    CONTRACTION_6 = r"'LL ", r" 'LL "
-    CONTRACTION_7 = r"'RE ", r" 'RE "
-    CONTRACTION_8 = r"'VE ", r" 'VE "
-    CONTRACTION_9 = r"N'T ", r" N'T "
+    CONTRACTION_1 = make_sub(r"'([sSmMdD]) ", r" '\1 ")
+    CONTRACTION_2 = make_sub(r"'ll ", r" 'll ")
+    CONTRACTION_3 = make_sub(r"'re ", r" 're ")
+    CONTRACTION_4 = make_sub(r"'ve ", r" 've ")
+    CONTRACTION_5 = make_sub(r"n't ", r" n't ")
+    CONTRACTION_6 = make_sub(r"'LL ", r" 'LL ")
+    CONTRACTION_7 = make_sub(r"'RE ", r" 'RE ")
+    CONTRACTION_8 = make_sub(r"'VE ", r" 'VE ")
+    CONTRACTION_9 = make_sub(r"N'T ", r" N'T ")
 
     # Informal Contractions.
-    CONTRACTION_10 = r" ([Cc])annot ", r" \1an not "
-    CONTRACTION_11 = r" ([Dd])'ye ", r" \1' ye "
-    CONTRACTION_12 = r" ([Gg])imme ", r" \1im me "
-    CONTRACTION_13 = r" ([Gg])onna ", r" \1on na "
-    CONTRACTION_14 = r" ([Gg])otta ", r" \1ot ta "
-    CONTRACTION_15 = r" ([Ll])emme ", r" \1em me "
-    CONTRACTION_16 = r" ([Mm])ore'n ", r" \1ore 'n "
-    CONTRACTION_17 = r" '([Tt])is ", r" '\1 is "
-    CONTRACTION_18 = r" '([Tt])was ", r" '\1 was "
-    CONTRACTION_19 = r" ([Ww])anna ", r" \1an na "
+    CONTRACTION_10 = make_sub(r" ([Cc])annot ", r" \1an not ")
+    CONTRACTION_11 = make_sub(r" ([Dd])'ye ", r" \1' ye ")
+    CONTRACTION_12 = make_sub(r" ([Gg])imme ", r" \1im me ")
+    CONTRACTION_13 = make_sub(r" ([Gg])onna ", r" \1on na ")
+    CONTRACTION_14 = make_sub(r" ([Gg])otta ", r" \1ot ta ")
+    CONTRACTION_15 = make_sub(r" ([Ll])emme ", r" \1em me ")
+    CONTRACTION_16 = make_sub(r" ([Mm])ore'n ", r" \1ore 'n ")
+    CONTRACTION_17 = make_sub(r" '([Tt])is ", r" '\1 is ")
+    CONTRACTION_18 = make_sub(r" '([Tt])was ", r" '\1 was ")
+    CONTRACTION_19 = make_sub(r" ([Ww])anna ", r" \1an na ")
 
     # Clean out extra spaces
-    CLEAN_EXTRA_SPACE_1 = r"  *", r" "
-    CLEAN_EXTRA_SPACE_2 = r"^ *", r""
-    CLEAN_EXTRA_SPACE_3 = r" *$", r""
+    CLEAN_EXTRA_SPACE_1 = make_sub(r"  *", r" ")
+    CLEAN_EXTRA_SPACE_2 = make_sub(r"^ *", r"")
+    CLEAN_EXTRA_SPACE_3 = make_sub(r" *$", r"")
 
     # Neurotic Perl regexes to escape special characters.
-    ESCAPE_AMPERSAND = r"&", r"&amp;"
-    ESCAPE_PIPE = r"\|", r"&#124;"
-    ESCAPE_LEFT_ANGLE_BRACKET = r"<", r"&lt;"
-    ESCAPE_RIGHT_ANGLE_BRACKET = r">", r"&gt;"
-    ESCAPE_SINGLE_QUOTE = r"\'", r"&apos;"
-    ESCAPE_DOUBLE_QUOTE = r"\"", r"&quot;"
-    ESCAPE_LEFT_SQUARE_BRACKET = r"\[", r"&#91;"
-    ESCAPE_RIGHT_SQUARE_BRACKET = r"]", r"&#93;"
+    ESCAPE_AMPERSAND = make_sub(r"&", r"&amp;")
+    ESCAPE_PIPE = make_sub(r"\|", r"&#124;")
+    ESCAPE_LEFT_ANGLE_BRACKET = make_sub(r"<", r"&lt;")
+    ESCAPE_RIGHT_ANGLE_BRACKET = make_sub(r">", r"&gt;")
+    ESCAPE_SINGLE_QUOTE = make_sub(r"\'", r"&apos;")
+    ESCAPE_DOUBLE_QUOTE = make_sub(r"\"", r"&quot;")
+    ESCAPE_LEFT_SQUARE_BRACKET = make_sub(r"\[", r"&#91;")
+    ESCAPE_RIGHT_SQUARE_BRACKET = make_sub(r"]", r"&#93;")
 
-    EN_SPECIFIC_1 = r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    EN_SPECIFIC_2 = (
+    EN_SPECIFIC_1 = make_sub(r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2")
+    EN_SPECIFIC_2 = make_sub(
         r"([^{alpha}{isn}])[']([{alpha}])".format(alpha=IsAlpha, isn=IsN),
         r"\1 ' \2",
     )
-    EN_SPECIFIC_3 = r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    EN_SPECIFIC_4 = r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 '\2"
-    EN_SPECIFIC_5 = r"([{isn}])[']([s])".format(isn=IsN), r"\1 '\2"
+    EN_SPECIFIC_3 = make_sub(r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2")
+    EN_SPECIFIC_4 = make_sub(r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 '\2")
+    EN_SPECIFIC_5 = make_sub(r"([{isn}])[']([s])".format(isn=IsN), r"\1 '\2")
 
     ENGLISH_SPECIFIC_APOSTROPHE = [
         EN_SPECIFIC_1,
@@ -179,10 +188,10 @@ class MosesTokenizer(object):
         EN_SPECIFIC_5,
     ]
 
-    FR_IT_SPECIFIC_1 = r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    FR_IT_SPECIFIC_2 = r"([^{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    FR_IT_SPECIFIC_3 = r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    FR_IT_SPECIFIC_4 = r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1' \2"
+    FR_IT_SPECIFIC_1 = make_sub(r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2")
+    FR_IT_SPECIFIC_2 = make_sub(r"([^{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 ' \2")
+    FR_IT_SPECIFIC_3 = make_sub(r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2")
+    FR_IT_SPECIFIC_4 = make_sub(r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1' \2")
 
     FR_IT_SPECIFIC_APOSTROPHE = [
         FR_IT_SPECIFIC_1,
@@ -191,9 +200,9 @@ class MosesTokenizer(object):
         FR_IT_SPECIFIC_4,
     ]
 
-    NON_SPECIFIC_APOSTROPHE = r"\'", " ' "
+    NON_SPECIFIC_APOSTROPHE = make_sub(r"\'", " ' ")
 
-    TRAILING_DOT_APOSTROPHE = r"\.' ?$", " . ' "
+    TRAILING_DOT_APOSTROPHE = make_sub(r"\.' ?$", " . ' ")
 
     BASIC_PROTECTED_PATTERN_1 = r"<\/?\S+\/?>"
     BASIC_PROTECTED_PATTERN_2 = r'<\S+( [a-zA-Z0-9]+\="?[^"]")+ ?\/?>'
@@ -332,21 +341,24 @@ class MosesTokenizer(object):
             self.IsAlpha += cjk_chars
             self.IsAlnum += cjk_chars
             # Overwrite the alnum regexes.
-            self.PAD_NOT_ISALNUM = r"([^{}\s\.'\`\,\-])".format(self.IsAlnum), r" \1 "
-            self.AGGRESSIVE_HYPHEN_SPLIT = (
+            self.PAD_NOT_ISALNUM = make_sub(
+                r"([^{}\s\.'\`\,\-])".format(self.IsAlnum),
+                r" \1 ",
+            )
+            self.AGGRESSIVE_HYPHEN_SPLIT = make_sub(
                 r"([{alphanum}])\-(?=[{alphanum}])".format(alphanum=self.IsAlnum),
                 r"\1 @-@ ",
             )
-            self.INTRATOKEN_SLASHES = (
+            self.INTRATOKEN_SLASHES = make_sub(
                 r"([{alphanum}])\/([{alphanum}])".format(alphanum=self.IsAlnum),
                 r"$1 \@\/\@ $2",
             )
 
     def replace_multidots(self, text):
-        text = re.sub(r"\.([\.]+)", r" DOTMULTI\1", text)
+        text = self.REPLACE_DOT_WITH_LITERALSTRING_1(text)
         while re.search(r"DOTMULTI\.", text):
-            text = re.sub(r"DOTMULTI\.([^\.])", r"DOTDOTMULTI \1", text)
-            text = re.sub(r"DOTMULTI\.", "DOTDOTMULTI", text)
+            text = self.REPLACE_DOT_WITH_LITERALSTRING_2(text)
+            text = self.REPLACE_DOT_WITH_LITERALSTRING_3(text)
         return text
 
     def restore_multidots(self, text):
@@ -405,8 +417,8 @@ class MosesTokenizer(object):
         return " ".join(tokens)  # Stitch the tokens back.
 
     def escape_xml(self, text):
-        for regexp, substitution in self.MOSES_ESCAPE_XML_REGEXES:
-            text = re.sub(regexp, substitution, text)
+        for sub in self.MOSES_ESCAPE_XML_REGEXES:
+            text = sub(text)
         return text
 
     def penn_tokenize(self, text, return_str=False):
@@ -417,13 +429,13 @@ class MosesTokenizer(object):
         # Converts input string into unicode.
         text = str(text)
         # Perform a chain of regex substituitions using MOSES_PENN_REGEXES_1
-        for regexp, substitution in self.MOSES_PENN_REGEXES_1:
-            text = re.sub(regexp, substitution, text)
+        for sub in self.MOSES_PENN_REGEXES_1:
+            text = sub(text)
         # Handles nonbreaking prefixes.
         text = self.handles_nonbreaking_prefixes(text)
         # Restore ellipsis, clean extra spaces, escape XML symbols.
-        for regexp, substitution in self.MOSES_PENN_REGEXES_2:
-            text = re.sub(regexp, substitution, text)
+        for sub in self.MOSES_PENN_REGEXES_2:
+            text = sub(text)
         return text if return_str else text.split()
 
     def tokenize(
@@ -445,20 +457,19 @@ class MosesTokenizer(object):
         # Converts input string into unicode.
         text = str(text)
         # De-duplicate spaces and clean ASCII junk
-        for regexp, substitution in [self.DEDUPLICATE_SPACE, self.ASCII_JUNK]:
-            text = re.sub(regexp, substitution, text)
+        for sub in [self.DEDUPLICATE_SPACE, self.ASCII_JUNK]:
+            text = sub(text)
 
-        if protected_patterns:
-            # Find the tokens that needs to be protected.
-            protected_tokens = [
-                match.group()
-                for protected_pattern in protected_patterns
-                for match in re.finditer(protected_pattern, text, re.IGNORECASE)
-            ]
-            # Apply the protected_patterns.
-            for i, token in enumerate(protected_tokens):
-                substituition = "THISISPROTECTED" + str(i).zfill(3)
-                text = text.replace(token, substituition)
+        # Find the tokens that needs to be protected.
+        protected_tokens = [
+            match.group()
+            for protected_pattern in protected_patterns or []
+            for match in re.finditer(protected_pattern, text, re.IGNORECASE)
+        ]
+        # Apply the protected_patterns.
+        for i, token in enumerate(protected_tokens):
+            substituition = "THISISPROTECTED" + str(i).zfill(3)
+            text = text.replace(token, substituition)
 
         # Strips heading and trailing spaces.
         text = text.strip()
@@ -478,53 +489,47 @@ class MosesTokenizer(object):
         else:
         """
         # Separate special characters outside of IsAlnum character set.
-        regexp, substitution = self.PAD_NOT_ISALNUM
-        text = re.sub(regexp, substitution, text)
+        text = self.PAD_NOT_ISALNUM(text)
         # Aggressively splits dashes
         if aggressive_dash_splits:
-            regexp, substitution = self.AGGRESSIVE_HYPHEN_SPLIT
-            text = re.sub(regexp, substitution, text)
+            text = self.AGGRESSIVE_HYPHEN_SPLIT(text)
 
         # Replaces multidots with "DOTDOTMULTI" literal strings.
         text = self.replace_multidots(text)
 
         # Separate out "," except if within numbers e.g. 5,300
-        for regexp, substitution in [
+        for sub in [
             self.COMMA_SEPARATE_1,
             self.COMMA_SEPARATE_2,
             self.COMMA_SEPARATE_3,
         ]:
-            text = re.sub(regexp, substitution, text)
+            text = sub(text)
 
         # (Language-specific) apostrophe tokenization.
         if self.lang == "en":
-            for regexp, substitution in self.ENGLISH_SPECIFIC_APOSTROPHE:
-                text = re.sub(regexp, substitution, text)
-        elif self.lang in ["fr", "it"]:
-            for regexp, substitution in self.FR_IT_SPECIFIC_APOSTROPHE:
-                text = re.sub(regexp, substitution, text)
+            for sub in self.ENGLISH_SPECIFIC_APOSTROPHE:
+                text = sub(text)
+        elif self.lang in ("fr", "it"):
+            for sub in self.FR_IT_SPECIFIC_APOSTROPHE:
+                text = sub(text)
         # FIXME!!!
         ##elif self.lang == "so":
         ##    for regexp, substitution in self.SO_SPECIFIC_APOSTROPHE:
         ##        text = re.sub(regexp, substitution, text)
         else:
-            regexp, substitution = self.NON_SPECIFIC_APOSTROPHE
-            text = re.sub(regexp, substitution, text)
+            text = self.NON_SPECIFIC_APOSTROPHE(text)
 
         # Handles nonbreaking prefixes.
         text = self.handles_nonbreaking_prefixes(text)
         # Cleans up extraneous spaces.
-        regexp, substitution = self.DEDUPLICATE_SPACE
-        text = re.sub(regexp, substitution, text).strip()
+        text = self.DEDUPLICATE_SPACE(text)
         # Split trailing ".'".
-        regexp, substituition = self.TRAILING_DOT_APOSTROPHE
-        text = re.sub(regexp, substituition, text)
+        text = self.TRAILING_DOT_APOSTROPHE(text)
 
         # Restore the protected tokens.
-        if protected_patterns:
-            for i, token in enumerate(protected_tokens):
-                substituition = "THISISPROTECTED" + str(i).zfill(3)
-                text = text.replace(substituition, token)
+        for i, token in enumerate(protected_tokens):
+            substituition = "THISISPROTECTED" + str(i).zfill(3)
+            text = text.replace(substituition, token)
 
         # Restore multidots.
         text = self.restore_multidots(text)
@@ -547,24 +552,24 @@ class MosesDetokenizer(object):
     IsAlpha = str("".join(perluniprops.chars("IsAlpha")))
     IsSc = str("".join(perluniprops.chars("IsSc")))
 
-    AGGRESSIVE_HYPHEN_SPLIT = r" \@\-\@ ", r"-"
+    AGGRESSIVE_HYPHEN_SPLIT = make_sub(r" \@\-\@ ", r"-")
 
     # Merge multiple spaces.
-    ONE_SPACE = re.compile(r" {2,}"), " "
+    ONE_SPACE = make_sub(r" {2,}", " ")
 
     # Unescape special characters.
-    UNESCAPE_FACTOR_SEPARATOR = r"&#124;", r"|"
-    UNESCAPE_LEFT_ANGLE_BRACKET = r"&lt;", r"<"
-    UNESCAPE_RIGHT_ANGLE_BRACKET = r"&gt;", r">"
-    UNESCAPE_DOUBLE_QUOTE = r"&quot;", r'"'
-    UNESCAPE_SINGLE_QUOTE = r"&apos;", r"'"
-    UNESCAPE_SYNTAX_NONTERMINAL_LEFT = r"&#91;", r"["
-    UNESCAPE_SYNTAX_NONTERMINAL_RIGHT = r"&#93;", r"]"
-    UNESCAPE_AMPERSAND = r"&amp;", r"&"
+    UNESCAPE_FACTOR_SEPARATOR = make_sub(r"&#124;", r"|")
+    UNESCAPE_LEFT_ANGLE_BRACKET = make_sub(r"&lt;", r"<")
+    UNESCAPE_RIGHT_ANGLE_BRACKET = make_sub(r"&gt;", r">")
+    UNESCAPE_DOUBLE_QUOTE = make_sub(r"&quot;", r'"')
+    UNESCAPE_SINGLE_QUOTE = make_sub(r"&apos;", r"'")
+    UNESCAPE_SYNTAX_NONTERMINAL_LEFT = make_sub(r"&#91;", r"[")
+    UNESCAPE_SYNTAX_NONTERMINAL_RIGHT = make_sub(r"&#93;", r"]")
+    UNESCAPE_AMPERSAND = make_sub(r"&amp;", r"&")
     # The legacy regexes are used to support outputs from older Moses versions.
-    UNESCAPE_FACTOR_SEPARATOR_LEGACY = r"&bar;", r"|"
-    UNESCAPE_SYNTAX_NONTERMINAL_LEFT_LEGACY = r"&bra;", r"["
-    UNESCAPE_SYNTAX_NONTERMINAL_RIGHT_LEGACY = r"&ket;", r"]"
+    UNESCAPE_FACTOR_SEPARATOR_LEGACY = make_sub(r"&bar;", r"|")
+    UNESCAPE_SYNTAX_NONTERMINAL_LEFT_LEGACY = make_sub(r"&bra;", r"[")
+    UNESCAPE_SYNTAX_NONTERMINAL_RIGHT_LEGACY = make_sub(r"&ket;", r"]")
 
     MOSES_UNESCAPE_XML_REGEXES = [
         UNESCAPE_FACTOR_SEPARATOR_LEGACY,
@@ -651,19 +656,32 @@ class MosesDetokenizer(object):
         "kin",
     ]
 
-    FINNISH_REGEX = r"^({})({})?({})$".format(
+    FINNISH_REGEX = make_search(r"^({})({})?({})$".format(
         str("|".join(FINNISH_MORPHSET_1)),
         str("|".join(FINNISH_MORPHSET_2)),
         str("|".join(FINNISH_MORPHSET_3)),
-    )
+    ))
+
+    IS_SC = make_search(r"^[" + IsSc + r"\(\[\{\¿\¡]+$")
+
+    IS_PUNCT = make_search(r"^[\,\.\?\!\:\;\\\%\}\]\)]+$")
+
+    IS_FRENCH_PUNCT = make_search(r"^[\?\!\:\;\\\%]$")
+
+    IS_ENGLISH_CONTRACTION = make_search(r"^['][{}]".format(IsAlpha))
+
+    IS_NUMBER = make_search(r"^[0-9]+$")
+
+    IS_FRENCH_CONTRACTION_1 = make_search(r"[{}][']$".format(IsAlpha))
+    IS_FRENCH_CONTRACTION_2 = make_search(r"^[{}]".format(IsAlpha))
 
     def __init__(self, lang="en"):
         super(MosesDetokenizer, self).__init__()
         self.lang = lang
 
     def unescape_xml(self, text):
-        for regexp, substitution in self.MOSES_UNESCAPE_XML_REGEXES:
-            text = re.sub(regexp, substitution, text)
+        for sub in self.MOSES_UNESCAPE_XML_REGEXES:
+            text = sub(text)
         return text
 
     def tokenize(self, tokens, return_str=True, unescape=True):
@@ -678,8 +696,7 @@ class MosesDetokenizer(object):
         # Converts input string into unicode.
         text = str(text)
         # Detokenize the agressive hyphen split.
-        regexp, substitution = self.AGGRESSIVE_HYPHEN_SPLIT
-        text = re.sub(regexp, substitution, text)
+        text = self.AGGRESSIVE_HYPHEN_SPLIT(text)
         if unescape:
             # Unescape the XML symbols.
             text = self.unescape_xml(text)
@@ -705,14 +722,14 @@ class MosesDetokenizer(object):
                     detokenized_text += prepend_space + token
                 prepend_space = " "
             # If it's a currency symbol.
-            elif re.search(r"^[" + self.IsSc + r"\(\[\{\¿\¡]+$", token):
+            elif self.IS_SC(token):
                 # Perform right shift on currency and other random punctuation items
                 detokenized_text += prepend_space + token
                 prepend_space = ""
 
-            elif re.search(r"^[\,\.\?\!\:\;\\\%\}\]\)]+$", token):
+            elif self.IS_PUNCT(token):
                 # In French, these punctuations are prefixed with a non-breakable space.
-                if self.lang == "fr" and re.search(r"^[\?\!\:\;\\\%]$", token):
+                if self.lang == "fr" and self.IS_FRENCH_PUNCT(token):
                     detokenized_text += " "
                 # Perform left shift on punctuation items.
                 detokenized_text += token
@@ -721,7 +738,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "en"
                 and i > 0
-                and re.search(r"^['][{}]".format(self.IsAlpha), token)
+                and self.IS_ENGLISH_CONTRACTION(token)
             ):
                 # and re.search('[{}]$'.format(self.IsAlnum), tokens[i-1])):
                 # For English, left-shift the contraction.
@@ -731,11 +748,9 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "cs"
                 and i > 1
-                and re.search(
-                    r"^[0-9]+$", tokens[-2]
-                )  # If the previous previous token is a number.
+                and self.IS_NUMBER(tokens[-2]) # If the previous previous token is a number.
                 and re.search(r"^[.,]$", tokens[-1])  # If previous token is a dot.
-                and re.search(r"^[0-9]+$", token)
+                and self.IS_NUMBER(token)
             ):  # If the current token is a number.
                 # In Czech, left-shift floats that are decimal numbers.
                 detokenized_text += token
@@ -744,8 +759,8 @@ class MosesDetokenizer(object):
             elif (
                 self.lang in ["fr", "it", "ga"]
                 and i <= len(tokens) - 2
-                and re.search(r"[{}][']$".format(self.IsAlpha), token)
-                and re.search(r"^[{}]".format(self.IsAlpha), tokens[i + 1])
+                and self.IS_FRENCH_CONTRACTION_1(token)
+                and self.IS_FRENCH_CONTRACTION_2(tokens[i + 1])
             ):  # If the next token is alpha.
                 # For French and Italian, right-shift the contraction.
                 detokenized_text += prepend_space + token
@@ -754,13 +769,13 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "cs"
                 and i <= len(tokens) - 3
-                and re.search(r"[{}][']$".format(self.IsAlpha), token)
+                and self.IS_FRENCH_CONTRACTION_1(token)
                 and re.search(r"^[-–]$", tokens[i + 1])
                 and re.search(r"^li$|^mail.*", tokens[i + 2], re.IGNORECASE)
             ):  # In Perl, ($words[$i+2] =~ /^li$|^mail.*/i)
                 # In Czech, right-shift "-li" and a few Czech dashed words (e.g. e-mail)
                 detokenized_text += prepend_space + token + tokens[i + 1]
-                next(tokens, None)  # Advance over the dash
+                next(tokens, None)  # Advance over the dash #TODO this is a bug, tokens is a list, not the iterator!
                 prepend_space = ""
 
             # Combine punctuation smartly.
@@ -800,7 +815,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "fi"
                 and re.search(r":$", tokens[i - 1])
-                and re.search(self.FINNISH_REGEX, token)
+                and self.FINNISH_REGEX(token)
             ):
                 # Finnish : without intervening space if followed by case suffix
                 # EU:N EU:n EU:ssa EU:sta EU:hun EU:iin ...
@@ -812,8 +827,7 @@ class MosesDetokenizer(object):
                 prepend_space = " "
 
         # Merge multiple spaces.
-        regexp, substitution = self.ONE_SPACE
-        detokenized_text = re.sub(regexp, substitution, detokenized_text)
+        detokenized_text = self.ONE_SPACE(detokenized_text)
         # Removes heading and trailing spaces.
         detokenized_text = detokenized_text.strip()
 
