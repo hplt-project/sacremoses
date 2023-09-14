@@ -660,6 +660,14 @@ class MosesDetokenizer(object):
         "|".join(FINNISH_MORPHSET_3),
     ))
 
+    IS_CURRENCY_SYMBOL = re.compile(r"^[{}\(\[\{{\¿\¡]+$".format(IsSc))
+
+    IS_ENGLISH_CONTRACTION = re.compile(r"^['][{}]".format(IsAlpha))
+
+    IS_FRENCH_CONRTACTION = re.compile(r"[{}][']$".format(IsAlpha))
+
+    STARTS_WITH_ALPHA = re.compile(r"^[{}]".format(IsAlpha))
+
     def __init__(self, lang="en"):
         super(MosesDetokenizer, self).__init__()
         self.lang = lang
@@ -708,7 +716,7 @@ class MosesDetokenizer(object):
                     detokenized_text += prepend_space + token
                 prepend_space = " "
             # If it's a currency symbol.
-            elif re.search(r"^[" + self.IsSc + r"\(\[\{\¿\¡]+$", token):
+            elif re.search(self.IS_CURRENCY_SYMBOL, token):
                 # Perform right shift on currency and other random punctuation items
                 detokenized_text += prepend_space + token
                 prepend_space = ""
@@ -724,7 +732,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "en"
                 and i > 0
-                and re.search(r"^['][{}]".format(self.IsAlpha), token)
+                and re.search(self.IS_ENGLISH_CONTRACTION, token)
             ):
                 # and re.search('[{}]$'.format(self.IsAlnum), tokens[i-1])):
                 # For English, left-shift the contraction.
@@ -747,8 +755,8 @@ class MosesDetokenizer(object):
             elif (
                 self.lang in ["fr", "it", "ga"]
                 and i <= len(tokens) - 2
-                and re.search(r"[{}][']$".format(self.IsAlpha), token)
-                and re.search(r"^[{}]".format(self.IsAlpha), tokens[i + 1])
+                and re.search(self.IS_FRENCH_CONRTACTION, token)
+                and re.search(self.STARTS_WITH_ALPHA, tokens[i + 1])
             ):  # If the next token is alpha.
                 # For French and Italian, right-shift the contraction.
                 detokenized_text += prepend_space + token
@@ -757,7 +765,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "cs"
                 and i <= len(tokens) - 3
-                and re.search(r"[{}][']$".format(self.IsAlpha), token)
+                and re.search(self.IS_FRENCH_CONRTACTION, token)
                 and re.search(r"^[-–]$", tokens[i + 1])
                 and re.search(r"^li$|^mail.*", tokens[i + 2], re.IGNORECASE)
             ):  # In Perl, ($words[$i+2] =~ /^li$|^mail.*/i)
