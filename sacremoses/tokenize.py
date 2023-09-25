@@ -191,6 +191,18 @@ class MosesTokenizer(object):
         FR_IT_SPECIFIC_4,
     ]
 
+    TDT_IT_SPECIFIC_1 = r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    TDT_IT_SPECIFIC_2 = r"([^{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    TDT_IT_SPECIFIC_3 = r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
+    TDT_IT_SPECIFIC_4 = r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1'\2"
+
+    TDT_IT_SPECIFIC_APOSTROPHE = [
+        TDT_IT_SPECIFIC_1,
+        TDT_IT_SPECIFIC_2,
+        TDT_IT_SPECIFIC_3,
+        TDT_IT_SPECIFIC_4,
+    ]
+
     NON_SPECIFIC_APOSTROPHE = re.compile(r"\'"), " ' "
 
     TRAILING_DOT_APOSTROPHE = re.compile(r"\.' ?$"), " . ' "
@@ -506,6 +518,9 @@ class MosesTokenizer(object):
         elif self.lang in ["fr", "it"]:
             for regexp, substitution in self.FR_IT_SPECIFIC_APOSTROPHE:
                 text = regexp.sub(substitution, text)
+        elif self.lang == "tdt":
+            for regexp, substitution in self.TDT_IT_SPECIFIC_APOSTROPHE:
+                text = re.sub(regexp, substitution, text)
         # FIXME!!!
         ##elif self.lang == "so":
         ##    for regexp, substitution in self.SO_SPECIFIC_APOSTROPHE:
