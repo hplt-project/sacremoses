@@ -191,10 +191,10 @@ class MosesTokenizer(object):
         FR_IT_SPECIFIC_4,
     ]
 
-    TDT_IT_SPECIFIC_1 = r"([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    TDT_IT_SPECIFIC_2 = r"([^{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    TDT_IT_SPECIFIC_3 = r"([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha), r"\1 ' \2"
-    TDT_IT_SPECIFIC_4 = r"([{alpha}])[']([{alpha}])".format(alpha=IsAlpha), r"\1'\2"
+    TDT_IT_SPECIFIC_1 = re.compile("([^{alpha}])[']([^{alpha}])".format(alpha=IsAlpha)), r"\1 ' \2"
+    TDT_IT_SPECIFIC_2 = re.compile("([^{alpha}])[']([{alpha}])".format(alpha=IsAlpha)), r"\1 ' \2"
+    TDT_IT_SPECIFIC_3 = re.compile("([{alpha}])[']([^{alpha}])".format(alpha=IsAlpha)), r"\1 ' \2"
+    TDT_IT_SPECIFIC_4 = re.compile("([{alpha}])[']([{alpha}])".format(alpha=IsAlpha)), r"\1'\2"
 
     TDT_IT_SPECIFIC_APOSTROPHE = [
         TDT_IT_SPECIFIC_1,
