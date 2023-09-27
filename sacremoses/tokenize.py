@@ -660,6 +660,18 @@ class MosesDetokenizer(object):
         "|".join(FINNISH_MORPHSET_3),
     ))
 
+    IS_CURRENCY_SYMBOL = re.compile(r"^[{}\(\[\{{\¿\¡]+$".format(IsSc))
+
+    IS_ENGLISH_CONTRACTION = re.compile(r"^['][{}]".format(IsAlpha))
+
+    IS_FRENCH_CONRTACTION = re.compile(r"[{}][']$".format(IsAlpha))
+
+    STARTS_WITH_ALPHA = re.compile(r"^[{}]".format(IsAlpha))
+
+    IS_PUNCT = re.compile(r"^[\,\.\?\!\:\;\\\%\}\]\)]+$")
+
+    IS_OPEN_QUOTE = re.compile(r"""^[\'\"„“`]+$""")
+
     def __init__(self, lang="en"):
         super(MosesDetokenizer, self).__init__()
         self.lang = lang
@@ -708,12 +720,12 @@ class MosesDetokenizer(object):
                     detokenized_text += prepend_space + token
                 prepend_space = " "
             # If it's a currency symbol.
-            elif re.search(r"^[" + self.IsSc + r"\(\[\{\¿\¡]+$", token):
+            elif self.IS_CURRENCY_SYMBOL.search(token):
                 # Perform right shift on currency and other random punctuation items
                 detokenized_text += prepend_space + token
                 prepend_space = ""
 
-            elif re.search(r"^[\,\.\?\!\:\;\\\%\}\]\)]+$", token):
+            elif self.IS_PUNCT.search(token):
                 # In French, these punctuations are prefixed with a non-breakable space.
                 if self.lang == "fr" and re.search(r"^[\?\!\:\;\\\%]$", token):
                     detokenized_text += " "
@@ -724,7 +736,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "en"
                 and i > 0
-                and re.search(r"^['][{}]".format(self.IsAlpha), token)
+                and self.IS_ENGLISH_CONTRACTION.search(token)
             ):
                 # and re.search('[{}]$'.format(self.IsAlnum), tokens[i-1])):
                 # For English, left-shift the contraction.
@@ -747,8 +759,8 @@ class MosesDetokenizer(object):
             elif (
                 self.lang in ["fr", "it", "ga"]
                 and i <= len(tokens) - 2
-                and re.search(r"[{}][']$".format(self.IsAlpha), token)
-                and re.search(r"^[{}]".format(self.IsAlpha), tokens[i + 1])
+                and self.IS_FRENCH_CONRTACTION.search(token)
+                and self.STARTS_WITH_ALPHA.search(tokens[i + 1])
             ):  # If the next token is alpha.
                 # For French and Italian, right-shift the contraction.
                 detokenized_text += prepend_space + token
@@ -757,7 +769,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "cs"
                 and i <= len(tokens) - 3
-                and re.search(r"[{}][']$".format(self.IsAlpha), token)
+                and self.IS_FRENCH_CONRTACTION.search(token)
                 and re.search(r"^[-–]$", tokens[i + 1])
                 and re.search(r"^li$|^mail.*", tokens[i + 2], re.IGNORECASE)
             ):  # In Perl, ($words[$i+2] =~ /^li$|^mail.*/i)
@@ -767,7 +779,7 @@ class MosesDetokenizer(object):
                 prepend_space = ""
 
             # Combine punctuation smartly.
-            elif re.search(r"""^[\'\"„“`]+$""", token):
+            elif self.IS_OPEN_QUOTE.search(token):
                 normalized_quo = token
                 if re.search(r"^[„“”]+$", token):
                     normalized_quo = '"'
@@ -803,7 +815,7 @@ class MosesDetokenizer(object):
             elif (
                 self.lang == "fi"
                 and re.search(r":$", tokens[i - 1])
-                and re.search(self.FINNISH_REGEX, token)
+                and self.FINNISH_REGEX.search(token)
             ):
                 # Finnish : without intervening space if followed by case suffix
                 # EU:N EU:n EU:ssa EU:sta EU:hun EU:iin ...
