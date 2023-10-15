@@ -29,6 +29,7 @@ class MosesPunctNormalizer:
     NORMALIZE_UNICODE_IF_NOT_PENN = [(r"`", r"'"), (r"''", r' " ')]  # lines 33 - 34
 
     NORMALIZE_UNICODE = [  # lines 37 - 50
+        ("‘([^‘’]*?)’", r''''\1"'''),
         ("„", r'"'),
         ("“", r'"'),
         ("”", r'"'),
