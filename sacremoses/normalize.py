@@ -30,6 +30,7 @@ class MosesPunctNormalizer:
 
     NORMALIZE_UNICODE = [  # lines 37 - 50
         ("‘([^‘’]*?)’", r''''\1"'''),
+        ('"s ', r"'s "),
         ("„", r'"'),
         ("“", r'"'),
         ("”", r'"'),
