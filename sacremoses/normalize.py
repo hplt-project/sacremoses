@@ -47,10 +47,10 @@ class MosesPunctNormalizer:
     ]
 
     FRENCH_QUOTES = [  # lines 52 - 57
-        ("\u00A0«\u00A0", r'"'),
+        ("\u00A0«\u00A0", r' "'),
         ("«\u00A0", r'"'),
         ("«", r'"'),
-        ("\u00A0»\u00A0", r'"'),
+        ("\u00A0»\u00A0", r'" '),
         ("\u00A0»", r'"'),
         ("»", r'"'),
     ]
