@@ -144,7 +144,7 @@ class MosesPunctNormalizer:
         :param norm_numbers: Normalize numbers
         :type norm_numbers: bool
         :param perl_parity: exact parity with perl script
-        :type: bool
+        :type perl_parity: bool
         """
 
         if perl_parity:
