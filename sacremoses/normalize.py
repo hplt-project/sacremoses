@@ -156,7 +156,7 @@ class MosesPunctNormalizer:
             self.FRENCH_QUOTES,
             self.HANDLE_PSEUDO_SPACES,
         ]
-        
+
         if penn:  # Adds the penn substitutions after extra_whitespace regexes.
             self.substitutions.insert(1, self.NORMALIZE_UNICODE_IF_NOT_PENN)
 
