@@ -132,7 +132,7 @@ class MosesPunctNormalizer:
         norm_numbers=True,
         pre_replace_unicode_punct=False,
         post_remove_control_chars=False,
-        pearl_parity=False
+        perl_parity=False
     ):
         """
         :param language: The two-letter language code.
@@ -144,18 +144,19 @@ class MosesPunctNormalizer:
         :param norm_numbers: Normalize numbers
         :type norm_numbers: bool
         """
+
+        if perl_parity:
+            self.NORMALIZE_UNICODE[11] = ("’", r'"')
+            self.FRENCH_QUOTES[0] = ("\u00A0«\u00A0", r' "')
+            self.FRENCH_QUOTES[3] = ("\u00A0»\u00A0", r'" ')
+
         self.substitutions = [
             self.EXTRA_WHITESPACE,
             self.NORMALIZE_UNICODE,
             self.FRENCH_QUOTES,
             self.HANDLE_PSEUDO_SPACES,
         ]
-
-        if pearl_parity == True:
-            self.substitutions[1][11] = ("’", r'"')
-            self.substitutions[2][0] = ("\u00A0«\u00A0", r' "')
-            self.substitutions[2][3] = ("\u00A0»\u00A0", r'" ')
-
+        
         if penn:  # Adds the penn substitutions after extra_whitespace regexes.
             self.substitutions.insert(1, self.NORMALIZE_UNICODE_IF_NOT_PENN)
 
