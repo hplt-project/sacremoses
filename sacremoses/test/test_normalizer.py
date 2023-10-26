@@ -70,3 +70,9 @@ class TestNormalizer(unittest.TestCase):
         text = "０《１２３》      ４５６％  '' 【７８９】"
         expected = '0"123" 456% " [789]'
         assert moses_norm_unicode.normalize(text) == expected
+
+    def test_moses_normalize_with_perl_parity(self):
+        moses_perl_parity = MosesPunctNormalizer(perl_parity=True)
+        text = 'from the ‘bad bank’, Northern, wala « dox ci jawwu Les « wagonways » étaient construits'
+        expected = '''from the 'bad bank," Northern, wala "dox ci jawwu Les "wagonways" étaient construits'''
+        assert moses_perl_parity.normalize(text) == expected
