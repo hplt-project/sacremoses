@@ -333,3 +333,10 @@ class TestDetokenizer(unittest.TestCase):
             ".",
         ]
         assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
+
+    def test_tetun_dili_tokenization(self):
+        tokenizer = MosesTokenizer(lang="tdt")
+        detokenizer = MosesDetokenizer()
+        text = "Tetun (iha portugés: tétum; iha inglés: Tetum) ne'e lian nasionál no ko-ofisiál Timór Lorosa'e nian. But this apostrophe is used as a 'quote'."
+        assert tokenizer.tokenize(text) == ['Tetun', '(', 'iha', 'portugés', ':', 'tétum', ';', 'iha', 'inglés', ':', 'Tetum', ')', 'ne&apos;e', 'lian', 'nasionál', 'no', 'ko-ofisiál', 'Timór', 'Lorosa&apos;e', 'nian', '.', 'But', 'this', 'apostrophe', 'is', 'used', 'as', 'a', '&apos;', 'quote', '&apos;', '.']
+        assert detokenizer.detokenize(tokenizer.tokenize(text)) == text
