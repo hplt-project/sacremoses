@@ -132,6 +132,7 @@ class MosesPunctNormalizer:
         norm_numbers=True,
         pre_replace_unicode_punct=False,
         post_remove_control_chars=False,
+        perl_parity=False
     ):
         """
         :param language: The two-letter language code.
@@ -142,7 +143,15 @@ class MosesPunctNormalizer:
         :type norm_quote_commas: bool
         :param norm_numbers: Normalize numbers
         :type norm_numbers: bool
+        :param perl_parity: exact parity with perl script
+        :type perl_parity: bool
         """
+
+        if perl_parity:
+            self.NORMALIZE_UNICODE[11] = ("’", r'"')
+            self.FRENCH_QUOTES[0] = ("\u00A0«\u00A0", r' "')
+            self.FRENCH_QUOTES[3] = ("\u00A0»\u00A0", r'" ')
+
         self.substitutions = [
             self.EXTRA_WHITESPACE,
             self.NORMALIZE_UNICODE,
