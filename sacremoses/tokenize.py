@@ -458,6 +458,7 @@ class MosesTokenizer(object):
                 for protected_pattern in protected_patterns
                 for match in protected_pattern.finditer(text)
             ]
+            assert len(protected_tokens) <= 1000 # so we don't run out of the zfill(3) space.
 
             # Apply the protected_patterns, longest match first.
             for i, token in sorted(enumerate(protected_tokens), key=lambda pair:len(pair[1]), reverse=True):
