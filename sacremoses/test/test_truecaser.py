@@ -24,7 +24,7 @@ class TestTruecaser(unittest.TestCase):
         moses.train(docs)
         # Test all self.input_output test cases.
         for _input, _output in self.input_output.items():
-            assert moses.truecase(_input) == _output
+            self.assertEqual(moses.truecase(_input), _output)
 
     def test_moses_truecase_file(self):
         moses = MosesTruecaser()
@@ -32,7 +32,7 @@ class TestTruecaser(unittest.TestCase):
         moses.train_from_file("big.txt")
         # Test all self.input_output test cases.
         for _input, _output in self.input_output.items():
-            assert moses.truecase(_input) == _output
+            self.assertEqual(moses.truecase(_input), _output)
 
     def setUp(self):
         # Check if the Norvig's big.txt file exists.
@@ -55,7 +55,7 @@ class TestTruecaser(unittest.TestCase):
 
         # Test case where inputs are all caps.
         caps_input = "THE ADVENTURES OF SHERLOCK HOLMES"
-        expected_caps_output = ["the", "ADVENTURES", "OF", "SHERLOCK", "HOLMES"]
+        expected_caps_output = ["the", "adventures", "of", "Sherlock", "Holmes"]
 
         # Test normal input to truecase.
         normal_input = str(
