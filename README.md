@@ -1,12 +1,8 @@
 # Sacremoses
 
-[![Build Status](https://travis-ci.com/alvations/sacremoses.svg?branch=master)](https://travis-ci.org/alvations/sacremoses)
-[![Build status](https://ci.appveyor.com/api/projects/status/bwgmj4axw9pdk1oq?svg=true)](https://ci.appveyor.com/project/alvations/sacremoses)
-[![Downloads](https://static.pepy.tech/badge/sacremoses)](https://pepy.tech/project/sacremoses)
-
 # License
 
-MIT License.
+[MIT License](LICENSE).
 
 # Install
 
@@ -70,9 +66,9 @@ True
 >>> mtr = MosesTruecaser('big.truecasemodel')
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
+>>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", use_known=True)
+['the', 'ADVENTURES', 'OF', 'SHERLOCK', 'HOLMES']
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True)
-'the ADVENTURES OF SHERLOCK HOLMES'
->>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True, use_known=True)
 'the adventures of Sherlock Holmes'
 ```
 
@@ -96,7 +92,7 @@ are global options that should be set first before calling the commands:
  - quiet
 
 ```shell
-$ pip install -U sacremoses>=0.0.42
+$ pip install -U sacremoses>=0.1
 
 $ sacremoses --help
 Usage: sacremoses [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
