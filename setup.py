@@ -1,5 +1,4 @@
-from distutils.core import setup
-import setuptools
+from setuptools import setup
 
 console_scripts = """
 [console_scripts]
@@ -9,7 +8,7 @@ sacremoses=sacremoses.cli:cli
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.45',
+  version = '0.0.53',
   description = 'SacreMoses',
   long_description = 'MosesTokenizer in Python',
   author = '',
@@ -21,6 +20,7 @@ setup(
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
   ],
-  install_requires = ['regex', 'six', 'click', 'joblib', 'tqdm'],
+  install_requires = ['regex', 'click', 'joblib', 'tqdm'],
   entry_points=console_scripts,
+  python_requires='>=3.8',
 )
