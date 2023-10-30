@@ -92,11 +92,20 @@ class TestTruecaser(unittest.TestCase):
 
     def test_use_known(self):
         moses = MosesTruecaser()
-        model = moses.train([
+        moses.train([
             ['Start', 'a', 'a', 'A', 'A', 'a', 'a', '.'], # 'a' is best, but 'A' is also known.
         ])
         self.assertEqual(moses.truecase('Start A .', use_known=False), ['Start', 'a', '.'])
         self.assertEqual(moses.truecase('Start A .', use_known=True), ['Start', 'A', '.'])
+
+    def test_delayed_sentence_start(self):
+        """Test that first word after delayed sentence start still holds, and
+        thus ignores use_known for that particular token."""
+        moses = MosesTruecaser()
+        moses.train([
+            ['Start', 'Start', 'start'] # 'Start' is best, but 'start' is okay.
+        ])
+        self.assertEqual(moses.truecase('" start start', use_known=True), ['"', 'Start', 'start'])
 
 
 class TestDetruecaser(unittest.TestCase):
