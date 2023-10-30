@@ -10,20 +10,6 @@ from itertools import chain
 from sacremoses.corpus import Perluniprops
 from sacremoses.util import parallelize_preprocess, grouper
 
-# Hack to enable Python2.7 to use encoding.
-import sys
-
-if sys.version_info[0] < 3:
-    import io
-    import warnings
-
-    open = io.open
-    warnings.warn(
-        str(
-            "You should really be using Python3!!! "
-            "Tick tock, tick tock, https://pythonclock.org/"
-        )
-    )
 
 perluniprops = Perluniprops()
 
