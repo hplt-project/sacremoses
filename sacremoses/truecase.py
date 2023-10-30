@@ -287,15 +287,12 @@ class MosesTruecaser(object):
             # The actual case replacement happens here.
             # "Most frequent" case of the word.
             best_case = self.model["best"].get(token.lower(), None)
-            # Other known cases of the word.
             # If it's the start of sentence.
             if is_first_word and best_case:  # Truecase sentence start.
                 token = best_case
             elif use_known and token in self.model["known"]:  # Don't change known tokens.
-                token = token
-            elif (
-                best_case
-            ):  # Truecase otherwise unknown tokens? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
+                pass
+            elif best_case:  # Truecase otherwise unknown tokens? Heh? From https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl#L66
                 token = best_case
             # Else, it's an unknown word, don't change the word.
             # Concat the truecased `word` with the `other_factors`

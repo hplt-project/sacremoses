@@ -458,11 +458,9 @@ class MosesTokenizer(object):
                 for protected_pattern in protected_patterns
                 for match in protected_pattern.finditer(text)
             ]
-            # Apply the protected_patterns.
-            sorted_protected_tokens = sorted(list(enumerate(protected_tokens)), key=lambda pair:-len(pair[1]))
 
-            #for i, token in enumerate():
-            for i, token in sorted_protected_tokens:
+            # Apply the protected_patterns, longest match first.
+            for i, token in sorted(enumerate(protected_tokens), key=lambda pair:len(pair[1]), reverse=True):
                 substituition = "THISISPROTECTED" + str(i).zfill(3)
                 text = text.replace(token, substituition)
 
