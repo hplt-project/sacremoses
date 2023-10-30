@@ -195,6 +195,19 @@ class TestTokenzier(unittest.TestCase):
         ]
         assert moses.tokenize(text, protected_patterns=noe_patterns) == expected_tokens
 
+    def test_protect_overlapping_patterns(self):
+        """If you have two protected patterns, the order matters.""" 
+        moses = MosesTokenizer()
+        patterns = [
+            r"\w+(,\w+)+,of", # protects "this,type,of"
+            r"\w+(\-\w+)+", # protects "of-sentence-thingy"
+        ]
+        text = "What about a this,type,of-s-thingy?"
+        self.assertEqual(moses.tokenize(text, protected_patterns=patterns), 
+            ['What', 'about', 'a', 'this,type,of-s-thingy', '?'])
+        self.assertEqual(moses.tokenize(text, protected_patterns=reversed(patterns)),
+            ['What', 'about', 'a', 'this', ',', 'type', ',', 'of-s-thingy', '?'])
+
     def test_final_comma_split_after_number(self):
         moses = MosesTokenizer()
         text = "Sie sollten vor dem Upgrade eine Sicherung dieser Daten erstellen (wie unter Abschnitt 4.1.1, „Sichern aller Daten und Konfigurationsinformationen“ beschrieben). "
