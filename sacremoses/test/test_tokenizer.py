@@ -196,17 +196,17 @@ class TestTokenzier(unittest.TestCase):
         assert moses.tokenize(text, protected_patterns=noe_patterns) == expected_tokens
 
     def test_protect_overlapping_patterns(self):
-        """If you have two protected patterns, the order matters.""" 
+        """If you have two protected patterns, the order does not matter.
+        Longest matches are always replaced first.""" 
         moses = MosesTokenizer()
         patterns = [
             r"\w+(,\w+)+,of", # protects "this,type,of"
             r"\w+(\-\w+)+", # protects "of-sentence-thingy"
         ]
         text = "What about a this,type,of-s-thingy?"
-        self.assertEqual(moses.tokenize(text, protected_patterns=patterns), 
-            ['What', 'about', 'a', 'this,type,of-s-thingy', '?'])
-        self.assertEqual(moses.tokenize(text, protected_patterns=reversed(patterns)),
-            ['What', 'about', 'a', 'this', ',', 'type', ',', 'of-s-thingy', '?'])
+        expected = ['What', 'about', 'a', 'this,type,of-s-thingy', '?']
+        self.assertEqual(moses.tokenize(text, protected_patterns=patterns), expected)
+        self.assertEqual(moses.tokenize(text, protected_patterns=reversed(patterns)), expected)
 
     def test_final_comma_split_after_number(self):
         moses = MosesTokenizer()
