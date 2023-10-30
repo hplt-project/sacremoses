@@ -293,6 +293,8 @@ class MosesTokenizer(object):
         # TODO: emojis especially the multi codepoints
     ]
 
+
+
     def __init__(self, lang="en", custom_nonbreaking_prefixes_file=None):
         # Initialize the object.
         super(MosesTokenizer, self).__init__()
@@ -449,6 +451,11 @@ class MosesTokenizer(object):
         # De-duplicate spaces and clean ASCII junk
         for regexp, substitution in [self.DEDUPLICATE_SPACE, self.ASCII_JUNK]:
             text = regexp.sub(substitution, text)
+
+        if not protected_patterns:
+            # default protected patterns to avoid URLs and emails tokenization issues by default
+            protected_patterns = self.WEB_PROTECTED_PATTERNS
+            protected_patterns.extend(self.BASIC_PROTECTED_PATTERNS)
 
         if protected_patterns:
             protected_patterns = [re.compile(p, re.IGNORECASE) for p in protected_patterns]
@@ -842,3 +849,4 @@ class MosesDetokenizer(object):
 
 
 __all__ = ["MosesTokenizer", "MosesDetokenizer"]
+
