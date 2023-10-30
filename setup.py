@@ -8,12 +8,12 @@ sacremoses=sacremoses.cli:cli
 setup(
   name = 'sacremoses',
   packages = ['sacremoses'],
-  version = '0.0.53',
+  version = '0.1.0',
   description = 'SacreMoses',
   long_description = 'MosesTokenizer in Python',
   author = '',
   package_data={'sacremoses': ['data/perluniprops/*.txt', 'data/nonbreaking_prefixes/nonbreaking_prefix.*']},
-  url = 'https://github.com/alvations/sacremoses',
+  url = 'https://github.com/hplt-project/sacremoses',
   keywords = [],
   classifiers = [
     "Programming Language :: Python :: 3",
