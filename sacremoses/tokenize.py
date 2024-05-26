@@ -29,6 +29,8 @@ class MosesTokenizer(object):
         "".join(perluniprops.chars("IsAlpha")) + "".join(VIRAMAS) + "".join(NUKTAS)
     )
     IsLower = str("".join(perluniprops.chars("IsLower")))
+    AlphaSet = set(IsAlpha)
+    LowerSet = set(IsLower)
 
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = re.compile(r"\s+"), r" "
@@ -357,10 +359,10 @@ class MosesTokenizer(object):
         return re.sub(r"DOTMULTI", r".", text)
 
     def islower(self, text):
-        return not set(text).difference(set(self.IsLower))
+        return not set(text).difference(self.LowerSet)
 
     def isanyalpha(self, text):
-        return any(set(text).intersection(set(self.IsAlpha)))
+        return any(set(text).intersection(self.AlphaSet))
 
     def has_numeric_only(self, text):
         return bool(re.search(r"[\s]+(\#NUMERIC_ONLY\#)", text))
