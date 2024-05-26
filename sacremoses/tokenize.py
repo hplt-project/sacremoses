@@ -301,6 +301,10 @@ class MosesTokenizer(object):
         # TODO: emojis especially the multi codepoints
     ]
 
+    NUMERIC_ONLY = re.compile(r"[\s]+(\#NUMERIC_ONLY\#)")
+    TOKEN_ENDS_WITH_PERIOD = re.compile(r"^(\S+)\.$")
+    NUMERIC = re.compile(r"^[0-9]+")
+
     def __init__(self, lang="en", custom_nonbreaking_prefixes_file=None):
         # Initialize the object.
         super(MosesTokenizer, self).__init__()
@@ -369,7 +373,7 @@ class MosesTokenizer(object):
         return any(set(text).intersection(self.AlphaSet))
 
     def has_numeric_only(self, text):
-        return bool(re.search(r"[\s]+(\#NUMERIC_ONLY\#)", text))
+        return bool(self.NUMERIC_ONLY.search(text))
 
     def handles_nonbreaking_prefixes(self, text):
         # Splits the text into tokens to check for nonbreaking prefixes.
@@ -377,7 +381,7 @@ class MosesTokenizer(object):
         num_tokens = len(tokens)
         for i, token in enumerate(tokens):
             # Checks if token ends with a fullstop.
-            token_ends_with_period = re.search(r"^(\S+)\.$", token)
+            token_ends_with_period = self.TOKEN_ENDS_WITH_PERIOD.search(token)
             if token_ends_with_period:
                 prefix = token_ends_with_period.group(1)
                 # Checks for 3 conditions if
@@ -405,7 +409,7 @@ class MosesTokenizer(object):
                 elif (
                     prefix in self.NUMERIC_ONLY_PREFIXES
                     and (i + 1) < num_tokens
-                    and re.search(r"^[0-9]+", tokens[i + 1])
+                    and self.NUMERIC.search(tokens[i + 1])
                 ):
                     pass  # No change to the token.
                 else:  # Otherwise, adds a space after the tokens before a dot.
