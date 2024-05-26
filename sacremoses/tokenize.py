@@ -29,6 +29,8 @@ class MosesTokenizer(object):
         "".join(perluniprops.chars("IsAlpha")) + "".join(VIRAMAS) + "".join(NUKTAS)
     )
     IsLower = str("".join(perluniprops.chars("IsLower")))
+    AlphaSet = set(IsAlpha)
+    LowerSet = set(IsLower)
 
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = re.compile(r"\s+"), r" "
@@ -54,6 +56,12 @@ class MosesTokenizer(object):
     REPLACE_DOT_WITH_LITERALSTRING_1 = re.compile(r"\.([\.]+)"), " DOTMULTI\1"
     REPLACE_DOT_WITH_LITERALSTRING_2 = re.compile(r"DOTMULTI\.([^\.])"), "DOTDOTMULTI \1"
     REPLACE_DOT_WITH_LITERALSTRING_3 = re.compile(r"DOTMULTI\."), "DOTDOTMULTI"
+
+    DOTMULTI_SUBSTITUTION = re.compile(r"\.([\.]+)")
+    DOTMULTI_PATTERN = re.compile(r"DOTMULTI\.")
+    DOTMULTI_REPLACEMENT = re.compile(r"DOTMULTI\.([^\.])")
+    DOTDOTMULTI_PATTERN = re.compile(r"DOTDOTMULTI")
+    DOTMULTI_RESTORE = re.compile(r"DOTMULTI")
 
     # Separate out "," except if within numbers (5,300)
     # e.g.  A,B,C,D,E > A , B,C , D,E
@@ -293,6 +301,10 @@ class MosesTokenizer(object):
         # TODO: emojis especially the multi codepoints
     ]
 
+    NUMERIC_ONLY = re.compile(r"[\s]+(\#NUMERIC_ONLY\#)")
+    TOKEN_ENDS_WITH_PERIOD = re.compile(r"^(\S+)\.$")
+    NUMERIC = re.compile(r"^[0-9]+")
+
     def __init__(self, lang="en", custom_nonbreaking_prefixes_file=None):
         # Initialize the object.
         super(MosesTokenizer, self).__init__()
@@ -343,27 +355,25 @@ class MosesTokenizer(object):
             )
 
     def replace_multidots(self, text):
-        text = re.sub(r"\.([\.]+)", r" DOTMULTI\1", text)
-        dotmulti = re.compile(r"DOTMULTI\.")
-        while dotmulti.search(text):
-            text = re.sub(r"DOTMULTI\.([^\.])", r"DOTDOTMULTI \1", text)
-            text = dotmulti.sub("DOTDOTMULTI", text)
+        text = self.DOTMULTI_SUBSTITUTION.sub(r" DOTMULTI\1", text)
+        while self.DOTMULTI_PATTERN.search(text):
+            text = self.DOTMULTI_REPLACEMENT.sub(r"DOTDOTMULTI \1", text)
+            text = self.DOTMULTI_PATTERN.sub("DOTDOTMULTI", text)
         return text
 
     def restore_multidots(self, text):
-        dotmulti = re.compile(r"DOTDOTMULTI")
-        while dotmulti.search(text):
-            text = dotmulti.sub(r"DOTMULTI.", text)
-        return re.sub(r"DOTMULTI", r".", text)
+        while self.DOTDOTMULTI_PATTERN.search(text):
+            text = self.DOTDOTMULTI_PATTERN.sub(r"DOTMULTI.", text)
+        return self.DOTMULTI_RESTORE.sub(r".", text)
 
     def islower(self, text):
-        return not set(text).difference(set(self.IsLower))
+        return not set(text).difference(self.LowerSet)
 
     def isanyalpha(self, text):
-        return any(set(text).intersection(set(self.IsAlpha)))
+        return any(set(text).intersection(self.AlphaSet))
 
     def has_numeric_only(self, text):
-        return bool(re.search(r"[\s]+(\#NUMERIC_ONLY\#)", text))
+        return bool(self.NUMERIC_ONLY.search(text))
 
     def handles_nonbreaking_prefixes(self, text):
         # Splits the text into tokens to check for nonbreaking prefixes.
@@ -371,7 +381,7 @@ class MosesTokenizer(object):
         num_tokens = len(tokens)
         for i, token in enumerate(tokens):
             # Checks if token ends with a fullstop.
-            token_ends_with_period = re.search(r"^(\S+)\.$", token)
+            token_ends_with_period = self.TOKEN_ENDS_WITH_PERIOD.search(token)
             if token_ends_with_period:
                 prefix = token_ends_with_period.group(1)
                 # Checks for 3 conditions if
@@ -399,7 +409,7 @@ class MosesTokenizer(object):
                 elif (
                     prefix in self.NUMERIC_ONLY_PREFIXES
                     and (i + 1) < num_tokens
-                    and re.search(r"^[0-9]+", tokens[i + 1])
+                    and self.NUMERIC.search(tokens[i + 1])
                 ):
                     pass  # No change to the token.
                 else:  # Otherwise, adds a space after the tokens before a dot.
