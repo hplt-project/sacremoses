@@ -57,6 +57,12 @@ class MosesTokenizer(object):
     REPLACE_DOT_WITH_LITERALSTRING_2 = re.compile(r"DOTMULTI\.([^\.])"), "DOTDOTMULTI \1"
     REPLACE_DOT_WITH_LITERALSTRING_3 = re.compile(r"DOTMULTI\."), "DOTDOTMULTI"
 
+    DOTMULTI_SUBSTITUTION = re.compile(r"\.([\.]+)")
+    DOTMULTI_PATTERN = re.compile(r"DOTMULTI\.")
+    DOTMULTI_REPLACEMENT = re.compile(r"DOTMULTI\.([^\.])")
+    DOTDOTMULTI_PATTERN = re.compile(r"DOTDOTMULTI")
+    DOTMULTI_RESTORE = re.compile(r"DOTMULTI")
+
     # Separate out "," except if within numbers (5,300)
     # e.g.  A,B,C,D,E > A , B,C , D,E
     # First application uses up B so rule can't see B,C
@@ -345,18 +351,16 @@ class MosesTokenizer(object):
             )
 
     def replace_multidots(self, text):
-        text = re.sub(r"\.([\.]+)", r" DOTMULTI\1", text)
-        dotmulti = re.compile(r"DOTMULTI\.")
-        while dotmulti.search(text):
-            text = re.sub(r"DOTMULTI\.([^\.])", r"DOTDOTMULTI \1", text)
-            text = dotmulti.sub("DOTDOTMULTI", text)
+        text = self.DOTMULTI_SUBSTITUTION.sub(r" DOTMULTI\1", text)
+        while self.DOTMULTI_PATTERN.search(text):
+            text = self.DOTMULTI_REPLACEMENT.sub(r"DOTDOTMULTI \1", text)
+            text = self.DOTMULTI_PATTERN.sub("DOTDOTMULTI", text)
         return text
 
     def restore_multidots(self, text):
-        dotmulti = re.compile(r"DOTDOTMULTI")
-        while dotmulti.search(text):
-            text = dotmulti.sub(r"DOTMULTI.", text)
-        return re.sub(r"DOTMULTI", r".", text)
+        while self.DOTDOTMULTI_PATTERN.search(text):
+            text = self.DOTDOTMULTI_PATTERN.sub(r"DOTMULTI.", text)
+        return self.DOTMULTI_RESTORE.sub(r".", text)
 
     def islower(self, text):
         return not set(text).difference(self.LowerSet)
