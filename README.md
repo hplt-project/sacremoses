@@ -221,3 +221,7 @@ Options:
 $ sacremoses -j 4 normalize < big.txt > big.txt.norm
 100%|██████████████████████████████████| 128457/128457 [00:09<00:00, 13096.23it/s]
 ```
+
+# Acknowledgements
+
+This project has received funding from the European Union’s Horizon Europe research and innovation programme under grant agreement No 101070350 and from UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee [grant number 10052546]
