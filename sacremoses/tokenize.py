@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from itertools import chain
 
 from sacremoses.corpus import Perluniprops
 from sacremoses.corpus import NonbreakingPrefixes
@@ -29,6 +30,9 @@ class MosesTokenizer(object):
         "".join(perluniprops.chars("IsAlpha")) + "".join(VIRAMAS) + "".join(NUKTAS)
     )
     IsLower = str("".join(perluniprops.chars("IsLower")))
+
+    AlphaChars = frozenset(chain(perluniprops.chars("IsAlpha"), VIRAMAS, NUKTAS))
+    LowerChars = frozenset(perluniprops.chars("IsLower"))
 
     # Remove ASCII junk.
     DEDUPLICATE_SPACE = re.compile(r"\s+"), r" "
@@ -357,10 +361,10 @@ class MosesTokenizer(object):
         return re.sub(r"DOTMULTI", r".", text)
 
     def islower(self, text):
-        return not set(text).difference(set(self.IsLower))
+        return bool(set(text) <= self.LowerChars)
 
     def isanyalpha(self, text):
-        return any(set(text).intersection(set(self.IsAlpha)))
+        return bool(set(text) & self.AlphaChars)
 
     def has_numeric_only(self, text):
         return bool(re.search(r"[\s]+(\#NUMERIC_ONLY\#)", text))
