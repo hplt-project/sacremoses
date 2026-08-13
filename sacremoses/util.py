@@ -111,8 +111,13 @@ def is_cjk(character):
     """
     char = ord(character)
     for start, end in _CJKChars_ranges:
-        if char < end:
-            return char > start
+        # Inclusive on both ends: the ranges are closed intervals. Comparing
+        # exclusively excluded the first and last codepoint of all 11 ranges --
+        # 22 characters, including U+AC00 GA, the most common Korean syllable.
+        # The ranges are sorted, so the first one ending at or after `char`
+        # decides the answer and the loop can stop there.
+        if char <= end:
+            return char >= start
     return False
 
 

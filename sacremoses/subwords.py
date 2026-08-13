@@ -23,7 +23,9 @@ class SubwordTokenizer(object):
 
     def get_vocabulary(self, filename, is_dict=False):
         vocab = Counter()
-        with open(filename) as fin:
+        # Vocabulary/BPE files are routinely non-ASCII; do not let the
+        # platform locale decide how they decode.
+        with open(filename, encoding="utf-8") as fin:
             if is_dict:
                 for line in fin:
                     word, count = line.strip().split(" ")
