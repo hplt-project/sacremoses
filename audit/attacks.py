@@ -265,6 +265,82 @@ def a8_protected_pattern_redos():
 
 
 # ==========================================================================
+# A10 -- a third quadratic, in the one input path a caller supplies wholesale.
+# ==========================================================================
+
+
+@check("A10", "Custom nonbreaking-prefixes file loads quadratically", "CWE-407")
+def a10_custom_prefixes():
+    from measure import QUADRATIC, classify, doubling_curve
+
+    from sacremoses import MosesTokenizer
+
+    def load(size):
+        handle, path = tempfile.mkstemp(suffix=".txt")
+        os.write(handle, "\n".join("Pre%d" % i for i in range(size)).encode())
+        os.close(handle)
+        try:
+            MosesTokenizer(lang="en", custom_nonbreaking_prefixes_file=path)
+        finally:
+            os.unlink(path)
+
+    rows = doubling_curve(load, lambda n: n, start=1000, doublings=4)
+    verdict, median = classify(rows)
+    evidence = "  ".join("n=%d %.3fs" % (n, s) for n, s, _ in rows)
+    status = VULNERABLE if verdict == QUADRATIC else DEFENDED
+    return status, "%s (median %.1fx/doubling)  %s" % (verdict, median, evidence)
+
+
+# ==========================================================================
+# A11 -- BENIGN sweep. Surfaces attacked and found linear, pinned anyway.
+# ==========================================================================
+
+
+@check("A11", "Flood payloads through detok / XML / normalizer / detruecase", "CWE-407")
+def a11_benign_sweep():
+    from measure import LINEAR, classify, doubling_curve
+
+    from sacremoses import (
+        MosesDetokenizer,
+        MosesDetruecaser,
+        MosesPunctNormalizer,
+        MosesTokenizer,
+    )
+
+    detok = MosesDetokenizer(lang="en")
+    tok = MosesTokenizer(lang="en")
+    norm = MosesPunctNormalizer()
+    detrue = MosesDetruecaser()
+
+    # Each of these drives a different loop that a scanner would not connect to
+    # a regex at all. All measured linear; the point of keeping them is that a
+    # future edit to any of these loops has to stay linear.
+    cases = [
+        ("detok quotes", detok.detokenize, lambda n: ['"'] * n),
+        ("detok parens", detok.detokenize, lambda n: ["("] * n),
+        ("detok cjk", detok.detokenize, lambda n: ["我"] * n),
+        ("escape_xml", tok.escape_xml, lambda n: "&" * n),
+        ("unescape_xml", detok.unescape_xml, lambda n: "&amp;" * n),
+        ("unescape nested", detok.unescape_xml, lambda n: "&" + "amp;" * n),
+        ("detruecase", detrue.detruecase, lambda n: "a " * n),
+        ("norm brackets", norm.normalize, lambda n: "(" * n + ")" * n),
+        ("norm quotes", norm.normalize, lambda n: "„“”\xab\xbb" * n),
+        ("tokenize tabs", tok.tokenize, lambda n: "\t" * n),
+        ("tokenize at", tok.tokenize, lambda n: "a@" * n),
+        ("tokenize slash", tok.tokenize, lambda n: "/" * n),
+    ]
+    regressed = []
+    for name, func, make in cases:
+        rows = doubling_curve(func, make, start=1000, doublings=4)
+        verdict, _ = classify(rows)
+        if verdict != LINEAR:
+            regressed.append("%s=%s" % (name, verdict))
+    if regressed:
+        return VULNERABLE, "no longer linear: " + " ".join(regressed)
+    return BENIGN, "%d payloads across 4 classes, all linear" % len(cases)
+
+
+# ==========================================================================
 # A9 -- BENIGN. Recorded so a future change cannot reintroduce file loading.
 # ==========================================================================
 

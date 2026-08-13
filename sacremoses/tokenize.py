@@ -312,12 +312,19 @@ class MosesTokenizer(object):
             # (hard UnicodeDecodeError) and ca/de/es/et/fi/fr decode to silent
             # mojibake, which is worse. A caller's own prefix file is no
             # different, so pin UTF-8 here too.
+            # `line not in self.NONBREAKING_PREFIXES` scanned a growing list on
+            # every line, which is O(n**2) in the size of the caller's file: 8k
+            # prefixes took ~1s and 64k would take a minute (CWE-407). Track
+            # membership in a set instead. NONBREAKING_PREFIXES stays a list --
+            # it is public and its order is preserved -- and duplicates are
+            # still dropped, keeping the first occurrence as before.
+            seen = set()
             with open(custom_nonbreaking_prefixes_file, "r", encoding="utf-8") as fin:
                 for line in fin:
                     line = line.strip()
-                    if line and not line.startswith("#"):
-                        if line not in self.NONBREAKING_PREFIXES:
-                            self.NONBREAKING_PREFIXES.append(line)
+                    if line and not line.startswith("#") and line not in seen:
+                        seen.add(line)
+                        self.NONBREAKING_PREFIXES.append(line)
 
         self.NUMERIC_ONLY_PREFIXES = [
             w.rpartition(" ")[0]

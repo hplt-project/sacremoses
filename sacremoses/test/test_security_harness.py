@@ -32,6 +32,7 @@ import unittest
 from sacremoses.corpus import NonbreakingPrefixes, Perluniprops
 from sacremoses.normalize import MosesPunctNormalizer
 from sacremoses.tokenize import MosesDetokenizer, MosesTokenizer
+from sacremoses.truecase import MosesDetruecaser
 
 #: Ceiling for a single hostile payload. A catastrophic backtrack on these
 #: inputs runs for minutes, so this separates "linear" from "exploitable"
@@ -276,6 +277,45 @@ class QuadraticBlowups(unittest.TestCase):
             self.MAX_GROWTH,
         )
 
+    def test_custom_prefix_file_loads_linearly(self):
+        # `line not in self.NONBREAKING_PREFIXES` scanned a growing list per
+        # line. This is the one input path where a caller hands the library a
+        # whole file, so its size is entirely under their control: 8k prefixes
+        # took ~1s and 64k would have taken a minute.
+        import os
+        import tempfile
+
+        def load(size):
+            handle, path = tempfile.mkstemp(suffix=".txt")
+            os.write(handle, "\n".join("Pre%d" % i for i in range(size)).encode())
+            os.close(handle)
+            try:
+                MosesTokenizer(lang="en", custom_nonbreaking_prefixes_file=path)
+            finally:
+                os.unlink(path)
+
+        self.assertLess(self.growth(load, lambda n: n, 4000, 8000), self.MAX_GROWTH)
+        self.assertLess(elapsed(load, 64000), BUDGET_SECONDS)
+
+    def test_custom_prefix_file_semantics_unchanged(self):
+        import os
+        import tempfile
+
+        handle, path = tempfile.mkstemp(suffix=".txt")
+        os.write(
+            handle,
+            "\n".join(["# comment", "Dr", "Mr", "Dr", "", "  Prof  ", "Mr"]).encode(),
+        )
+        os.close(handle)
+        try:
+            moses = MosesTokenizer(lang="en", custom_nonbreaking_prefixes_file=path)
+        finally:
+            os.unlink(path)
+        # Order preserved, first occurrence kept, comments and blanks skipped --
+        # and still a list, which is public API.
+        self.assertEqual(moses.NONBREAKING_PREFIXES, ["Dr", "Mr", "Prof"])
+        self.assertIsInstance(moses.NONBREAKING_PREFIXES, list)
+
     def test_numeric_only_still_detects_the_marker(self):
         moses = MosesTokenizer()
         for text, expected in [
@@ -290,6 +330,74 @@ class QuadraticBlowups(unittest.TestCase):
         ]:
             with self.subTest(text=text):
                 self.assertIs(moses.has_numeric_only(text), expected)
+
+
+class BenignFloodPayloads(unittest.TestCase):
+    """Surfaces attacked in the same sweep and found linear. Kept anyway.
+
+    None of these is a finding today. They are here because each drives a
+    different loop -- detokenisation, XML escaping, detruecasing, punctuation
+    normalisation -- that no regex-shaped scan would connect to a payload at
+    all, and because the two real DoS bugs in this library were exactly that
+    kind of loop. Recording only the hits would leave nothing to notice when
+    one of these stops being linear.
+    """
+
+    def flood(self, func, payload):
+        return elapsed(func, payload)
+
+    def test_detokenizer_floods(self):
+        detok = MosesDetokenizer(lang="en")
+        for name, tokens in [
+            ("quotes", ['"'] * 20000),
+            ("open parens", ["("] * 20000),
+            ("alternating", ['"', "'"] * 10000),
+            ("cjk run", ["我"] * 20000),
+            ("dots", ["."] * 20000),
+        ]:
+            with self.subTest(payload=name):
+                self.assertLess(self.flood(detok.detokenize, tokens), BUDGET_SECONDS)
+
+    def test_xml_escaping_floods(self):
+        tok = MosesTokenizer(lang="en")
+        detok = MosesDetokenizer(lang="en")
+        for name, func, payload in [
+            ("escape &", tok.escape_xml, "&" * 200000),
+            ("unescape &amp;", detok.unescape_xml, "&amp;" * 100000),
+            # Deep nesting: the shape an entity-expansion attack would take, if
+            # this were an entity parser. It is a flat string replace, so it is
+            # linear -- pinned in case that ever changes.
+            ("unescape nested", detok.unescape_xml, "&" + "amp;" * 100000),
+        ]:
+            with self.subTest(payload=name):
+                self.assertLess(self.flood(func, payload), BUDGET_SECONDS)
+
+    def test_detruecaser_flood(self):
+        self.assertLess(
+            self.flood(MosesDetruecaser().detruecase, "a " * 100000), BUDGET_SECONDS
+        )
+
+    def test_normalizer_shape_floods(self):
+        norm = MosesPunctNormalizer()
+        for name, payload in [
+            ("nested brackets", "(" * 20000 + ")" * 20000),
+            ("mixed quotes", "„“”\xab\xbb" * 20000),
+            ("numbers and commas", "1," * 50000),
+            ("newlines", "\n" * 100000),
+        ]:
+            with self.subTest(payload=name):
+                self.assertLess(self.flood(norm.normalize, payload), BUDGET_SECONDS)
+
+    def test_tokenizer_shape_floods(self):
+        tok = MosesTokenizer(lang="en")
+        for name, payload in [
+            ("tabs", "\t" * 200000),
+            ("at signs", "a@" * 20000),
+            ("slashes", "/" * 20000),
+            ("ampersands", "&" * 20000),
+        ]:
+            with self.subTest(payload=name):
+                self.assertLess(self.flood(tok.tokenize, payload), BUDGET_SECONDS)
 
 
 class ProtectedTokenIntegrity(unittest.TestCase):
