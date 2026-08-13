@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-import pkgutil
+from sacremoses._data_nonbreaking_prefixes import NONBREAKING_PREFIXES
+from sacremoses._data_perluniprops import PERLUNIPROPS
 
 
 class Perluniprops:
@@ -14,9 +14,6 @@ class Perluniprops:
     """
 
     def __init__(self):
-        self.datadir = (
-            os.path.dirname(os.path.abspath(__file__)) + "/data/perluniprops/"
-        )
         # These are categories similar to the Perl Unicode Properties
         self.available_categories = [
             "Close_Punctuation",
@@ -59,10 +56,10 @@ class Perluniprops:
 
         :return: a generator of characters given the specific unicode character category
         """
-        relative_path = os.path.join("data", "perluniprops", category + ".txt")
-        binary_data = pkgutil.get_data("sacremoses", relative_path)
-        for ch in binary_data.decode("utf-8"):
-            yield ch
+        # Served from code, so no file is read and *category* is never
+        # interpolated into a path. An unknown category raises KeyError rather
+        # than reaching the filesystem.
+        yield from PERLUNIPROPS[category]
 
 
 class NonbreakingPrefixes:
@@ -73,9 +70,6 @@ class NonbreakingPrefixes:
     """
 
     def __init__(self):
-        self.datadir = (
-            os.path.dirname(os.path.abspath(__file__)) + "/data/nonbreaking_prefixes/"
-        )
         self.available_langs = {
             "assamese": "as",
             "bengali": "bn",
@@ -145,9 +139,9 @@ class NonbreakingPrefixes:
             filenames = ["nonbreaking_prefix.en"]
 
         for filename in filenames:
-            relative_path = os.path.join("data", "nonbreaking_prefixes", filename)
-            binary_data = pkgutil.get_data("sacremoses", relative_path)
-            for line in binary_data.decode("utf-8").splitlines():
+            # Served from code; *filename* is built from the vetted
+            # available_langs mapping and never touches the filesystem.
+            for line in NONBREAKING_PREFIXES[filename].splitlines():
                 line = line.strip()
                 if line and not line.startswith(ignore_lines_startswith):
                     yield line
