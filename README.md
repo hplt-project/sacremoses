@@ -219,3 +219,16 @@ Options:
 $ sacremoses -j 4 normalize < big.txt > big.txt.norm
 100%|██████████████████████████████████| 128457/128457 [00:09<00:00, 13096.23it/s]
 ```
+
+# Acknowledgements
+
+Sacremoses was created in April 2018 and is developed and maintained independently.
+
+Contributions made during the HPLT project, which ran from September 2022 to
+December 2025, received funding from the European Union's Horizon Europe research
+and innovation programme under grant agreement No 101070350 and from UK Research
+and Innovation (UKRI) under the UK government's Horizon Europe funding guarantee
+[grant number 10052546].
+
+Work outside that period, including the original release and the maintenance
+before and after the project, was not funded by those grants.
