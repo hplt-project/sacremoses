@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import os
 import re
 from collections import defaultdict, Counter
 from functools import partial
@@ -20,6 +21,12 @@ class MosesTruecaser(object):
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/train-truecaser.perl
     https://github.com/moses-smt/mosesdecoder/blob/master/scripts/recaser/truecase.perl
     """
+
+    #: Upper bound on distinct lowercased types read from a model file. A
+    #: model is often downloaded or shared, and loading amplifies its size
+    #: about 35x in memory, so this is a backstop against a hostile one -- not
+    #: a limit on legitimate vocabularies, which sit far below it.
+    MAX_MODEL_ENTRIES = 2_000_000
 
     # Perl Unicode Properties character sets.
     Lowercase_Letter = str("".join(perluniprops.chars("Lowercase_Letter")))
@@ -241,7 +248,10 @@ class MosesTruecaser(object):
             "\nUse Truecaser.train() to train a model.\n"
             "Or use Truecaser('modefile') to load a model."
         )
-        assert hasattr(self, "model"), check_model_message
+        # Not an assert: `python -O` strips it, and the caller would then get
+        # an opaque AttributeError deep inside the loop instead of this message.
+        if not hasattr(self, "model"):
+            raise ValueError(check_model_message)
         # Keep track of first tokens in the sentence(s) of the line.
         is_first_word = True
         truecased_tokens = []
@@ -386,17 +396,49 @@ class MosesTruecaser(object):
         :param casing: The dictionary of tokens counter from `train()`.
         :type casing: default(Counter)
         """
-        with open(filename, "w", encoding=self.encoding) as fout:
-            for token in casing:
-                total_token_count = sum(casing[token].values())
-                tokens_counts = []
-                for i, (token, count) in enumerate(casing[token].most_common()):
-                    if i == 0:
-                        out_token = "{} ({}/{})".format(token, count, total_token_count)
-                    else:
-                        out_token = "{} ({})".format(token, count, total_token_count)
-                    tokens_counts.append(out_token)
-                print(" ".join(tokens_counts), end="\n", file=fout)
+        # Write a fresh sibling file and rename it over the target, rather than
+        # truncating the target in place. Three things follow from that: a
+        # symlink at `filename` is replaced instead of being followed to
+        # whatever it points at (CWE-59), a crash mid-write cannot leave a
+        # half-written model behind, and the check-then-write race in the CLI
+        # ("if not os.path.isfile(modelfile): ... save_model(modelfile)")
+        # can no longer clobber someone else's file. O_EXCL|O_NOFOLLOW on the
+        # temporary name makes the create itself unspoofable; 0600 keeps the
+        # corpus vocabulary out of a world-readable file (CWE-732).
+        directory = os.path.dirname(os.path.abspath(filename))
+        tmpname = os.path.join(
+            directory, ".%s.%d.tmp" % (os.path.basename(filename), os.getpid())
+        )
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+        flags |= getattr(os, "O_NOFOLLOW", 0)  # not defined on Windows
+        try:
+            handle = os.open(tmpname, flags, 0o600)
+        except FileExistsError:
+            os.unlink(tmpname)
+            handle = os.open(tmpname, flags, 0o600)
+        try:
+            with open(handle, "w", encoding=self.encoding) as fout:
+                self._write_casing(casing, fout)
+            os.replace(tmpname, filename)
+        except BaseException:
+            # Never leave the scratch file behind on an error path.
+            try:
+                os.unlink(tmpname)
+            except OSError:
+                pass
+            raise
+
+    def _write_casing(self, casing, fout):
+        for token in casing:
+            total_token_count = sum(casing[token].values())
+            tokens_counts = []
+            for i, (token, count) in enumerate(casing[token].most_common()):
+                if i == 0:
+                    out_token = "{} ({}/{})".format(token, count, total_token_count)
+                else:
+                    out_token = "{} ({})".format(token, count, total_token_count)
+                tokens_counts.append(out_token)
+            print(" ".join(tokens_counts), end="\n", file=fout)
 
     def _load_model(self, filename):
         """
@@ -407,11 +449,38 @@ class MosesTruecaser(object):
         """
         casing = defaultdict(Counter)
         with open(filename, encoding=self.encoding) as fin:
-            for line in fin:
+            for lineno, line in enumerate(fin, 1):
                 line = line.strip().split()
                 for token, count in grouper(line, 2):
-                    count = count.split("/")[0].strip("()")
-                    casing[token.lower()][token] = int(count)
+                    # `grouper` pads a short final pair with None, so a line
+                    # with an odd number of fields used to surface as
+                    # `AttributeError: 'NoneType' object has no attribute
+                    # 'split'`, and a non-numeric count as a bare ValueError
+                    # from int(). A downloaded/shared .truemodel is untrusted
+                    # input, so report where it is malformed instead.
+                    if count is None:
+                        raise ValueError(
+                            "malformed truecase model %r: line %d has an odd "
+                            "number of fields (expected 'token (count/total)' "
+                            "pairs)" % (filename, lineno)
+                        )
+                    try:
+                        count = int(count.split("/")[0].strip("()"))
+                    except ValueError:
+                        raise ValueError(
+                            "malformed truecase model %r: line %d has a "
+                            "non-integer count %r" % (filename, lineno, count)
+                        ) from None
+                    casing[token.lower()][token] = count
+                if len(casing) > self.MAX_MODEL_ENTRIES:
+                    # Loading costs roughly 35x the file size in RSS, so an
+                    # oversized model is a memory-exhaustion vector (CWE-400).
+                    # Raise MAX_MODEL_ENTRIES if you genuinely have a bigger
+                    # vocabulary than this.
+                    raise ValueError(
+                        "truecase model %r exceeds MAX_MODEL_ENTRIES (%d) at "
+                        "line %d" % (filename, self.MAX_MODEL_ENTRIES, lineno)
+                    )
         # Returns the best and known object from `_casing_to_model()`
         return self._casing_to_model(casing)
 

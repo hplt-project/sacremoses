@@ -1,4 +1,4 @@
-click==7.1.2
-joblib>=1.1.0
-tqdm>=4.64.0
-regex>=2020.1.8
+click>=8.0
+joblib>=1.2.0
+tqdm>=4.66.3
+regex>=2021.8.3

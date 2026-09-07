@@ -4,16 +4,43 @@
 Tests for MosesTokenizer
 """
 
+import hashlib
 import os
 import unittest
+import urllib.error
 import urllib.request
 
 from sacremoses.truecase import MosesTruecaser, MosesDetruecaser
+
+#: Norvig's big.txt, the corpus these tests train a truecase model on. It is
+#: fetched over the network and cached on disk -- and in CI, under a static
+#: cache key -- so without an integrity check the suite trains on whatever
+#: bytes the remote host happens to return, and a truecase model shapes the
+#: capitalisation of everything downstream of it. Pinned by digest, not by URL.
+BIG_TXT_SHA256 = "fa066c7d40f0f201ac4144e652aa62430e58a6b3805ec70650f678da5804e87b"
+BIG_TXT_SIZE = 6488666
 
 
 def get_content(url):
     with urllib.request.urlopen(url) as response:
         return response.read()  # Returns http.client.HTTPResponse.
+
+
+def verify_big_txt(data):
+    """Return ``data`` if it is the expected corpus, else raise.
+
+    Raising rather than warning is deliberate: a silent fallback to unverified
+    bytes is exactly the failure this check exists to prevent.
+    """
+    digest = hashlib.sha256(data).hexdigest()
+    if len(data) != BIG_TXT_SIZE or digest != BIG_TXT_SHA256:
+        raise ValueError(
+            "big.txt failed verification: expected %d bytes / sha256 %s, "
+            "got %d bytes / sha256 %s. Delete any cached big.txt and retry; "
+            "if it persists, do not trust the source."
+            % (BIG_TXT_SIZE, BIG_TXT_SHA256, len(data), digest)
+        )
+    return data
 
 
 class TestTruecaser(unittest.TestCase):
@@ -35,23 +62,31 @@ class TestTruecaser(unittest.TestCase):
             self.assertEqual(moses.truecase(_input), _output)
 
     def setUp(self):
-        # Check if the Norvig's big.txt file exists.
+        # Check if the Norvig's big.txt file exists. A cached copy is verified
+        # too -- it may be left over from an earlier unverified run, or from CI
+        # restoring its cache.
         if os.path.isfile("big.txt"):
-            with open("big.txt") as fin:
-                self.big_txt = fin.read()
+            with open("big.txt", "rb") as fin:
+                raw = verify_big_txt(fin.read())
         else:  # Otherwise, download the big.txt.
             try:  # Download from the original norvig.com
-                self.big_txt = get_content("https://norvig.com/big.txt").decode("utf8")
-            except:  # Otherwise get it from the github gist mirror.
+                raw = verify_big_txt(get_content("https://norvig.com/big.txt"))
+            except (urllib.error.URLError, OSError, ValueError):
+                # Named exceptions, not a bare `except:` -- that swallowed
+                # KeyboardInterrupt and, worse, turned a failed integrity check
+                # into a silent fallback to the mirror.
                 big_text_url = str(
                     "https://gist.githubusercontent.com/alvations/"
                     "6e878bab0eda2624167aa7ec13fc3e94/raw/"
                     "4fb3bac1da1ba7a172ff1936e96bee3bc8892931/"
                     "big.txt"
                 )
-                self.big_txt = get_content(big_text_url).decode("utf8")
-            with open("big.txt", "w") as fout:
-                fout.write(self.big_txt)
+                raw = verify_big_txt(get_content(big_text_url))
+            # newline="" so Windows does not rewrite \n to \r\n and change the
+            # digest of the file we just verified.
+            with open("big.txt", "w", encoding="utf-8", newline="") as fout:
+                fout.write(raw.decode("utf8"))
+        self.big_txt = raw.decode("utf8")
 
         # Test case where inputs are all caps.
         caps_input = "THE ADVENTURES OF SHERLOCK HOLMES"

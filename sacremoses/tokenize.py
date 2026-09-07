@@ -306,12 +306,25 @@ class MosesTokenizer(object):
         # Load custom nonbreaking prefixes file.
         if custom_nonbreaking_prefixes_file:
             self.NONBREAKING_PREFIXES = []
-            with open(custom_nonbreaking_prefixes_file, "r") as fin:
+            # Explicit encoding: without it Python uses the locale default,
+            # which is cp1252 on Windows. 33 of the 39 bundled prefix lists are
+            # non-ASCII; el/cs/as/bn/ga/gu are not cp1252-decodable at all
+            # (hard UnicodeDecodeError) and ca/de/es/et/fi/fr decode to silent
+            # mojibake, which is worse. A caller's own prefix file is no
+            # different, so pin UTF-8 here too.
+            # `line not in self.NONBREAKING_PREFIXES` scanned a growing list on
+            # every line, which is O(n**2) in the size of the caller's file: 8k
+            # prefixes took ~1s and 64k would take a minute (CWE-407). Track
+            # membership in a set instead. NONBREAKING_PREFIXES stays a list --
+            # it is public and its order is preserved -- and duplicates are
+            # still dropped, keeping the first occurrence as before.
+            seen = set()
+            with open(custom_nonbreaking_prefixes_file, "r", encoding="utf-8") as fin:
                 for line in fin:
                     line = line.strip()
-                    if line and not line.startswith("#"):
-                        if line not in self.NONBREAKING_PREFIXES:
-                            self.NONBREAKING_PREFIXES.append(line)
+                    if line and not line.startswith("#") and line not in seen:
+                        seen.add(line)
+                        self.NONBREAKING_PREFIXES.append(line)
 
         self.NUMERIC_ONLY_PREFIXES = [
             w.rpartition(" ")[0]
@@ -342,19 +355,27 @@ class MosesTokenizer(object):
                 r"$1 \@\/\@ $2",
             )
 
+    #: A maximal run of two or more dots, and the marker it becomes.
+    MULTIDOT_RUN = re.compile(r"\.{2,}")
+    MULTIDOT_MARKER = re.compile(r"(?:DOT)+MULTI")
+
     def replace_multidots(self, text):
-        text = re.sub(r"\.([\.]+)", r" DOTMULTI\1", text)
-        dotmulti = re.compile(r"DOTMULTI\.")
-        while dotmulti.search(text):
-            text = re.sub(r"DOTMULTI\.([^\.])", r"DOTDOTMULTI \1", text)
-            text = dotmulti.sub("DOTDOTMULTI", text)
-        return text
+        # A run of k dots becomes " " + "DOT" * k + "MULTI", plus a trailing
+        # space when something follows it. This is done in a single pass: the
+        # original peeled one dot per iteration and re-scanned the whole string
+        # each time, which is O(n**2) in the length of a dot run and let a
+        # ".....'-long input burn minutes of CPU (CWE-407).
+        def to_marker(match):
+            marker = " " + "DOT" * (match.end() - match.start()) + "MULTI"
+            return marker + " " if match.end() < len(text) else marker
+
+        return self.MULTIDOT_RUN.sub(to_marker, text)
 
     def restore_multidots(self, text):
-        dotmulti = re.compile(r"DOTDOTMULTI")
-        while dotmulti.search(text):
-            text = dotmulti.sub(r"DOTMULTI.", text)
-        return re.sub(r"DOTMULTI", r".", text)
+        # Inverse of the above, also in a single pass.
+        return self.MULTIDOT_MARKER.sub(
+            lambda match: "." * ((match.end() - match.start() - 5) // 3), text
+        )
 
     def islower(self, text):
         return not set(text).difference(set(self.IsLower))
@@ -362,8 +383,44 @@ class MosesTokenizer(object):
     def isanyalpha(self, text):
         return any(set(text).intersection(set(self.IsAlpha)))
 
+    #: Upper bound on how many spans one ``protected_patterns`` call may
+    #: protect. Each protected token costs a full ``str.replace`` pass over the
+    #: text, so an unbounded count is quadratic as well as overflowing the
+    #: fixed-width placeholder.
+    MAX_PROTECTED_TOKENS = 1000
+
+    #: The placeholder stem, plus any run of the escape character after it.
+    PROTECT_MARKER = "THISISPROTECTED"
+    PROTECT_ESCAPE = "X"
+    PROTECT_MARKER_RUN = re.compile(PROTECT_MARKER + PROTECT_ESCAPE + "*")
+
+    def unused_protect_marker(self, text):
+        """Return a placeholder stem that does not already occur in ``text``.
+
+        The placeholder used to be the constant ``THISISPROTECTED000``, and the
+        input was never checked for it. Because restoring is a blind
+        ``str.replace``, text containing that literal had it rewritten into a
+        protected span -- letting whoever supplies the text relocate or
+        duplicate a URL, e-mail or handle anywhere in the output. Appending one
+        more escape character than the longest run already present makes the
+        stem unrepresentable in the input, in a single linear pass.
+        """
+        runs = self.PROTECT_MARKER_RUN.findall(text)
+        if not runs:
+            return self.PROTECT_MARKER
+        longest = max(len(run) for run in runs) - len(self.PROTECT_MARKER)
+        return self.PROTECT_MARKER + self.PROTECT_ESCAPE * (longest + 1)
+
+    #: One ``\s``, not ``[\s]+``. For a boolean test the ``+`` is redundant --
+    #: if a *run* of whitespace precedes the marker then its last character
+    #: does too -- but it made every starting position rescan the whole
+    #: whitespace run, which is O(n**2) (CWE-407): 50k spaces took 96s. This
+    #: is the same regex the 2021 ReDoS fix (8ad457e) trimmed a leading
+    #: ``(.*)`` from; the quadratic tail was left behind.
+    NUMERIC_ONLY_MARKER = re.compile(r"\s\#NUMERIC_ONLY\#")
+
     def has_numeric_only(self, text):
-        return bool(re.search(r"[\s]+(\#NUMERIC_ONLY\#)", text))
+        return bool(self.NUMERIC_ONLY_MARKER.search(text))
 
     def handles_nonbreaking_prefixes(self, text):
         # Splits the text into tokens to check for nonbreaking prefixes.
@@ -458,11 +515,25 @@ class MosesTokenizer(object):
                 for protected_pattern in protected_patterns
                 for match in protected_pattern.finditer(text)
             ]
-            assert len(protected_tokens) <= 1000 # so we don't run out of the zfill(3) space.
+            # A real check, not an ``assert``: ``python -O`` and
+            # ``PYTHONOPTIMIZE=1`` (routine in slim container images) strip
+            # asserts, and without this bound the zfill(3) placeholder space
+            # wraps -- token 1000 becomes THISISPROTECTED1000, which the
+            # restore loop matches with the i=100 placeholder first and
+            # silently corrupts. The count comes straight from the input text,
+            # so it is attacker-controlled.
+            if len(protected_tokens) > self.MAX_PROTECTED_TOKENS:
+                raise ValueError(
+                    "too many protected tokens: %d matches exceeds the limit "
+                    "of %d. Use narrower protected_patterns, or tokenize the "
+                    "text in smaller pieces."
+                    % (len(protected_tokens), self.MAX_PROTECTED_TOKENS)
+                )
+            marker = self.unused_protect_marker(text)
 
             # Apply the protected_patterns, longest match first.
             for i, token in sorted(enumerate(protected_tokens), key=lambda pair:len(pair[1]), reverse=True):
-                substituition = "THISISPROTECTED" + str(i).zfill(3)
+                substituition = marker + str(i).zfill(3)
                 text = text.replace(token, substituition)
 
         # Strips heading and trailing spaces.
@@ -528,7 +599,7 @@ class MosesTokenizer(object):
         # Restore the protected tokens.
         if protected_patterns:
             for i, token in enumerate(protected_tokens):
-                substituition = "THISISPROTECTED" + str(i).zfill(3)
+                substituition = marker + str(i).zfill(3)
                 text = text.replace(substituition, token)
 
         # Restore multidots.

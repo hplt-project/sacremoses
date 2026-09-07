@@ -148,6 +148,11 @@ class MosesPunctNormalizer:
         """
 
         if perl_parity:
+            # Copy first: these are class attributes, so assigning into them
+            # in place would rewrite the defaults for every other normalizer in
+            # the process, including ones built with perl_parity=False.
+            self.NORMALIZE_UNICODE = list(self.NORMALIZE_UNICODE)
+            self.FRENCH_QUOTES = list(self.FRENCH_QUOTES)
             self.NORMALIZE_UNICODE[11] = ("’", r'"')
             self.FRENCH_QUOTES[0] = ("\u00A0«\u00A0", r' "')
             self.FRENCH_QUOTES[3] = ("\u00A0»\u00A0", r'" ')

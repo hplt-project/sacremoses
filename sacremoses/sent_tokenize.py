@@ -53,7 +53,9 @@ class MosesSentTokenizer(object):
         # Load custom nonbreaking prefixes file.
         if custom_nonbreaking_prefixes_file:
             self.NONBREAKING_PREFIXES  = []
-            with open(custom_nonbreaking_prefixes_file, 'r') as fin:
+            # See the note in tokenize.py: the locale default is cp1252 on
+            # Windows and most prefix lists are non-ASCII.
+            with open(custom_nonbreaking_prefixes_file, 'r', encoding='utf-8') as fin:
                 for line in fin:
                     line = line.strip()
                     if line and not line.startswith("#"):

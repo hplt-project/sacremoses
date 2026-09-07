@@ -2,7 +2,7 @@
 
 # License
 
-[MIT License](LICENSE).
+MIT License.
 
 # Install
 
@@ -10,7 +10,7 @@
 pip install -U sacremoses
 ```
 
-NOTE: Sacremoses only supports Python 3 now (`sacremoses>=0.0.41`). If you're using Python 2, the last possible version is `sacremoses==0.0.40`.
+NOTE: Sacremoses only supports Python 3 now (`sacremoses>=0.0.41`); the current release requires Python 3.8+. If you're using Python 2, the last possible version is `sacremoses==0.0.40`.
 
 # Usage (Python)
 
@@ -32,7 +32,7 @@ True
 >>> expected_detokens = "This ain't funny. It's actually hillarious, yet double Ls. | [] < > [] & You're gonna shake it off? Don't?"
 >>> mt.tokenize(sent) == expected_tokens
 True
->>> md.detokenize(tokens) == expected_detokens
+>>> md.detokenize(expected_tokens) == expected_detokens
 True
 ```
 
@@ -47,18 +47,18 @@ True
 >>> mtok = MosesTokenizer(lang='en')
 
 # Save the truecase model to 'big.truecasemodel' using `save_to`
->> tokenized_docs = [mtok.tokenize(line) for line in open('big.txt')]
+>>> tokenized_docs = [mtok.tokenize(line) for line in open('big.txt')]
 >>> mtr.train(tokenized_docs, save_to='big.truecasemodel')
 
 # Save the truecase model to 'big.truecasemodel' after training
 # (just in case you forgot to use `save_to`)
 >>> mtr = MosesTruecaser()
->>> mtr.train('big.txt')
+>>> mtr.train_from_file('big.txt')
 >>> mtr.save_model('big.truecasemodel')
 
 # Truecase a string after training a model.
 >>> mtr = MosesTruecaser()
->>> mtr.train('big.txt')
+>>> mtr.train_from_file('big.txt')
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
 
@@ -66,10 +66,10 @@ True
 >>> mtr = MosesTruecaser('big.truecasemodel')
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES")
 ['the', 'adventures', 'of', 'Sherlock', 'Holmes']
->>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", use_known=True)
-['the', 'ADVENTURES', 'OF', 'SHERLOCK', 'HOLMES']
 >>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True)
 'the adventures of Sherlock Holmes'
+>>> mtr.truecase("THE ADVENTURES OF SHERLOCK HOLMES", return_str=True, use_known=True)
+'the ADVENTURES OF SHERLOCK HOLMES'
 ```
 
 ## Normalizer
@@ -92,7 +92,7 @@ are global options that should be set first before calling the commands:
  - quiet
 
 ```shell
-$ pip install -U sacremoses>=0.1
+$ pip install -U sacremoses>=0.0.42
 
 $ sacremoses --help
 Usage: sacremoses [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
@@ -141,7 +141,7 @@ Options:
   -a, --aggressive-dash-splits   Triggers dash split rules.
   -x, --xml-escape               Escape special characters for XML.
   -p, --protected-patterns TEXT  Specify file with patters to be protected in
-                                 tokenisation.
+                                 tokenisation. Special values: :basic: :web:
   -c, --custom-nb-prefixes TEXT  Specify a custom non-breaking prefixes file,
                                  add prefixes to the default ones from the
                                  specified language.
@@ -195,10 +195,8 @@ $ sacremoses detruecase --help
 Usage: sacremoses detruecase [OPTIONS]
 
 Options:
-  -j, --processes INTEGER  No. of processes.
-  -a, --is-headline        Whether the file are headlines.
-  -e, --encoding TEXT      Specify encoding of file.
-  -h, --help               Show this message and exit.
+  -a, --is-headline  Whether the file are headlines.
+  -h, --help         Show this message and exit.
 
 $ sacremoses -j 4 detruecase  < big.txt.tok.true > big.txt.tok.true.detrue
 100%|█████████████████████████████████| 128457/128457 [00:04<00:00, 26945.16it/s]
@@ -224,4 +222,13 @@ $ sacremoses -j 4 normalize < big.txt > big.txt.norm
 
 # Acknowledgements
 
-This project has received funding from the European Union’s Horizon Europe research and innovation programme under grant agreement No 101070350 and from UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee [grant number 10052546]
+Sacremoses was created in April 2018 and is developed and maintained independently.
+
+Contributions made during the HPLT project, which ran from September 2022 to
+December 2025, received funding from the European Union's Horizon Europe research
+and innovation programme under grant agreement No 101070350 and from UK Research
+and Innovation (UKRI) under the UK government's Horizon Europe funding guarantee
+[grant number 10052546].
+
+Work outside that period, including the original release and the maintenance
+before and after the project, was not funded by those grants.
