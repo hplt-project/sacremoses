@@ -269,6 +269,15 @@ class TestCliTruecase(CliTestCase):
         self.run_cli(["train-truecase", "-m", modelfile, "-p"], self.TEXT)
         self.assertTrue(model_tokens(modelfile))
 
+    def test_train_truecase_fractional_model_can_be_loaded(self):
+        modelfile = self.path("fractional.model")
+        self.run_cli(["train-truecase", "-m", modelfile, "-p"], "( Hello\n")
+        with open(modelfile, encoding="utf8") as fin:
+            self.assertEqual(fin.read(), "Hello (0.1/0.1)\n")
+        self.assertEqual(
+            self.run_cli(["truecase", "-m", modelfile], "HELLO\n"), "Hello\n"
+        )
+
     def test_train_truecase_is_asr(self):
         modelfile = self.path("asr.model")
         self.run_cli(["train-truecase", "-m", modelfile, "-a"], self.TEXT)

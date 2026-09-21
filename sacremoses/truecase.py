@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import math
 import os
 import re
 from collections import defaultdict, Counter
@@ -456,8 +457,8 @@ class MosesTruecaser(object):
                     # with an odd number of fields used to surface as
                     # `AttributeError: 'NoneType' object has no attribute
                     # 'split'`, and a non-numeric count as a bare ValueError
-                    # from int(). A downloaded/shared .truemodel is untrusted
-                    # input, so report where it is malformed instead.
+                    # from numeric conversion. Report where a downloaded or
+                    # shared .truemodel is malformed instead.
                     if count is None:
                         raise ValueError(
                             "malformed truecase model %r: line %d has an odd "
@@ -465,11 +466,20 @@ class MosesTruecaser(object):
                             "pairs)" % (filename, lineno)
                         )
                     try:
-                        count = int(count.split("/")[0].strip("()"))
+                        numeric_count = count.split("/")[0].strip("()")
+                        try:
+                            count = int(numeric_count)
+                        except ValueError:
+                            # Training can assign a sentence-initial token a
+                            # weight of 0.1. Keep integer counts exact, too.
+                            count = float(numeric_count)
+                            if not math.isfinite(count):
+                                raise ValueError
                     except ValueError:
                         raise ValueError(
                             "malformed truecase model %r: line %d has a "
-                            "non-integer count %r" % (filename, lineno, count)
+                            "non-finite or non-numeric count %r"
+                            % (filename, lineno, count)
                         ) from None
                     casing[token.lower()][token] = count
                 if len(casing) > self.MAX_MODEL_ENTRIES:
