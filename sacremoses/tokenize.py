@@ -91,8 +91,8 @@ class MosesTokenizer(object):
     # the tokens should be merged prior to parsing with a PTB-trained parser.
     # e.g. "and/or" -> "and @/@ or"
     INTRATOKEN_SLASHES = (
-        r"([{alphanum}])\/([{alphanum}])".format(alphanum=IsAlnum),
-        r"$1 \@\/\@ $2",
+        re.compile(r"([{alphanum}])\/([{alphanum}])".format(alphanum=IsAlnum)),
+        r"\1 @/@ \2",
     )
 
     # Splits final period at end of string.
@@ -352,8 +352,16 @@ class MosesTokenizer(object):
             )
             self.INTRATOKEN_SLASHES = (
                 re.compile(r"([{alphanum}])\/([{alphanum}])".format(alphanum=self.IsAlnum)),
-                r"$1 \@\/\@ $2",
+                r"\1 @/@ \2",
             )
+            # MOSES_PENN_REGEXES_1 holds the class-level INTRATOKEN_SLASHES,
+            # so swap in the CJK-aware one for this instance.
+            self.MOSES_PENN_REGEXES_1 = [
+                self.INTRATOKEN_SLASHES
+                if regexp_pair is MosesTokenizer.INTRATOKEN_SLASHES
+                else regexp_pair
+                for regexp_pair in self.MOSES_PENN_REGEXES_1
+            ]
 
     #: A maximal run of two or more dots, and the marker it becomes.
     MULTIDOT_RUN = re.compile(r"\.{2,}")
