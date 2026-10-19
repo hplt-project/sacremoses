@@ -241,6 +241,37 @@ class TestTokenzier(unittest.TestCase):
         ]
         self.assertEqual(moses.tokenize(text), expected_tokens)
 
+    def test_penn_tokenize(self):
+        # penn_tokenize used to raise AttributeError because INTRATOKEN_SLASHES
+        # was an uncompiled string instead of a compiled regex.
+        moses = MosesTokenizer()
+        self.assertEqual(moses.penn_tokenize("Hello world."), ["Hello", "world", "."])
+        self.assertEqual(
+            moses.penn_tokenize("-LRB- This is very nice -RRB-"),
+            ["-LRB-", "This", "is", "very", "nice", "-RRB-"],
+        )
+        self.assertEqual(
+            moses.penn_tokenize("He said (and/or maybe not) later.", return_str=True),
+            "He said -LRB- and @/@ or maybe not -RRB- later .",
+        )
+
+    def test_penn_tokenize_intratoken_slashes(self):
+        # Intra-token slashes are split, as in tokenizer.perl's tokenize_penn.
+        moses = MosesTokenizer()
+        self.assertEqual(moses.penn_tokenize("and/or"), ["and", "@/@", "or"])
+        self.assertEqual(moses.penn_tokenize("3/4 A/B"), ["3", "@/@", "4", "A", "@/@", "B"])
+        # Slashes that are not between two alphanumerics are left alone.
+        self.assertEqual(moses.penn_tokenize("a / b"), ["a", "/", "b"])
+
+    def test_penn_tokenize_cjk_intratoken_slashes(self):
+        # The language-specific INTRATOKEN_SLASHES must reach penn_tokenize
+        # without modifying the class-level regex list shared by all instances.
+        zh = MosesTokenizer(lang="zh")
+        self.assertEqual(zh.penn_tokenize("你好/世界"), ["你好", "@/@", "世界"])
+        self.assertEqual(zh.penn_tokenize("and/or"), ["and", "@/@", "or"])
+        self.assertIn(MosesTokenizer.INTRATOKEN_SLASHES, MosesTokenizer.MOSES_PENN_REGEXES_1)
+        self.assertNotIn(zh.INTRATOKEN_SLASHES, MosesTokenizer.MOSES_PENN_REGEXES_1)
+
 
 class TestDetokenizer(unittest.TestCase):
     def test_moses_detokenize(self):
